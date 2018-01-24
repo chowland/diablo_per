@@ -57,9 +57,7 @@ C******************************************************************************|
 
 C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
       PROGRAM DIABLO
-      INCLUDE 'mpif.h'
       INCLUDE 'header'
-      INCLUDE 'header_mpi'
       INTEGER N
 
 
@@ -71,7 +69,7 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
      &   +TIME_ARRAY(7)+TIME_ARRAY(8)*0.001
 
       IF (RANK.eq.0) THEN
-      WRITE(6,*) 
+      WRITE(6,*)
       WRITE(6,*) '             ****** WELCOME TO DIABLO ******'
       WRITE(6,*)
       WRITE(6,*) 'MPI INITIALIZED WITH ',NPROCS,' PROCESSES'
@@ -86,17 +84,17 @@ C A flag to determine if we are considering the first time-step
         DO RK_STEP=1,3
           IF (NUM_PER_DIR.EQ.3) THEN
             IF (TIME_AD_METH.EQ.1) CALL RK_PER_1
-            IF (TIME_AD_METH.EQ.2) CALL RK_PER_2            
+            IF (TIME_AD_METH.EQ.2) CALL RK_PER_2
           ELSEIF (NUM_PER_DIR.EQ.2) THEN
             IF (TIME_AD_METH.EQ.1) CALL RK_CHAN_1
-            IF (TIME_AD_METH.EQ.2) CALL RK_CHAN_2            
-            IF (TIME_AD_METH.EQ.3) CALL RK_CHAN_3            
+            IF (TIME_AD_METH.EQ.2) CALL RK_CHAN_2
+            IF (TIME_AD_METH.EQ.3) CALL RK_CHAN_3
           ELSEIF (NUM_PER_DIR.EQ.1) THEN
             IF (TIME_AD_METH.EQ.1) CALL RK_DUCT_1
-            IF (TIME_AD_METH.EQ.2) CALL RK_DUCT_2            
+            IF (TIME_AD_METH.EQ.2) CALL RK_DUCT_2
           ELSEIF (NUM_PER_DIR.EQ.0) THEN
             IF (TIME_AD_METH.EQ.1) CALL RK_CAV_1
-            IF (TIME_AD_METH.EQ.2) CALL RK_CAV_2            
+            IF (TIME_AD_METH.EQ.2) CALL RK_CAV_2
           END IF
         END DO
         TIME=TIME+DELTA_T
@@ -123,9 +121,9 @@ C A flag to determine if we are considering the first time-step
           IF (FILTER_TH(N)
      &       .AND.(MOD(TIME_STEP,FILTER_INT(N)).EQ.0)) THEN
           CALL FILTER(N)
-          END IF 
+          END IF
         END DO
-        
+
       END DO
 
 ! Calculate and display the runtime for the simulation
@@ -144,13 +142,12 @@ C A flag to determine if we are considering the first time-step
         CALL SAVE_STATS(.TRUE.)
       END IF
 
-
+      if (RANK.eq.0) then
       WRITE(6,*)
       WRITE(6,*) '        ****** Hello world!  Have a nice day! ******'
       WRITE(6,*)
+      end if
       CALL MPI_BARRIER(MPI_COMM_WORLD,IERR)
 
 
       END
-
-

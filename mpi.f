@@ -3,53 +3,53 @@
 !----*|--.---------.---------.---------.---------.---------.---------.-|------
       SUBROUTINE INIT_MPI
 C----*|--.---------.---------.---------.---------.---------.---------.-|-----|
-      INCLUDE "mpif.h"
       INCLUDE 'header'
-      INCLUDE 'header_mpi'
 
-      INTEGER DIMS(2),PERDIM(2)
-
+      INTEGER DIMS(2), PERDIM(2)
 ! This subroutine initializes all mpi variables
 
       CALL MPI_INIT(IERROR)
-     
       write(*,*) 'MPI_COMM_WORLD: ',MPI_COMM_WORLD
 
       CALL MPI_COMM_SIZE(MPI_COMM_WORLD,NPROCS,IERROR)
       CALL MPI_COMM_RANK(MPI_COMM_WORLD,RANK,IERROR)
 
-      DIMS=(/ NPROCS**0.5, NPROCS**0.5 /)
+      NP_S=NPROCS**0.5
+      RANKZ=mod(RANK,NP_S)
+      RANKY=(RANK-RANKZ)/NP_S
 
-      call MPI_CART_CREATE(MPI_COMM_WORLD,2,DIMS,PERDIM,.FALSE.,
-     &     COMM_CART,IERROR)
+      DIMS=(/NP_S,NP_S/)
+      PERDIM=(/1,1/)
 
-      PERDIM=(/0,1/)
-      call MPI_CART_SUB(COMM_CART,PERDIM,MPI_COMM_Y,IERROR)
+      call MPI_CART_CREATE(MPI_COMM_WORLD,2,DIMS,PERDIM,.FALSE.
+     &                      ,COMM_CART,IERROR)
+! In PERDIM, we put the information for the remain_dims
       PERDIM=(/1,0/)
+      call MPI_CART_SUB(COMM_CART,PERDIM,MPI_COMM_Y,IERROR)
+      PERDIM=(/0,1/)
       call MPI_CART_SUB(COMM_CART,PERDIM,MPI_COMM_Z,IERROR)
 
       call MPI_COMM_RANK(MPI_COMM_Y,RANKY,IERROR)
       call MPI_COMM_RANK(MPI_COMM_Z,RANKZ,IERROR)
 
-      if (RANK.eq.0) write(*,'(1A,1I8)') 'MPI Initialised. NPROCS: ',
-     &     NPROCS
+      if (RANK.EQ.0) write(*,*) 'MPI Initialized. NPROCS: ',NPROCS
       call MPI_BARRIER(MPI_COMM_WORLD,IERROR)
-      write(*,'(1A,4I8)') 'RANK,RANKY,RANKZ: ',RANK,RANKY,RANKZ
+      write(*,*) 'RANK,RANKY,RANKZ: ', RANK,RANKY,RANKZ
 
 C Set a string to determine which input/output files to use
 C When MPI is used, each process will read/write to files with the
 C number of their rank (+1) appended to the end of the file.
 C The string MPI_IO_NUM will be used to define the RANK+1 for each process
-        IF (NPROCS.lt.10) THEN
+        IF (NPROCS.le.10) THEN
           MPI_IO_NUM=CHAR(MOD(RANK+1,10)+48)
-        ELSE IF (NPROCS.lt.100) THEN
+        ELSE IF (NPROCS.le.100) THEN
           MPI_IO_NUM=CHAR(MOD(RANK+1,100)/10+48)
      &             //CHAR(MOD(RANK+1,10)+48)
-        ELSE IF (NPROCS.lt.1000) THEN
+        ELSE IF (NPROCS.le.1000) THEN
           MPI_IO_NUM=CHAR(MOD(RANK+1,1000)/100+48)
      &             //CHAR(MOD(RANK+1,100)/10+48)
      &             //CHAR(MOD(RANK+1,10)+48)
-        ELSE IF (NPROCS.lt.10000) THEN
+        ELSE IF (NPROCS.le.10000) THEN
           MPI_IO_NUM=CHAR(MOD(RANK+1,10000)/1000+48)
      &             //CHAR(MOD(RANK+1,1000)/100+48)
      &             //CHAR(MOD(RANK+1,100)/10+48)
@@ -60,8 +60,6 @@ C The string MPI_IO_NUM will be used to define the RANK+1 for each process
 
         MPI_NUM=RANK
 
-        NP_S=NPROCS**0.5
-
         NXM_S=NX_S-1
         NYM_S=NY_S-1
         NZM_S=NZ_S-1
@@ -71,9 +69,7 @@ C The string MPI_IO_NUM will be used to define the RANK+1 for each process
 
 
       SUBROUTINE TRANSPOSE_MPI_Z_TO_X(CA_Z,CA_X)
-      INCLUDE "mpif.h"
       INCLUDE 'header'
-      INCLUDE 'header_mpi'
 ! This subroutine initializes all mpi variables
 
 
@@ -115,7 +111,7 @@ C The string MPI_IO_NUM will be used to define the RANK+1 for each process
       ELSE
         BLOCK=DIAG + shift*dir*(1-2*MOD(DIAG/shift,2))
       END IF
-   
+
       IF (BLOCK.GT.NP_S-1) THEN
         BLOCK=MOD(BLOCK,NP_S)
       ELSE IF (BLOCK.LT.0) THEN
@@ -188,12 +184,10 @@ C The string MPI_IO_NUM will be used to define the RANK+1 for each process
       END DO
 
       RETURN
-      END       
+      END
 
       SUBROUTINE TRANSPOSE_MPI_X_TO_Z(CA_X,CA_Z)
-      INCLUDE "mpif.h"
       INCLUDE 'header'
-      INCLUDE 'header_mpi'
 ! This subroutine initializes all mpi variables
 
       COMPLEX*16 CA_Z(0:NKX_S,0:NZ+1,0:NY_S)
@@ -305,10 +299,9 @@ C The string MPI_IO_NUM will be used to define the RANK+1 for each process
       END DO
 
       RETURN
-      END       
+      END
 
       SUBROUTINE TRANSPOSE_MPI_X_TO_Y(A_X,A_Y,NX,NY,NZ,NX_S,NY_S,NZ_S)
-      INCLUDE "mpif.h"
       INCLUDE 'header_mpi'
 ! This subroutine initializes all mpi variables
 
@@ -399,10 +392,9 @@ C The string MPI_IO_NUM will be used to define the RANK+1 for each process
       END DO
 
       RETURN
-      END  
+      END
 
       SUBROUTINE TRANSPOSE_MPI_Y_TO_X(A_Y,A_X,NX,NY,NZ,NX_S,NY_S,NZ_S)
-      INCLUDE "mpif.h"
       INCLUDE 'header_mpi'
 ! This subroutine initializes all mpi variables
 
@@ -448,7 +440,7 @@ C The string MPI_IO_NUM will be used to define the RANK+1 for each process
      &        ,MPI_COMM_WORLD,STATUS,IERROR)
 
 ! Place the newly recieved data into a temporary storage array
-        I2=NX-BLOCK*(NX_S+1) 
+        I2=NX-BLOCK*(NX_S+1)
         DO I=0,MIN(I2,NX_S)
           DO K=0,NZ_S
             DO J=0,NY_S
@@ -494,9 +486,7 @@ C The string MPI_IO_NUM will be used to define the RANK+1 for each process
       END
 
       SUBROUTINE TRANSPOSE_MPI_Y_TO_Z(CA_Y,CA_Z)
-      INCLUDE "mpif.h"
       INCLUDE 'header'
-      INCLUDE 'header_mpi'
 ! This subroutine initializes all mpi variables
 
 
@@ -549,7 +539,7 @@ C The string MPI_IO_NUM will be used to define the RANK+1 for each process
 ! Get a block from the source array to be sent to another process
         SENDBUF=0.d0
         J1=(NY_S+1)*BLOCK
-        J2=NY+1-J1 
+        J2=NY+1-J1
         DO J=0,MIN(J2,NY_S)
           DO K=0,TNKZ_S
             DO I=0,NKX_S
@@ -611,15 +601,13 @@ C The string MPI_IO_NUM will be used to define the RANK+1 for each process
 
       END DO
 
-      END DO 
+      END DO
 
       RETURN
-      END 
+      END
 
       SUBROUTINE TRANSPOSE_MPI_Z_TO_Y(CA_Z,CA_Y)
-      INCLUDE "mpif.h"
       INCLUDE 'header'
-      INCLUDE 'header_mpi'
 ! This subroutine initializes all mpi variables
 
       complex*16 CA_Z(0:NKX_S,0:NZ+1,0:NY_S)
@@ -656,7 +644,7 @@ C The string MPI_IO_NUM will be used to define the RANK+1 for each process
       do dir=dir_min,1,2
 
       IF (SHIFT.eq.0) THEN
-         BLOCK=DIAG 
+         BLOCK=DIAG
       ELSE
         BLOCK=DIAG + shift*dir*(1-2*MOD(DIAG/shift,2))
       END IF
@@ -669,8 +657,8 @@ C The string MPI_IO_NUM will be used to define the RANK+1 for each process
 
 ! Get a block from the source array to be sent to another process
         SENDBUF=0.d0
-        K1=(TNKZ_S+1)*BLOCK 
-        K2=NZ+1-K1 
+        K1=(TNKZ_S+1)*BLOCK
+        K2=NZ+1-K1
         DO J=0,NY_S
           DO K=0,MIN(K2,TNKZ_S)
             DO I=0,NKX_S
@@ -700,7 +688,7 @@ C The string MPI_IO_NUM will be used to define the RANK+1 for each process
             END DO
           END DO
         END DO
- 
+
         ELSE
 ! Here block=diag, we just need to copy locally from A->B
           IF (RANK.eq.0) THEN
@@ -732,7 +720,7 @@ C The string MPI_IO_NUM will be used to define the RANK+1 for each process
 
 
       RETURN
-      END  
+      END
 
 
 
@@ -743,8 +731,6 @@ C The string MPI_IO_NUM will be used to define the RANK+1 for each process
 ! The subroutine should be called with the velocity in physical space
 
       include 'header'
-      INCLUDE "mpif.h"
-      include 'header_mpi'
 
       real*8 vel
       real*8 dt_local,dt_test
@@ -770,7 +756,7 @@ C The string MPI_IO_NUM will be used to define the RANK+1 for each process
               dt_x=abs(cfl*DX_TH(i)/abs(U1(i,k,j)))
             ELSE
               dt_x=999.d0
-            END IF 
+            END IF
             IF (U2(i,k,j).ne.0.d0) then
               dt_y=abs(cfl*DY_TH(j)/abs(U2(i,k,j)))
             ELSE
@@ -784,7 +770,7 @@ C The string MPI_IO_NUM will be used to define the RANK+1 for each process
               dt_z=abs(cfl*DZ_TH(k)/abs(U3(i,k,j)))
             ELSE
               dt_z=999.d0
-            END IF 
+            END IF
             dt_local=min(dt_local,dt_x,dt_y,dt_z)
           end do
         end do
@@ -806,7 +792,7 @@ C The string MPI_IO_NUM will be used to define the RANK+1 for each process
 !       CALL MPI_RECV(dt_test,1,MPI_DOUBLE_PRECISION,RANK-1,1
 !     &     ,MPI_COMM_WORLD
 !     &     ,STATUS,IERROR)
-!       dt=min(dt,dt_test) 
+!       dt=min(dt,dt_test)
 !       CALL MPI_SEND(dt,1,MPI_DOUBLE_PRECISION,RANK+1,1
 !     &     ,MPI_COMM_WORLD
 !     &     ,IERROR)
@@ -814,7 +800,7 @@ C The string MPI_IO_NUM will be used to define the RANK+1 for each process
 !        CALL MPI_RECV(dt_test,1,MPI_DOUBLE_PRECISION,RANK-1,1
 !     &     ,MPI_COMM_WORLD
 !     &     ,STATUS,IERROR)
-!        dt=min(dt,dt_test) 
+!        dt=min(dt,dt_test)
 !      END IF
 ! Now, the process with RANK=NPROCS-1 has the minimum dt
 ! share this with the other processes
@@ -870,8 +856,6 @@ C The string MPI_IO_NUM will be used to define the RANK+1 for each process
 ! each Runge-Kutta substep
 
       include 'header'
-      INCLUDE "mpif.h"
-      include 'header_mpi'
 
       integer i,j,k,N
 
@@ -1059,8 +1043,6 @@ C The string MPI_IO_NUM will be used to define the RANK+1 for each process
 ! each Runge-Kutta substep
 
       include 'header'
-      INCLUDE "mpif.h"
-      include 'header_mpi'
 
       integer i,j,k,N
 
@@ -1177,7 +1159,6 @@ C [ b1  c1   0   0   0 ...
 C [ a2  b2  c2   0   0 ...
 C [  0  a3  b3   c3  0 ...
 
-      INCLUDE "mpif.h"
       INCLUDE 'header_mpi'
 
       INTEGER I,J,NX,NY
@@ -1208,7 +1189,7 @@ C Unpack the data
         END DO
        END IF
 
-! For all processes, solve from 2..NY 
+! For all processes, solve from 2..NY
         DO J=2,NY
           DO I=0,NX-1
             A(I,J)=-A(I,J)/B(I,J-1)
@@ -1246,7 +1227,6 @@ C [ b1  c1   0   0   0 ...
 C [ a2  b2  c2   0   0 ...
 C [  0  a3  b3   c3  0 ...
 
-      INCLUDE "mpif.h"
       INCLUDE 'header_mpi'
 
       INTEGER I,J,NX,NY
@@ -1277,7 +1257,7 @@ C Unpack the data
         END DO
        END IF
 
-! For all processes, solve from 2..NY 
+! For all processes, solve from 2..NY
         DO J=2,NY
           DO I=0,NX
             A(I,J)=-A(I,J)/B(I,J-1)
@@ -1316,7 +1296,6 @@ C [ b1  c1   0   0   0 ...
 C [ a2  b2  c2   0   0 ...
 C [  0  a3  b3   c3  0 ...
 
-      INCLUDE "mpif.h"
       INCLUDE 'header_mpi'
 
       INTEGER I,J,NX,NY
@@ -1369,7 +1348,6 @@ C [ b1  c1   0   0   0 ...
 C [ a2  b2  c2   0   0 ...
 C [  0  a3  b3   c3  0 ...
 
-      INCLUDE "mpif.h"
       INCLUDE 'header_mpi'
 
       INTEGER I,J,NX,NY
@@ -1419,8 +1397,6 @@ C All processes solve from NY-1..0
 C----*|--.---------.---------.---------.---------.---------.---------.-|-----|
 C Initialize any constants here
       INCLUDE 'header'
-      INCLUDE "mpif.h"
-      INCLUDE 'header_mpi'
 
       INTEGER J, N
 
@@ -1490,8 +1466,6 @@ C Initialize any constants here
 ! This subroutine applies the boundary conditions to the
 ! scalar fields prior to the implicit solve
       INCLUDE 'header'
-      INCLUDE "mpif.h"
-      INCLUDE 'header_mpi'
       INTEGER N
 ! We first need to check to see which processor we are, if we are
 ! the upper or lowermost process, then apply boundary conditions
@@ -1510,8 +1484,6 @@ C Initialize any constants here
 ! This subroutine applies the boundary conditions to the
 ! scalar fields prior to the implicit solve
       INCLUDE 'header'
-      INCLUDE "mpif.h"
-      INCLUDE 'header_mpi'
       INTEGER N,K
 ! We first need to check to see which processor we are, if we are
 ! the upper or lowermost process, then apply boundary conditions
@@ -1531,8 +1503,6 @@ C Initialize any constants here
 ! velocity field prior to the implicit solve
 ! Note, MATL, MATD, etc. are dimensioned in header
       INCLUDE 'header'
-      INCLUDE "mpif.h"
-      INCLUDE 'header_mpi'
 ! We first need to check to see which processor we are, if we are
 ! the upper or lowermost process, then apply boundary conditions
         IF (RANK.eq.0) THEN
@@ -1540,7 +1510,7 @@ C Initialize any constants here
           CALL APPLY_BC_2_LOWER(MATL,MATD,MATU,VEC)
         END IF
         IF (RANK.eq.NPROCS-1) THEN
-! If we have the highest plane, apply the boundary conditions 
+! If we have the highest plane, apply the boundary conditions
           CALL APPLY_BC_2_UPPER(MATL,MATD,MATU,VEC)
         END IF
       RETURN
@@ -1552,8 +1522,6 @@ C Initialize any constants here
 ! Note, MATL, MATD, etc. are dimensioned in header
       integer K
       INCLUDE 'header'
-      INCLUDE "mpif.h"
-      INCLUDE 'header_mpi'
 ! We first need to check to see which processor we are, if we are
 ! the upper or lowermost process, then apply boundary conditions
         IF (RANK.eq.0) THEN
@@ -1561,7 +1529,7 @@ C Initialize any constants here
           CALL APPLY_BC_2_LOWER_C(MATL_C,MATD_C,MATU_C,VEC_C,K)
         END IF
         IF (RANK.eq.NPROCS-1) THEN
-! If we have the highest plane, apply the boundary conditions 
+! If we have the highest plane, apply the boundary conditions
           CALL APPLY_BC_2_UPPER_C(MATL_C,MATD_C,MATU_C,VEC_C,K)
         END IF
       RETURN
@@ -1571,8 +1539,6 @@ C Initialize any constants here
 ! velocity field prior to the implicit solve
 ! Note, MATL, MATD, etc. are dimensioned in header
       INCLUDE 'header'
-      INCLUDE "mpif.h"
-      INCLUDE 'header_mpi'
 ! We first need to check to see which processor we are, if we are
 ! the upper or lowermost process, then apply boundary conditions
         IF (RANK.eq.0) THEN
@@ -1580,7 +1546,7 @@ C Initialize any constants here
           CALL APPLY_BC_1_LOWER(MATL,MATD,MATU,VEC)
         END IF
         IF (RANK.eq.NPROCS-1) THEN
-! If we have the highest plane, apply the boundary conditions 
+! If we have the highest plane, apply the boundary conditions
           CALL APPLY_BC_1_UPPER(MATL,MATD,MATU,VEC)
         END IF
       RETURN
@@ -1591,8 +1557,6 @@ C Initialize any constants here
 ! Note, MATL, MATD, etc. are dimensioned in header
       integer k
       INCLUDE 'header'
-      INCLUDE "mpif.h"
-      INCLUDE 'header_mpi'
 ! We first need to check to see which processor we are, if we are
 ! the upper or lowermost process, then apply boundary conditions
         IF (RANK.eq.0) THEN
@@ -1600,7 +1564,7 @@ C Initialize any constants here
           CALL APPLY_BC_1_LOWER_C(MATL_C,MATD_C,MATU_C,VEC_C,K)
         END IF
         IF (RANK.eq.NPROCS-1) THEN
-! If we have the highest plane, apply the boundary conditions 
+! If we have the highest plane, apply the boundary conditions
           CALL APPLY_BC_1_UPPER_C(MATL_C,MATD_C,MATU_C,VEC_C,K)
         END IF
       RETURN
@@ -1610,8 +1574,6 @@ C Initialize any constants here
 ! velocity field prior to the implicit solve
 ! Note, MATL, MATD, etc. are dimensioned in header
       INCLUDE 'header'
-      INCLUDE "mpif.h"
-      INCLUDE 'header_mpi'
 ! We first need to check to see which processor we are, if we are
 ! the upper or lowermost process, then apply boundary conditions
         IF (RANK.eq.0) THEN
@@ -1619,7 +1581,7 @@ C Initialize any constants here
           CALL APPLY_BC_3_LOWER(MATL,MATD,MATU,VEC)
         END IF
         IF (RANK.eq.NPROCS-1) THEN
-! If we have the highest plane, apply the boundary conditions 
+! If we have the highest plane, apply the boundary conditions
           CALL APPLY_BC_3_UPPER(MATL,MATD,MATU,VEC)
         END IF
       RETURN
@@ -1630,8 +1592,6 @@ C Initialize any constants here
 ! Note, MATL, MATD, etc. are dimensioned in header
       integer K
       INCLUDE 'header'
-      INCLUDE "mpif.h"
-      INCLUDE 'header_mpi'
 ! We first need to check to see which processor we are, if we are
 ! the upper or lowermost process, then apply boundary conditions
         IF (RANK.eq.0) THEN
@@ -1639,7 +1599,7 @@ C Initialize any constants here
           CALL APPLY_BC_3_LOWER_C(MATL_C,MATD_C,MATU_C,VEC_C,K)
         END IF
         IF (RANK.eq.NPROCS-1) THEN
-! If we have the highest plane, apply the boundary conditions 
+! If we have the highest plane, apply the boundary conditions
           CALL APPLY_BC_3_UPPER_C(MATL_C,MATD_C,MATU_C,VEC_C,K)
         END IF
       RETURN
@@ -1650,8 +1610,6 @@ C Initialize any constants here
 ! This subroutine applies the boundary conditions for the Poisson Eq.
 ! Note, MATL, MATD, etc. are dimensioned in header
       INCLUDE 'header'
-      INCLUDE "mpif.h"
-      INCLUDE 'header_mpi'
       INTEGER I,K
 ! We first need to check to see which processor we are, if we are
 ! the upper or lowermost process, then apply boundary conditions
@@ -1692,8 +1650,6 @@ C Apply the boundary conditions
 ! This subroutine applies the boundary conditions for the Poisson Eq.
 ! Note, MATL, MATD, etc. are dimensioned in header
       INCLUDE 'header'
-      INCLUDE "mpif.h"
-      INCLUDE 'header_mpi'
       INTEGER I,K
 ! We first need to check to see which processor we are, if we are
 ! the upper or lowermost process, then apply boundary conditions
@@ -1730,8 +1686,6 @@ C prevent the tridiagonal matrix from becomming singular for i,k=0
 ! This subroutine applies the boundary conditions for the Poisson Eq.
 ! Note, MATL, MATD, etc. are dimensioned in header
       INCLUDE 'header'
-      INCLUDE "mpif.h"
-      INCLUDE 'header_mpi'
 
 ! Apply Boundary conditions to velocity field
       IF (RANK.EQ.0) THEN
@@ -1746,9 +1700,7 @@ C prevent the tridiagonal matrix from becomming singular for i,k=0
 
 
       SUBROUTINE MPI_IO_READ(FNAME,FNAME_TH,FNAME_P)
-      include 'mpif.h'
       INCLUDE 'header'
-      include 'header_mpi'
 
       CHARACTER*60 FNAME
       CHARACTER*60 FNAME_P
@@ -1781,9 +1733,9 @@ C prevent the tridiagonal matrix from becomming singular for i,k=0
 ! Check to make sure that the array dimensions match
       NKX_T=NX_T/3
       TNKZ_T=2*(NZ_T/3)
-      IF ((NX .NE. NX_T) .OR. (NY .NE. NY_T) .OR. (NZ .NE. NZ_T)) then
-           write(*,*) 'NX,NY,NZ: ',NX,NY,NZ
-           write(*,*) 'NX_T,NY_T,NZ_T: ',NX_T,NY_T,NZ_T
+      IF ((NX .NE. NX_T).OR.(NY .NE. NY_T).OR.(NZ .NE. NZ_T)) then
+           if (RANK.eq.0) write(*,*) 'NX,NY,NZ: ',NX,NY,NZ
+           if (RANK.eq.0) write(*,*) 'NX_T,NY_T,NZ_T: ',NX_T,NY_T,NZ_T
            STOP 'Error: old flowfield wrong dimensions. '
       END IF
       IF (NUM_PER_DIR .NE. NUM_PER_DIR_T)
@@ -1988,14 +1940,12 @@ C prevent the tridiagonal matrix from becomming singular for i,k=0
       END IF
 
 
-      RETURN 
+      RETURN
       END
 
 
       SUBROUTINE MPI_IO_WRITE(FNAME,FNAME_TH,FNAME_P)
-      include 'mpif.h'
       INCLUDE 'header'
-      include 'header_mpi'
 
       CHARACTER*60 FNAME
       CHARACTER*60 FNAME_P
@@ -2010,13 +1960,13 @@ C prevent the tridiagonal matrix from becomming singular for i,k=0
 ! Write velocity field to diablo.saved
       IF (NUM_PER_DIR.EQ.3) THEN
       CALL MPI_FILE_OPEN(MPI_COMM_WORLD, FNAME
-     &                   , MPI_MODE_CREATE + MPI_MODE_EXCL 
+     &                   , MPI_MODE_CREATE + MPI_MODE_EXCL
      &                     + MPI_MODE_WRONLY
      &                   , MPI_INFO_NULL, fh, IERROR)
       CALL MPI_BARRIER(MPI_COMM_WORLD,IERR)
       IF (IERROR.NE.0) THEN
         WRITE(*,*) '****ERROR***** OUTPUT FILE EXISTS: ',FNAME
-        STOP 
+        STOP
 !        write(*,*) 'WARNING, FILE EXISTS, RANK=',RANK
 !        CALL MPI_BARRIER(MPI_COMM_WORLD,IERR)
 !        IF (RANK.eq.0) THEN
@@ -2024,10 +1974,10 @@ C prevent the tridiagonal matrix from becomming singular for i,k=0
 !        END IF
 !        CALL MPI_BARRIER(MPI_COMM_WORLD,IERR)
 !        CALL MPI_FILE_OPEN(MPI_COMM_WORLD, FNAME
-!     &                   , MPI_MODE_CREATE + MPI_MODE_EXCL 
+!     &                   , MPI_MODE_CREATE + MPI_MODE_EXCL
 !     &                     + MPI_MODE_WRONLY
 !     &                   , MPI_INFO_NULL, fh, IERROR)
-      END IF  
+      END IF
 
 !      IF (IERROR.NE.0) THEN
 !        write(*,*) 'FNAME: ',FNAME
@@ -2166,23 +2116,23 @@ C prevent the tridiagonal matrix from becomming singular for i,k=0
 
       DO N=1,N_TH
       CALL MPI_FILE_OPEN(MPI_COMM_WORLD, FNAME_TH(N)
-     &                   , MPI_MODE_CREATE + MPI_MODE_EXCL 
+     &                   , MPI_MODE_CREATE + MPI_MODE_EXCL
      &                     + MPI_MODE_WRONLY
      &                   , MPI_INFO_NULL, fh_th(N), IERROR)
       CALL MPI_BARRIER(MPI_COMM_WORLD,IERR)
       IF (IERROR.NE.0) THEN
         WRITE(*,*) '****ERROR***** OUTPUT FILE EXISTS: ',FNAME_TH(N)
-        STOP 
+        STOP
 !        CALL MPI_BARRIER(MPI_COMM_WORLD,IERR)
 !        IF (RANK.eq.0) THEN
 !          CALL SYSTEM('rm -f '//FNAME_TH(N))
 !        END IF
 !        CALL MPI_BARRIER(MPI_COMM_WORLD,IERR)
 !        CALL MPI_FILE_OPEN(MPI_COMM_WORLD, FNAME_TH(N)
-!     &                   , MPI_MODE_CREATE + MPI_MODE_EXCL 
+!     &                   , MPI_MODE_CREATE + MPI_MODE_EXCL
 !     &                     + MPI_MODE_WRONLY
 !     &                   , MPI_INFO_NULL, fh_th(N), IERROR)
-      END IF  
+      END IF
 
 !      IF (IERROR.NE.0) THEN
 !        write(*,*) 'FNAME_TH: ',FNAME_TH(N)
@@ -2283,7 +2233,7 @@ C prevent the tridiagonal matrix from becomming singular for i,k=0
 !        END IF
 !        CALL MPI_BARRIER(MPI_COMM_WORLD,IERR)
 !        CALL MPI_FILE_OPEN(MPI_COMM_WORLD, FNAME_P
-!     &                   , MPI_MODE_CREATE + MPI_MODE_EXCL 
+!     &                   , MPI_MODE_CREATE + MPI_MODE_EXCL
 !     &                     + MPI_MODE_WRONLY
 !     &                   , MPI_INFO_NULL, fh_p, IERROR)
       END IF
@@ -2373,4 +2323,3 @@ C prevent the tridiagonal matrix from becomming singular for i,k=0
 
       RETURN
       END
-

@@ -46,7 +46,7 @@ C        END DO
 C
 C includes all the Fourier coefficients of interest.  The subsequent loops in
 C Fourier space just work on these coefficients in the matrix.
-C  
+C
 C Before a Fourier->Real transform, the significant coefficients are unpacked
 C and the higher wavenumbers are SET TO ZERO before the inverse transform.
 C This has the effect of doing the required dealiasing.
@@ -57,10 +57,7 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
       SUBROUTINE INIT_FFT_TH
 C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
 
-      INCLUDE "mpif.h"
-
       INCLUDE 'header'
-      INCLUDE 'header_mpi'
       INTEGER I,J,K
 
       INTEGER         FFTW_FORWARD,      FFTW_BACKWARD,
@@ -73,7 +70,7 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
      *                FFTW_USE_WISDOM=16,   FFTW_THREADSAFE=128 )
 
       IF (RANK.eq.0) then
-        WRITE(6,*) 'Initializing FFTW package.'
+        WRITE(6,*) 'Initializing FFTW package for scalar.'
       END IF
 
       PI = 4. * ATAN(1.0)
@@ -162,7 +159,7 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
       END IF
 
       IF (RANK.eq.0) THEN
-        WRITE(6,*) 'FFTW package initialized.'
+        WRITE(6,*) 'FFTW package initialized for scalar.'
       END IF
 
       RETURN
@@ -179,8 +176,6 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
 C This routine transforms (in 1 direction) planes JMIN-JMAX to Fourier space.
 C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
       INCLUDE 'header'
-      INCLUDE "mpif.h"
-      include 'header_mpi'
 
       INTEGER JMIN, JMAX, KMIN, KMAX, I, J, K
 C Input array is in Fourier space and local in X
@@ -190,15 +185,15 @@ C Output array is in physical space and local in Y
 
 C Intermediate arrays local X, and Z, These are all equivalenced
       REAL*8 U_X(0:NX_TH+1,0:NZ_S_TH,0:NY_S_TH)
-      COMPLEX*16 CU_X(0:NX_TH/2,0:NZ_S_TH,0:NY_S_TH) 
+      COMPLEX*16 CU_X(0:NX_TH/2,0:NZ_S_TH,0:NY_S_TH)
 
 C CU_Y and CU_Z can't be equivalenced since they are used
 C in the transpose routines
       COMPLEX*16 CU_Y(0:NX_S_TH/2,0:NZ_S_TH,0:NY_TH+1)
       COMPLEX*16 CU_Z(0:NX_S_TH/2,0:NZ_TH+1,0:NY_S_TH)
- 
+
 C Equivalence the intermediate arrrays to avoid wasting memory
-C The FFTs are done in-place, so this is safe 
+C The FFTs are done in-place, so this is safe
       EQUIVALENCE(CU_X,U_X)
 
 C Inverse transform in the x-direction:
@@ -252,9 +247,7 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
 C This routine transforms (in 1 direction) planes JMIN-JMAX to Fourier space.
 C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
       INCLUDE 'header'
-      INCLUDE "mpif.h"
-      include 'header_mpi'
- 
+
       INTEGER JMIN, JMAX, KMIN, KMAX, I, J, K
 C Input array is in Physical space and local in X
       REAL*8     U (0:NX_TH+1,0:NZ_S_TH,0:NY_S_TH+1)
@@ -310,7 +303,7 @@ C FFT in the y-direction:
             CU(I,K,J)=0.d0
           END DO
         END DO
-      END DO 
+      END DO
 
       RETURN
       END
@@ -323,9 +316,7 @@ C This routine transforms along the z direction to Fourier space
 C The input and output are real arrays with the input array packed
 C to contain both the real and imagingary parts of the transformed array
 C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
-      INCLUDE "mpif.h"
       INCLUDE 'header'
-      INCLUDE 'header_mpi'
       INTEGER  I, J, K
       COMPLEX*16   CU(0:NX_S_TH/2,0:NZ_TH+1,0:NY_S_TH)
       COMPLEX*16   U (0:NX_S_TH/2,0:NZ_TH+1,0:NY_S_TH)
@@ -362,7 +353,7 @@ C Then, perform a complex -> complex transform in the z-direction
        END DO
 
        RETURN
-       END 
+       END
 
 C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
       SUBROUTINE FFT_Z_TO_FOURIER_TH(U,CU)
@@ -372,9 +363,7 @@ C The input and output should be in physical space with the output
 C packed to hold the real and imaginary parts
 C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
 
-      INCLUDE "mpif.h"
       INCLUDE 'header'
-      INCLUDE 'header_mpi'
       INTEGER I, J, K
       COMPLEX*16 U(0:NKX_S_TH,0:NZ_TH+1,0:NY_S_TH)
       COMPLEX*16 CU(0:NKX_S_TH,0:NZ_TH+1,0:NY_S_TH)
@@ -424,9 +413,7 @@ C This routine transforms in the y-direction
 C The input and output should be in physical space with the output
 C packed to hold the real and imaginary parts
 C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
-      INCLUDE "mpif.h"
       INCLUDE 'header'
-      INCLUDE 'header_mpi'
       INTEGER I, J, K
       COMPLEX*16  U (0:NKX_S_TH,0:TNKZ_S_TH,0:NY_TH+1)
       COMPLEX*16  CU(0:NKX_S_TH,0:TNKZ_S_TH,0:NY_TH+1)
@@ -454,7 +441,7 @@ C Scale by NY (necessary by FFTW convention)
           DO J=1,NKY_TH
             CU(I,K,NKY_TH+J)=CYZ_PLANE(NYM_TH-NKY_TH+J,K)/RNY_TH
           END DO
-        END DO            
+        END DO
       END DO
 
       RETURN
@@ -469,9 +456,7 @@ C This routine transforms along the y direction to Fourier space
 C The input and output are real arrays with the input array packed
 C to contain both the real and imagingary parts of the transformed array
 C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
-      INCLUDE "mpif.h"
       INCLUDE 'header'
-      INCLUDE 'header_mpi'
       INTEGER  I, J, K
       COMPLEX*16   CU(0:NX_S_TH/2,0:NZ_S_TH,0:NY_TH+1)
       COMPLEX*16   U (0:NX_S_TH/2,0:NZ_S_TH,0:NY_TH+1)
@@ -514,9 +499,7 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
 C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
 C This routine transforms (in 1 direction) to Fourier space.
 C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
-      INCLUDE "mpif.h"
       INCLUDE 'header'
-      INCLUDE 'header_mpi'
       INTEGER I, J, K
       REAL*8     U (0:NX_TH+1,0:NZ_S_TH,0:NY_S_TH)
       COMPLEX*16 CU(0:NX_TH/2,0:NZ_S_TH,0:NY_S_TH)
@@ -550,9 +533,7 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
 C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
 C This routine transforms (in 1 direction) to physical space.
 C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
-      INCLUDE "mpif.h"
       INCLUDE 'header'
-      INCLUDE 'header_mpi'
 
       INTEGER I, J, K
       REAL*8     U (0:NX_TH+1,0:NZ_S_TH,0:NY_S_TH)
@@ -588,8 +569,6 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
 C This routine transforms (in 1 direction) planes JMIN-JMAX to Fourier space.
 C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
       INCLUDE 'header'
-      INCLUDE "mpif.h"
-      include 'header_mpi'
 
       INTEGER JMIN, JMAX, KMIN, KMAX, I, J, K
 C Input array is in Fourier space and local in X on the velocity grid
@@ -611,7 +590,7 @@ C in the transpose routines
       COMPLEX*16 CU_Z_TH(0:NX_S/2,0:NZ_TH+1,0:NY_S_TH)
 
 C Equivalence the intermediate arrrays to avoid wasting memory
-C The FFTs are done in-place, so this is safe 
+C The FFTs are done in-place, so this is safe
       EQUIVALENCE(CU_X_TH,U_X)
 
 
@@ -691,9 +670,7 @@ C This routine transforms along the z direction to Fourier space
 C The input and output are real arrays with the input array packed
 C to contain both the real and imagingary parts of the transformed array
 C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
-      INCLUDE "mpif.h"
       INCLUDE 'header'
-      INCLUDE 'header_mpi'
       INTEGER  I, J, K
       COMPLEX*16   CU(0:NX_S/2,0:NZ_TH+1,0:NY_S_TH)
       COMPLEX*16   U (0:NX_S/2,0:NZ_TH+1,0:NY_S_TH)
@@ -739,9 +716,7 @@ C This routine transforms along the y direction to Fourier space
 C The input and output are real arrays with the input array packed
 C to contain both the real and imagingary parts of the transformed array
 C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
-      INCLUDE "mpif.h"
       INCLUDE 'header'
-      INCLUDE 'header_mpi'
       INTEGER  I, J, K
       COMPLEX*16   CU(0:NX_S/2,0:NZ_S,0:NY_TH+1)
       COMPLEX*16   U (0:NX_S/2,0:NZ_S,0:NY_TH+1)
@@ -819,8 +794,3 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
 
       RETURN
       END
-
-
-
-
-

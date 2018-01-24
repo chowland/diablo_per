@@ -4,8 +4,6 @@
       SUBROUTINE INIT_MPI_TH
 C----*|--.---------.---------.---------.---------.---------.---------.-|-----|
       INCLUDE 'header'
-      INCLUDE 'mpif.h'
-      INCLUDE 'header_mpi'
 ! This subroutine initializes all mpi variables
 
         NXM_S_TH=NX_S_TH-1
@@ -17,9 +15,7 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-----|
 
 
       SUBROUTINE TRANSPOSE_MPI_Z_TO_X_TH(CA_Z,CA_X)
-      INCLUDE "mpif.h"
       INCLUDE 'header'
-      INCLUDE 'header_mpi'
 ! This subroutine initializes all mpi variables
 
 
@@ -138,9 +134,7 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-----|
       END       
 
       SUBROUTINE TRANSPOSE_MPI_X_TO_Z_TH(CA_X,CA_Z)
-      INCLUDE "mpif.h"
       INCLUDE 'header'
-      INCLUDE 'header_mpi'
 ! This subroutine initializes all mpi variables
 
       COMPLEX*16 CA_Z(0:NKX_S_TH,0:NZ_TH+1,0:NY_S_TH)
@@ -254,9 +248,7 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-----|
       END       
 
       SUBROUTINE TRANSPOSE_MPI_Y_TO_Z_TH(CA_Y,CA_Z)
-      INCLUDE "mpif.h"
       INCLUDE 'header'
-      INCLUDE 'header_mpi'
 ! This subroutine initializes all mpi variables
 
 
@@ -375,9 +367,7 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-----|
       END 
 
       SUBROUTINE TRANSPOSE_MPI_Z_TO_Y_TH(CA_Z,CA_Y)
-      INCLUDE "mpif.h"
       INCLUDE 'header'
-      INCLUDE 'header_mpi'
 ! This subroutine initializes all mpi variables
 
       complex*16 CA_Z(0:NKX_S_TH,0:NZ_TH+1,0:NY_S_TH)
@@ -497,9 +487,7 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-----|
 ! and interpolating it to the scalar (TH) grid in Physical space
 
       SUBROUTINE TRANSPOSE_MPI_Y_TO_Z_INTERP(CA_Y,CA_Z)
-      INCLUDE "mpif.h"
       INCLUDE 'header'
-      INCLUDE 'header_mpi'
 ! This subroutine initializes all mpi variables
 
 
@@ -618,9 +606,7 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-----|
 
 
       SUBROUTINE TRANSPOSE_MPI_Z_TO_X_INTERP(CA_Z,CA_X)
-      INCLUDE "mpif.h"
       INCLUDE 'header'
-      INCLUDE 'header_mpi'
 ! This subroutine initializes all mpi variables
 
 

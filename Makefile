@@ -33,6 +33,9 @@ NETCDF = FALSE
 # Option to run different flavors (basic, ensemble, etc.)
 ENSEM = FALSE
 BATCH = FALSE
+
+# Option to compile with the HDF5 library
+HDF5 = TRUE
 # **********    END of user definitions ************
 
 # Use the parameters to set flags
@@ -54,6 +57,11 @@ endif
 
 ifeq ($(PARALLEL),TRUE)
 MPI = mpi.o mpi_th.o
+ifeq ($(HDF5),TRUE)
+HDF5_o = write_h5.o
+COMPILER = h5pfc
+HDF5OPTS=-DHDF5
+endif
 else
 MPI = mpi_serial.o
 endif
@@ -63,7 +71,7 @@ HEADER = header
 ENSEM_HOOKS = dummy_code/ensem_dummy.f
 BATCH_HOOKS = dummy_code/batch_dummy.f
 HOOKS = batch_hooks.o ensem_hooks.o
-ADJOINT = 
+ADJOINT =
 
 ifeq ($(ENSEM),TRUE)
 MAIN = ensemble.f
@@ -82,11 +90,11 @@ endif
 
 
 diablo: $(MAIN) diablo_io.o periodic.o channel.o $(LES_o) $(NETCDF_o) \
-	duct.o cavity.o fft.o fft_th.o rand.o $(HOOKS) $(ADJOINT) $(MPI) \
-	$(HEADER) grid_def grid_def_mpi
+	write_h5.o duct.o cavity.o fft.o fft_th.o rand.o $(HOOKS) \
+	$(ADJOINT) $(MPI) $(HEADER) grid_def grid_def_mpi
 	$(COMPILER) $(COMPOPTS) $(MAIN) -o diablo \
 	diablo_io.o periodic.o channel.o $(LES_o) $(NETCDF_o) \
-	duct.o cavity.o fft.o fft_th.o rand.o $(HOOKS) $(ADJOINT) \
+	write_h5.o duct.o cavity.o fft.o fft_th.o rand.o $(HOOKS) $(ADJOINT) \
 	$(MPI) $(LINKOPTS)
 
 diablo_io.o: diablo_io.f header grid_def grid_def_mpi
@@ -98,7 +106,7 @@ periodic.o: periodic.f fft.o fft_th.o header grid_def grid_def_mpi
 channel.o: channel.f fft.o $(MPI) header grid_def
 	$(COMPILER) $(COMPOPTS) -c channel.f
 
-ifeq ($(LES),TRUE) 
+ifeq ($(LES),TRUE)
 les.o: les.f fft.o header header_les grid_def
 	$(COMPILER) $(COMPOPTS) -c les.f
 else
@@ -110,7 +118,7 @@ ifeq ($(NETCDF),TRUE)
 netcdf.o: netcdf.f header grid_def
 	$(COMPILER) $(COMPOPTS) -c netcdf.f
 else
-no_netcdf.o: dummy_code/no_netcdf.f 
+no_netcdf.o: dummy_code/no_netcdf.f
 	$(COMPILER) $(COMPOPTS) -c dummy_code/no_netcdf.f
 endif
 
@@ -124,6 +132,11 @@ else
 mpi_serial.o: dummy_code/mpi_serial.f header header_mpi grid_def
 	$(COMPILER) $(COMPOPTS) -c dummy_code/mpi_serial.f
 endif
+
+header : header_mpi grid_def grid_def_mpi
+
+write_h5.o : write_h5.f
+	$(COMPILER) $(COMPOPTS) -c write_h5.f
 
 duct.o: duct.f header grid_def
 	$(COMPILER) $(COMPOPTS) -c duct.f
@@ -162,14 +175,13 @@ clean:
 # Compilation with Absoft Linux Fortran 77 appears to be impossible, as it
 # cannot handle the INTEGER*8 option required by FFTW.  If someone finds
 # a way around this, please let me know.
-# 
+#
 # Compilation with Absoft Linux Fortran 90 is possible, but the option
 # -YEXT_NAMES=LCS must be used as one of the link options so the compiler
 # can find the lowercase external library function names.
 #
 # Compilation with Lahey Fortran 95 (lf95) is possible, but there is an
 # underscore incompatability with the FFTW libraries, which are compiled
-# with g77.  To get around this, you need to go into fft.f and add 
+# with g77.  To get around this, you need to go into fft.f and add
 # trailing underscores to the name of every fftw function where they
 # appear throughout the code.
-

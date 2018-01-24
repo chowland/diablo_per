@@ -10,7 +10,7 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
 
       INCLUDE 'header'
 
-!      IF (N_TH.gt.0) THEN	
+!      IF (N_TH.gt.0) THEN
 !      EPSILON_TARGET=((1.d0/(DX(1)*0.25d0))**4.d0)
 !     &              *(NU**3.d0)*(700.d0)**(-2.d0)
 !      EPSILON_TARGET=((1.d0/(2.d0*DX_TH(1)))**4.d0)
@@ -25,7 +25,7 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
 !      EPSILON_TARGET=((3.d0/(2.d0*DX(1)))**4.d0)
 !     &        *(NU**3.d0)*(100)**(-2.d0)
 !      write(*,*) 'EPSILON_TARGET: ',EPSILON_TARGET
-!      END IF		   
+!      END IF
 
 C Define variables for the Geophysical case
       PI=4.D0*ATAN(1.D0)
@@ -44,10 +44,8 @@ C Main time-stepping algorithm for the fully periodic case
 C INPUTS  (in Fourier space):  CUi, P, and (if k>1) CFi at (k-1)  (for i=1,2,3)
 C OUTPUTS (in Fourier space):  CUi, P, and (if k<3) CFi at (k)
 C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
-      INCLUDE "mpif.h"
 
       INCLUDE 'header'
-      INCLUDE 'header_mpi'
 
       REAL*8 TEMP1, TEMP2, TEMP3, TEMP4, TEMP5, TEMP6
       INTEGER I,J,K,N
@@ -92,7 +90,7 @@ C diffusive term for each scalar
       END DO
 
       IF (RK_STEP .GT. 1) THEN
-        DO J=0,TNKY  
+        DO J=0,TNKY
           DO K=0,TNKZ_S
             DO I=0,NKX_S
 C Add the term: ZETA_BAR(RK_STEP)*R(U(RK_STEP-1))
@@ -103,7 +101,7 @@ C Add the term: ZETA_BAR(RK_STEP)*R(U(RK_STEP-1))
           END DO
         END DO
         DO N=1,N_TH
-        DO J=0,TNKY_TH  
+        DO J=0,TNKY_TH
           DO K=0,TNKZ_S_TH
             DO I=0,NKX_S_TH
                 CRTH(I,K,J,N)=CRTH(I,K,J,N)+TEMP3*CFTH(I,K,J,N)
@@ -112,7 +110,7 @@ C Add the term: ZETA_BAR(RK_STEP)*R(U(RK_STEP-1))
           END DO
         END DO
       END IF
- 
+
 
 C If we are considering a linear background scalar gradient then add
 C the term owing to advection of the background state.
@@ -127,14 +125,14 @@ C gradient is equal to one
 C If there is a background scalar gradient add advection term:
 C Start by setting CFTH to zero:
       CFTH(:,:,:,N)=0.d0
-C Now, add the velocity advection only to velocity modes 
+C Now, add the velocity advection only to velocity modes
       DO J=0,TNKY_TH
         DO K=0,TNKZ_S_TH
           DO I=0,NKX_S_TH
             CFTH(I,K,J,N)=-CU2(I,K,J)
           END DO
         END DO
-      END DO 
+      END DO
       ELSE
 ! Otherwise don't
         CFTH(:,:,:,N)=0.d0
@@ -159,7 +157,7 @@ C Note, on an f-plane under the traditional approximation, C_SIN=C_COS=0
 
 
 C Transform the scalar concentration to physical space
-      DO N=1,N_TH 
+      DO N=1,N_TH
         IF (USE_MPI) THEN
           CALL FFT_XZY_MPI_TO_PHYSICAL_TH(CTH(0,0,0,N),TH(0,0,0,N))
         ELSE
@@ -348,7 +346,7 @@ C Compute the nonlinear terms for the momentum equations
           DO I=0,NXM
             S1(I,K,J)=U2(I,K,J)*U3(I,K,J)
           END DO
-        END DO 
+        END DO
        END DO
        IF (USE_MPI) THEN
          CALL FFT_XZY_MPI_TO_FOURIER(S1,CS1)
@@ -387,7 +385,7 @@ C Done with the computation of nonlinear terms
 
 C If the scalar is active (RI_TAU NE 0), add the bouyancy forcing term
 C  as explicit R-K
-       DO N=1,N_TH 
+       DO N=1,N_TH
        IF (RI_TAU(N).NE.0.d0) THEN
 C Fisrt, convert back to Fourier space
        IF (USE_MPI) THEN
@@ -585,9 +583,7 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
 C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
       SUBROUTINE REM_DIV_PER
 C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
-      INCLUDE "mpif.h"
       INCLUDE 'header'
-      INCLUDE 'header_mpi'
       INTEGER I,J,K
       REAL*8  TEMP5
 
@@ -705,14 +701,12 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
 C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
       SUBROUTINE CREATE_FLOW_PER
 C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
-      INCLUDE 'mpif.h'
       INCLUDE 'header'
-      INCLUDE 'header_mpi'
       INTEGER I, J, K
       REAL*8 RNUM1,RNUM2,RNUM3
       REAL*8 K0,K_MAG
       CHARACTER*60 FNAME
-      
+
 
 C For an initial vortex, define the location of the centerline
       REAL*8 XC(0:NY+1),ZC(0:NY+1)
@@ -742,7 +736,7 @@ C Nondimensionalize with U0 and 1/kappa
 !            U2(I,K,J)=0.d0
 !            U3(I,K,J)=-cos(2*pi*(GY_S(J))/LY)
 !     &               *sin(2*pi*(GX(I))/LX)
-!     &               *COS(2*pi*(GZ_S(K))/LZ) 
+!     &               *COS(2*pi*(GZ_S(K))/LZ)
 !            else
              U1(i,k,j)=0.d0
              U2(i,k,j)=0.d0
@@ -774,7 +768,7 @@ C Start with an ideal vortex centered in the domain
               U3(I,K,J)=1.d0*(GX(I)-XC(j))
      &                /0.1
               U2(I,K,J)=0.d0
-            END IF 
+            END IF
             CALL RANDOM_NUMBER(RNUM1)
             CALL RANDOM_NUMBER(RNUM2)
             CALL RANDOM_NUMBER(RNUM3)
@@ -905,42 +899,43 @@ C Any background stratification must be added to the governing equations
 ! Transfer to Fourier space
        DO N=1,N_TH
        IF (USE_MPI) THEN
-         CALL FFT_XZY_MPI_TO_FOURIER_TH(TH(0,0,0,N),CTH(0,0,0,N)) 
+         CALL FFT_XZY_MPI_TO_FOURIER_TH(TH(0,0,0,N),CTH(0,0,0,N))
        ELSE
-         CALL FFT_XZY_TO_FOURIER_TH(TH(0,0,0,N),CTH(0,0,0,N)) 
+         CALL FFT_XZY_TO_FOURIER_TH(TH(0,0,0,N),CTH(0,0,0,N))
        END IF
        END DO
 
        RETURN
        END
-      
+
 
 C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
       SUBROUTINE CREATE_GRID_PER
 C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
-      INCLUDE 'mpif.h'
-      INCLUDE 'header' 
-      INCLUDE 'header_mpi'
+      INCLUDE 'header'
       INTEGER I,J,K
 
-         IF (FLAVOR.NE.'Ensemble') WRITE (6,*) 'Fourier in X'
-         DO I=0,NX
-           GX(I)=(I*LX)/NX
-           DX(I)=LX/NX
-           IF (VERBOSITY .GT. 3) WRITE(6,*) 'GX(',I,') = ',GX(I)
-         END DO
-         IF (FLAVOR.NE.'Ensemble') WRITE (6,*) 'Fourier in Z'
-         DO K=0,NZ
-           GZ(K)=(K*LZ)/NZ
-           DZ(K)=LZ/NZ
-           IF (VERBOSITY .GT. 3) WRITE(6,*) 'GZ(',K,') = ',GZ(K)
-         END DO
-         IF (FLAVOR.NE.'Ensemble') WRITE (6,*) 'Fourier in Y'
-         DO J=0,NY
-           GY(J)=(J*LY)/NY
-           DY(J)=LY/NY
-           IF (VERBOSITY .GT. 3) WRITE(6,*) 'GY(',J,') = ',GY(J)
-         END DO
+      IF ((FLAVOR.NE.'Ensemble') .AND. (RANK.eq.0)) WRITE (6,*)
+ &            'Fourier in X'
+      DO I=0,NX
+        GX(I)=(I*LX)/NX
+        DX(I)=LX/NX
+        IF (VERBOSITY .GT. 3) WRITE(6,*) 'GX(',I,') = ',GX(I)
+      END DO
+      IF ((FLAVOR.NE.'Ensemble') .AND. (RANK.eq.0)) WRITE (6,*)
+ &            'Fourier in Z'
+      DO K=0,NZ
+        GZ(K)=(K*LZ)/NZ
+        DZ(K)=LZ/NZ
+        IF (VERBOSITY .GT. 3) WRITE(6,*) 'GZ(',K,') = ',GZ(K)
+      END DO
+      IF ((FLAVOR.NE.'Ensemble') .AND. (RANK.eq.0)) WRITE (6,*)
+ &            'Fourier in Y'
+      DO J=0,NY
+        GY(J)=(J*LY)/NY
+        DY(J)=LY/NY
+        IF (VERBOSITY .GT. 3) WRITE(6,*) 'GY(',J,') = ',GY(J)
+      END DO
 
          DO J=0,NY_S
            IF ((J+INT(RANK/NP_S)*(NY_S+1)).le.NY) THEN
@@ -958,19 +953,22 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
          END DO
 
 
-         IF (FLAVOR.NE.'Ensemble') WRITE (6,*) 'Fourier in X'
+         IF ((FLAVOR.NE.'Ensemble') .AND. (RANK.eq.0)) WRITE (6,*)
+     &            'Fourier in X'
          DO I=0,NX_TH
            GX_TH(I)=(I*LX)/NX_TH
            DX_TH(I)=LX/NX_TH
            IF (VERBOSITY .GT. 3) WRITE(6,*) 'GX_TH(',I,') = ',GX_TH(I)
          END DO
-         IF (FLAVOR.NE.'Ensemble') WRITE (6,*) 'Fourier in Z'
+         IF ((FLAVOR.NE.'Ensemble') .AND. (RANK.eq.0)) WRITE (6,*)
+     &            'Fourier in Z'
          DO K=0,NZ_TH
            GZ_TH(K)=(K*LZ)/NZ_TH
            DZ_TH(K)=LZ/NZ_TH
            IF (VERBOSITY .GT. 3) WRITE(6,*) 'GZ_TH(',K,') = ',GZ_TH(K)
          END DO
-         IF (FLAVOR.NE.'Ensemble') WRITE (6,*) 'Fourier in Y'
+         IF ((FLAVOR.NE.'Ensemble') .AND. (RANK.eq.0)) WRITE (6,*)
+     &            'Fourier in Y'
          DO J=0,NY_TH
            GY_TH(J)=(J*LY)/NY_TH
            DY_TH(J)=LY/NY_TH
@@ -1032,7 +1030,8 @@ C Read input file.
       DO N=1,N_TH
         READ(11,*)
         READ(11,*) BACKGROUND_GRAD(N)
-        write(*,*) 'BACKGROUND_GRAD(N): ',BACKGROUND_GRAD(N)
+        if (RANK.eq.0) write(*,*) 'BACKGROUND_GRAD(N): '
+     &                        ,BACKGROUND_GRAD(N)
       END DO
 
       RETURN
@@ -1050,16 +1049,14 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
 C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
       SUBROUTINE SAVE_STATS_PER(FINAL)
 C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
-      INCLUDE 'mpif.h'
       INCLUDE 'header'
-      INCLUDE 'header_mpi'
       CHARACTER*60 FNAME
       LOGICAL FINAL
- 
-      integer i,j,k,n
+
+      integer i,j,k,n, IZ, IY
       real*8 uc, ubulk
 
-      integer iRANK
+      integer iRANK, RANKY_MOV, RANKZ_MOV
 
       real*8 ubar,vbar,wbar
       real*8 thbar(1:N_TH)
@@ -1173,29 +1170,44 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
       END IF
 
       IF (MOVIE) THEN
-      IF (USE_MPI) THEN
-        FNAME='movie_xz_'//MPI_IO_NUM//'.txt'
-      ELSE
-        FNAME='movie_xz.txt'
-      END IF
-      open(80,file=FNAME,status='unknown',form='formatted')
-      do k=0,NZ_S
-      do i=0,NXM
-        write(80,*) GX(i),GZ_S(k),U1(i,k,0)
-      end do
-      end do
+!      IF (USE_MPI) THEN
+!        FNAME='movie_xz_'//MPI_IO_NUM//'.txt'
+!      ELSE
+!        FNAME='movie_xz.txt'
+!      END IF
+!      open(80,file=FNAME,status='unknown',form='formatted')
+!      do k=0,NZ_S
+!      do i=0,NXM
+!        write(80,*) GX(i),GZ_S(k),U1(i,k,0)
+!      end do
+!      end do
 
-      IF (USE_MPI) THEN
-        FNAME='movie_xy_'//MPI_IO_NUM//'.txt'
-      ELSE
-        FNAME='movie_xy.txt'
-      END IF
-      open(81,file=FNAME,status='unknown',form='formatted')
-      do j=0,NY_S
-      do i=0,NXM
-        write(81,*) GX(i),GY_S(j),U1(i,0,j)
-      end do
-      end do
+! ##### NEW #####
+      RANKY_MOV = NY_MOV/(NY_S+1)
+      RANKZ_MOV = NZ_MOV/(NZ_S+1)
+      call mpi_barrier(MPI_COMM_WORLD,ierror)
+      if (RANKY==RANKY_MOV) then
+        call WriteHDF5_xzplane(NY_MOV)
+      end if
+      call mpi_barrier(MPI_COMM_WORLD,ierror)
+      if (RANKZ==RANKZ_MOV) then
+        call WriteHDF5_xyplane(NZ_MOV)
+      end if
+      call mpi_barrier(MPI_COMM_WORLD,ierror)
+      call WriteHDF5_yzplane(NX_MOV)
+! ###############
+
+!      IF (USE_MPI) THEN
+!        FNAME='movie_xy_'//MPI_IO_NUM//'.txt'
+!      ELSE
+!        FNAME='movie_xy.txt'
+!      END IF
+!      open(81,file=FNAME,status='unknown',form='formatted')
+!      do j=0,NY_S
+!      do i=0,NXM
+!        write(81,*) GX(i),GY_S(j),U1(i,0,j)
+!      end do
+!      end do
 
 
 
@@ -1204,7 +1216,7 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
 
 
 ! First get the number of samples taken so far
-      NSAMPLES=NSAMPLES+1
+!      NSAMPLES=NSAMPLES+1
 ! Get the mean velocity
 
 
@@ -1242,14 +1254,20 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
         write(*,*) '<W_rms>: ',wrms_b_sum
       END IF
 
-! Write out the mean statistics at each time
-       IF (RANK.eq.0) THEN
-         FNAME='mean.txt'
-         open(40,file=FNAME,form='formatted',status='unknown')
-         write(40,*) TIME_STEP,TIME,DELTA_T
-         write(40,401) urms_b_sum,vrms_b_sum,wrms_b_sum
-       END IF
-401   format(3(F20.9,' '))
+      ! Write out the mean statistics at each time
+      !       IF (RANK.eq.0) THEN
+      !         FNAME='mean.txt'
+      !         open(40,file=FNAME,form='formatted',status='unknown')
+      !         write(40,*) TIME_STEP,TIME,DELTA_T
+      !         write(40,401) urms_b_sum,vrms_b_sum,wrms_b_sum
+      !       END IF
+      !401   format(3(F20.9,' '))
+
+            IF (RANK.eq.0) THEN
+              call WriteStatH5('urms',urms_b_sum)
+              call WriteStatH5('vrms',vrms_b_sum)
+              call WriteStatH5('wrms',wrms_b_sum)
+            END IF
 
 !      if (MOVIE) then
 ! Output a 2d slice through the velocity field for animation in matlab
@@ -1297,7 +1315,7 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
 !        close (76)
 !        CALL SYSTEM('mv temp.txt ../post_process/matlab/latest_slice.txt
 !     &')
-!      end if 
+!      end if
 
 ! Do over the number of passive scalars
       do n=1,N_TH
@@ -1336,7 +1354,7 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
 
 ! Get the bacterial/nutrient correlation
       thth(n)=0.d0
-      thvar(n)=0.d0      
+      thvar(n)=0.d0
       do j=0,NY_S_TH
       do k=0,NZ_S_TH
       do i=0,NXM_TH
@@ -1346,7 +1364,7 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
         ELSE
           thth(n)=thth(n)+TH(i,k,j,n)*TH(i,k,j,1)
      &                 *DX_TH(I)*DY_TH(J)*DZ_TH(K)
-        END IF 
+        END IF
         thvar(n)=thvar(n)+TH(i,k,j,n)*TH(i,k,j,n)
      &                   *DX_TH(I)*DY_TH(J)*DZ_TH(K)
         thme(n)=thme(n)+TH(i,k,j,n)
@@ -1393,7 +1411,7 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
 !        if (n.eq.2) then
 ! Chose which scalar is to be outputted
 !        open(85,file='movie2_xy.txt',status='unknown',form='formatted')
-         
+
 !        do i=0,NXM
 !        do j=0,NY_S
 !          write(85,*) TH(I,NZ_S/2,J,n)
@@ -1421,7 +1439,7 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
 !        end do
 !        end do
 !        end if
-!      end if 
+!      end if
 
 
 ! End do over number of passive scalars, n
@@ -1439,20 +1457,27 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
       ELSE
         DO N=1,N_TH
           call FFT_XZY_TO_FOURIER_TH(TH(0,0,0,n),CTH(0,0,0,n))
-        END DO 
+        END DO
       END IF
 
 
-! Write out the mean statistics at each time
-       IF (RANK.eq.0) THEN
-         FNAME='mean_th.txt'
-         open(41,file=FNAME,form='formatted',status='unknown')
-         write(41,*) TIME_STEP,TIME,DELTA_T
-         do n=1,N_TH
-         write(41,411) thth_sum(n),thvar_sum(n),thme_sum(n)
-         end do
-       END IF
-411   format(4(F30.15,' '))
+      ! Write out the mean statistics at each time
+      !       IF (RANK.eq.0) THEN
+      !         FNAME='mean_th.txt'
+      !         open(41,file=FNAME,form='formatted',status='unknown')
+      !         write(41,*) TIME_STEP,TIME,DELTA_T
+      !         do n=1,N_TH
+      !         write(41,411) thth_sum(n),thvar_sum(n),thme_sum(n)
+      !         end do
+      !       END IF
+      !411   format(4(F30.15,' '))
+
+            IF (RANK.eq.0) THEN
+              call WriteStatH5('thth',thth_sum(1))
+              call WriteStatH5('thvar',thvar_sum(1))
+              call WriteStatH5('thme',thme_sum(1))
+            END IF
+
 !      IF (USE_MPI) THEN
 !        FNAME='mean_th'//MPI_IO_NUM//'.txt'
 !      ELSE
@@ -1460,7 +1485,7 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
 !      END IF
 !      open(41,file=FNAME,form='formatted',status='unknown')
 !      write(41,*) TIME_STEP,TIME,DELTA_T,UBULK
-!      do n=1,N_TH 
+!      do n=1,N_TH
 !      do j=0,NYM
 !        write(41,402) j,GYF(J),mean_th(j,n)
 !     &      ,dthdy(j,n),thrms(j,n),thv(j,n),pe_diss(j,n)
@@ -1471,7 +1496,7 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
 402   format(I3,' ',8(F30.25,' '))
 
 
-!      if (VERBOSITY.gt.4) then 
+!      if (VERBOSITY.gt.4) then
 !      write(*,*) 'Outputting info for gnuplot...'
 !      open (unit=10, file="solution")
 !      do i=2,NXM
@@ -1481,7 +1506,7 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
 !        write (10,*) ""
 !      end do
 !      close (10)
-!      call system ('gnuplot <gnuplot.in') 
+!      call system ('gnuplot <gnuplot.in')
 !      end if
 
 ! Calculate the TKE
@@ -1516,9 +1541,7 @@ C This subroutine applies a filter to the highest wavenumbers
 C It should be applied to the scalars in Fourier space
 C The filter used is a sharpened raised cosine filter
 
-      INCLUDE 'mpif.h'
       INCLUDE 'header'
-      INCLUDE 'header_mpi'
 
       integer I,J,K,N
 
@@ -1548,9 +1571,7 @@ C The filter used is a sharpened raised cosine filter
 ! NOte, it is important to only run this routine after complete R-K
 !  time advancement since F1 is overwritten which is needed between R-K steps
 
-      INCLUDE 'mpif.h'
       INCLUDE 'header'
-      INCLUDE 'header_mpi'
 
       real*8 epsilon_mean,epsilon_sum,eta
 
@@ -1692,7 +1713,7 @@ C The filter used is a sharpened raised cosine filter
       end do
       end do
       end do
-! Convert to physical space 
+! Convert to physical space
       IF (USE_MPI) THEN
         call FFT_XZY_MPI_TO_PHYSICAL(CS1,S1)
       ELSE
@@ -1748,7 +1769,7 @@ C The filter used is a sharpened raised cosine filter
       end do
       end do
 
-      write(*,*) 'NX,NY,NZ: ',NX,NY,NZ
+      if (RANK.eq.0) write(*,*) 'NX,NY,NZ: ',NX,NY,NZ
 
       epsilon_mean=NU*epsilon_mean/float(NX*NY*NZ)
 
@@ -1764,18 +1785,19 @@ C The filter used is a sharpened raised cosine filter
       RE_LAMBDA=EK*SQRT(15.d0/(epsilon_sum*NU))
       IF (RANK.eq.0) write(*,*) 'RE_LAMBDA: ',RE_LAMBDA
 
-! Write out the mean statistics at each time
-      IF (RANK.eq.0) THEN
-        open(45,file='tke.txt',form='formatted',status='unknown')
-        write(45,*) TIME_STEP,TIME,DELTA_T
-        write(45,401) epsilon_sum,eta,re_lambda
-      END IF
-401   format(3(F20.9,' '))
+      ! Write out the mean statistics at each time
+      !      IF (RANK.eq.0) THEN
+      !        open(45,file='tke.txt',form='formatted',status='unknown')
+      !        write(45,*) TIME_STEP,TIME,DELTA_T
+      !        write(45,401) epsilon_sum,eta,re_lambda
+      !      END IF
+      !401   format(3(F20.9,' '))
+
+            IF (RANK.eq.0) THEN
+              call WriteStatH5('epsilon',epsilon_sum)
+              call WriteStatH5('eta',eta)
+              call WriteStatH5('re_lambda',re_lambda)
+            END IF
 
       return
       end
-
-
-
-
-

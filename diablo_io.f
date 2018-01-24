@@ -2,16 +2,14 @@ C This file contains subroutines for inputting and outputting data in
 C Diablo as well as all subroutines called directly from diablo.f
 C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
       SUBROUTINE INITIALIZE
-      INCLUDE 'mpif.h'
       INCLUDE 'header'
-      INCLUDE 'header_mpi'
 
       REAL    VERSION, CURRENT_VERSION
       logical RESET_TIME
       INTEGER I, J, K, N
 
 
-      OPEN (11,file='input.dat',form='formatted',status='old')      
+      OPEN (11,file='input.dat',form='formatted',status='old')
 
 C Read input file.
 C   (Note - if you change the following section of code, update the
@@ -36,6 +34,9 @@ C    CURRENT_VERSION number to make obsolete previous input files!)
       READ(11,*)
       READ(11,*) VERBOSITY, SAVE_FLOW_INT, SAVE_STATS_INT, MOVIE
       READ(11,*)
+      READ(11,*) NX_MOV, NX_MOV_TH, NY_MOV, NY_MOV_TH, NZ_MOV,
+     &               NZ_MOV_TH
+      READ(11,*)
 ! Read in the parameters for the N_TH scalars
       DO N=1,N_TH
         READ(11,*)
@@ -56,6 +57,10 @@ C If we are using MPI, then Initialize the MPI Variables
         END IF
       END IF
 
+      IF (MOVIE) THEN
+        CALL INIT_MOVIE
+      END IF
+      CALL INIT_STATS
 
 C Initialize case-specific packages.
       IF (NUM_PER_DIR.EQ.3) THEN
@@ -67,7 +72,7 @@ C Initialize case-specific packages.
         CALL CREATE_GRID_CHAN
         IF (USE_MPI) THEN
           CALL INIT_CHAN_MPI
-        ELSE 
+        ELSE
           CALL INIT_CHAN
         END IF
       ELSEIF (NUM_PER_DIR.EQ.1) THEN
@@ -75,7 +80,7 @@ C Initialize case-specific packages.
         CALL CREATE_GRID_DUCT
         CALL INIT_DUCT
       ELSEIF (NUM_PER_DIR.EQ.0) THEN
-        CALL INPUT_CAV 
+        CALL INPUT_CAV
         CALL CREATE_GRID_CAV
         CALL INIT_CAV
       END IF
@@ -134,7 +139,7 @@ C Initialize storage arrays.
           END DO
         END DO
       END DO
-           
+
 
 C Initialize FFT package (includes defining the wavenumber vectors).
       write(*,*) 'Initializing FFT',RANK
@@ -158,18 +163,18 @@ C Initialize values for reading of scalars
       NUM_READ_TH=0
       DO N=1,N_TH
         IF (CREATE_NEW_TH(N)) THEN
-          NUM_READ_TH=NUM_READ_TH 
+          NUM_READ_TH=NUM_READ_TH
         ELSE
           NUM_READ_TH=NUM_READ_TH + 1
           READ_TH_INDEX(NUM_READ_TH)=N
         END IF
       END DO
       IF (NUM_PER_DIR.EQ.2) THEN
-        CALL CREATE_TH_CHAN 
+        CALL CREATE_TH_CHAN
       ELSE IF (NUM_PER_DIR.EQ.3) THEN
         CALL CREATE_TH_PER
-      END IF 
-	
+      END IF
+
 C Create flow.
       IF (CREATE_NEW_FLOW) THEN
         IF (RANK.eq.0) write(*,*) 'Creating flow...'
@@ -197,7 +202,7 @@ C Create flow.
 
 C Temporary...
 !        CALL SAVE_FLOW(.FALSE.)
- 
+
 C Initialize flow.
       IF (RESET_TIME .OR. CREATE_NEW_FLOW) THEN
         PREVIOUS_TIME_STEP=0
@@ -223,7 +228,7 @@ C Initialize flow.
         DO J=0,TNKY
           DO K=0,TNKZ_S
             DO I=0,NKX_S
-              IF ((SQRT(KX2_S(I)+KY2(J)+KZ2_S(K)).le.2.5d0) 
+              IF ((SQRT(KX2_S(I)+KY2(J)+KZ2_S(K)).le.2.5d0)
      &        .AND.((I+MOD(RANK,NP_S)*(NKX_S+1)).le.NKX)
      &        .AND.((K+INT(RANK/NP_S)*(TNKZ_S+1)).le.TNKZ)) THEN
                 EK=EK+CU1(I,K,J)*CONJG(CU1(I,K,J))
@@ -251,24 +256,24 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
       LOGICAL FINAL
 
       IF (NUM_PER_DIR.EQ.3) THEN
-        CALL SAVE_STATS_PER(FINAL)          
+        CALL SAVE_STATS_PER(FINAL)
       ELSEIF (NUM_PER_DIR.EQ.2) THEN
-        CALL SAVE_STATS_CHAN(FINAL)          
+        CALL SAVE_STATS_CHAN(FINAL)
       ELSEIF (NUM_PER_DIR.EQ.1) THEN
-        CALL SAVE_STATS_DUCT(FINAL)          
+        CALL SAVE_STATS_DUCT(FINAL)
       ELSEIF (NUM_PER_DIR.EQ.0) THEN
-        CALL SAVE_STATS_CAV(FINAL)          
+        CALL SAVE_STATS_CAV(FINAL)
       END IF
 
       IF (FINAL) THEN
         IF (NUM_PER_DIR.EQ.3) THEN
-          CALL VIS_FLOW_PER         
+          CALL VIS_FLOW_PER
         ELSEIF (NUM_PER_DIR.EQ.2) THEN
-          CALL VIS_FLOW_CHAN         
+          CALL VIS_FLOW_CHAN
         ELSEIF (NUM_PER_DIR.EQ.1) THEN
-          CALL VIS_FLOW_DUCT          
+          CALL VIS_FLOW_DUCT
         ELSEIF (NUM_PER_DIR.EQ.0) THEN
-          CALL VIS_FLOW_CAV         
+          CALL VIS_FLOW_CAV
         END IF
       END IF
 
@@ -278,9 +283,7 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
 C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
       SUBROUTINE READ_FLOW
 C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
-      INCLUDE 'mpif.h'
       INCLUDE 'header'
-      include 'header_mpi'
       CHARACTER*60 FNAME
       CHARACTER*60 FNAME_P
       CHARACTER*60 FNAME_TH(N_TH)
@@ -288,120 +291,134 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
 
       complex*16 ctemp(200)
 
-           FNAME='diablo.start'
+!           FNAME='diablo.start'
+      FNAME='start.h5'
            FNAME_P='diablo_p.start'
            DO N=1,N_TH
              FNAME_TH(N)='diablo_th'
      &          //CHAR(MOD(N,100)/10+48)
      &          //CHAR(MOD(N,10)+48) // '.start'
            END DO
-
-      WRITE(6,*)   'Reading flow from ',FNAME
-
-      IF (.NOT.USE_MPI) THEN      
-        OPEN(UNIT=10,FILE=FNAME,STATUS="OLD",FORM="UNFORMATTED")
-        READ (10) NX_T, NY_T, NZ_T, NUM_PER_DIR_T, TIME, TIME_STEP
-        READ (10) (((CU1(I,K,J),I=0,NKX),K=0,TNKZ),J=0,TNKY),
+      IF (RANK.EQ.0) WRITE(6,*) 'Reading flow from ',FNAME
+      if (FNAME(len_trim(FNAME)-2:len_trim(FNAME)).eq.".h5") then
+!#ifdef HDF5
+        call mpi_barrier(MPI_COMM_WORLD,ierror)
+        call ReadHDF5(FNAME)
+!#else
+!        IF (RANK.EQ.0) then
+!          write(*,*) ' **** ERROR ******************************'
+!          write(*,*) ' Program not compiled with HDF5 libraries.'
+!        end if
+!        stop
+!#endif
+      else
+        IF (.NOT.USE_MPI) THEN
+          OPEN(UNIT=10,FILE=FNAME,STATUS="OLD",FORM="UNFORMATTED")
+          READ (10) NX_T, NY_T, NZ_T, NUM_PER_DIR_T, TIME, TIME_STEP
+          READ (10) (((CU1(I,K,J),I=0,NKX),K=0,TNKZ),J=0,TNKY),
      *            (((CU2(I,K,J),I=0,NKX),K=0,TNKZ),J=0,TNKY),
      *            (((CU3(I,K,J),I=0,NKX),K=0,TNKZ),J=0,TNKY)
 ! Check to make sure that the array dimensions match
-      NKX_T=NX_T/3
-      TNKZ_T=2*(NZ_T/3) 
-      IF ((NX .NE. NX_T) .OR. (NY .NE. NY_T) .OR. (NZ .NE. NZ_T)) THEN
-           write(*,*) 'NX,NY,NZ: ',NX,NY,NZ
-           write(*,*) 'NX_T,NY_T,NZ_T: ',NX_T,NY_T,NZ_T
-           STOP 'Error: old flowfield wrong dimensions. '
-      END IF
-      IF (NUM_PER_DIR .NE. NUM_PER_DIR_T)
-     *     STOP 'Error: old flowfield wrong NUM_PER_DIR. '
+          NKX_T=NX_T/3
+          TNKZ_T=2*(NZ_T/3)
+          IF ((NX .NE. NX_T) .OR. (NY .NE. NY_T) .OR.
+     &            (NZ .NE. NZ_T)) THEN
+            write(*,*) 'NX,NY,NZ: ',NX,NY,NZ
+            write(*,*) 'NX_T,NY_T,NZ_T: ',NX_T,NY_T,NZ_T
+            STOP 'Error: old flowfield wrong dimensions. '
+          END IF
+          IF (NUM_PER_DIR .NE. NUM_PER_DIR_T)
+     *      STOP 'Error: old flowfield wrong NUM_PER_DIR. '
 
-      IF (NUM_PER_DIR.EQ.3) THEN
-        DO N=1,NUM_READ_TH
+          IF (NUM_PER_DIR.EQ.3) THEN
+            DO N=1,NUM_READ_TH
 ! Specify in input.dat which scalars are to be read
-          OPEN(UNIT=11,FILE=FNAME_TH(READ_TH_INDEX(N)),STATUS="OLD"
-     &           ,FORM="UNFORMATTED")
-          READ (11) NX_T, NY_T, NZ_T, NUM_PER_DIR_T, TIME, TIME_STEP
-          READ (11) (((CTH(I,K,J,READ_TH_INDEX(N))
+              OPEN(UNIT=11,FILE=FNAME_TH(READ_TH_INDEX(N))
+     &           ,STATUS="OLD",FORM="UNFORMATTED")
+              READ (11) NX_T, NY_T, NZ_T, NUM_PER_DIR_T, TIME, TIME_STEP
+              READ (11) (((CTH(I,K,J,READ_TH_INDEX(N))
      &           ,I=0,NKX),K=0,TNKZ),J=0,TNKY)
-         CLOSE(11)
-        END DO
-      ELSEIF (NUM_PER_DIR.EQ.2) THEN
-        if ((NX.ne.NX_T).or.(NY.ne.NY_T).or.(NZ.ne.NZ_T)) then
+              CLOSE(11)
+            END DO
+          ELSEIF (NUM_PER_DIR.EQ.2) THEN
+            if ((NX.ne.NX_T).or.(NY.ne.NY_T).or.(NZ.ne.NZ_T)) then
 ! Interpolation....
-        write(*,*) 'NX,NX_T,NKX ',NX,NX_t,NX_T/3
-        write(*,*) 'NY,NY_T,TNKZ',NY,NY_T,2*(NZ_T/3)
-        write(*,*) 'NZ,NZ_T',NZ,NZ_T
-        write(*,*) 'interpolating'
-        READ (10) (((CU1(I,K,J),I=0,NKX_T),K=0,TNKZ_T),J=1,NY),
-     *            (((CU2(I,K,J),I=0,NKX_T),K=0,TNKZ_T),J=2,NY),
-     *            (((CU3(I,K,J),I=0,NKX_T),K=0,TNKZ_T),J=1,NY)
-        DO N=1,NUM_READ_TH
+              write(*,*) 'NX,NX_T,NKX ',NX,NX_t,NX_T/3
+              write(*,*) 'NY,NY_T,TNKZ',NY,NY_T,2*(NZ_T/3)
+              write(*,*) 'NZ,NZ_T',NZ,NZ_T
+              write(*,*) 'interpolating'
+              READ (10) (((CU1(I,K,J),I=0,NKX_T),K=0,TNKZ_T),J=1,NY),
+     *                  (((CU2(I,K,J),I=0,NKX_T),K=0,TNKZ_T),J=2,NY),
+     *                  (((CU3(I,K,J),I=0,NKX_T),K=0,TNKZ_T),J=1,NY)
+              DO N=1,NUM_READ_TH
 ! Specify in input.dat which scalars are to be read
-          OPEN(UNIT=11,FILE=FNAME_TH(READ_TH_INDEX(N)),STATUS="OLD"
-     &           ,FORM="UNFORMATTED")
-          READ (11) NX_T, NY_T, NZ_T, NUM_PER_DIR_T, TIME, TIME_STEP
-          READ (11) (((CTH(I,K,J,READ_TH_INDEX(N))
-     &           ,I=0,NKX_T),K=0,TNKZ_T),J=1,NY)
-         CLOSE(11)
-        END DO
-        do j=1,NY
-        do k=1,NZ_T/3
-        do i=0,NKX
-          CU1(I,TNKZ+1-k,J)=CU1(I,TNKZ_T+1-k,J)
-          CU2(I,TNKZ+1-k,J)=CU2(I,TNKZ_T+1-k,J)
-          CU3(I,TNKZ+1-k,J)=CU3(I,TNKZ_T+1-k,J)
-          do N=1,NUM_READ_TH
-            CTH(I,TNKZ+1-k,J,N)=CTH(I,TNKZ_T+1-k,J,N)
-          end do
-        end do
-        end do
-        end do
-        do j=1,NY
-        do k=NZ_T/3,TNKZ-NZ_T/3
-        do i=0,NKX
-          CU1(I,K,J)=0.d0
-          CU2(I,K,J)=0.d0
-          CU3(I,K,J)=0.d0
-          do N=1,NUM_READ_TH
-            CTH(I,K,J,N)=0.d0
-          end do
-         end do
-         end do
-         end do
-        else
+                OPEN(UNIT=11,FILE=FNAME_TH(READ_TH_INDEX(N))
+     &                  ,STATUS="OLD",FORM="UNFORMATTED")
+                READ (11) NX_T, NY_T, NZ_T, NUM_PER_DIR_T, TIME,
+     &                    TIME_STEP
+                READ (11) (((CTH(I,K,J,READ_TH_INDEX(N))
+     &                    ,I=0,NKX_T),K=0,TNKZ_T),J=1,NY)
+                CLOSE(11)
+              END DO
+              do j=1,NY
+                do k=1,NZ_T/3
+                  do i=0,NKX
+                    CU1(I,TNKZ+1-k,J)=CU1(I,TNKZ_T+1-k,J)
+                    CU2(I,TNKZ+1-k,J)=CU2(I,TNKZ_T+1-k,J)
+                    CU3(I,TNKZ+1-k,J)=CU3(I,TNKZ_T+1-k,J)
+                    do N=1,NUM_READ_TH
+                      CTH(I,TNKZ+1-k,J,N)=CTH(I,TNKZ_T+1-k,J,N)
+                    end do
+                  end do
+                end do
+              end do
+              do j=1,NY
+                do k=NZ_T/3,TNKZ-NZ_T/3
+                  do i=0,NKX
+                    CU1(I,K,J)=0.d0
+                    CU2(I,K,J)=0.d0
+                    CU3(I,K,J)=0.d0
+                    do N=1,NUM_READ_TH
+                      CTH(I,K,J,N)=0.d0
+                    end do
+                  end do
+                end do
+              end do
+            else
 ! No interpolation
-        READ (10) (((CU1(I,K,J),I=0,NKX),K=0,TNKZ),J=1,NY),
-     *            (((CU2(I,K,J),I=0,NKX),K=0,TNKZ),J=2,NY),
-     *            (((CU3(I,K,J),I=0,NKX),K=0,TNKZ),J=1,NY)
-        DO N=1,NUM_READ_TH
+              READ (10) (((CU1(I,K,J),I=0,NKX),K=0,TNKZ),J=1,NY),
+     *                  (((CU2(I,K,J),I=0,NKX),K=0,TNKZ),J=2,NY),
+     *                  (((CU3(I,K,J),I=0,NKX),K=0,TNKZ),J=1,NY)
+              DO N=1,NUM_READ_TH
 ! Specify in input.dat which scalars are to be read
-          OPEN(UNIT=11,FILE=FNAME_TH(READ_TH_INDEX(N)),STATUS="OLD"
-     &           ,FORM="UNFORMATTED")
-          READ (11) NX_T, NY_T, NZ_T, NUM_PER_DIR_T, TIME, TIME_STEP
-          READ (11) (((CTH(I,K,J,READ_TH_INDEX(N))
+                OPEN(UNIT=11,FILE=FNAME_TH(READ_TH_INDEX(N))
+     &           ,STATUS="OLD",FORM="UNFORMATTED")
+                READ (11) NX_T, NY_T, NZ_T, NUM_PER_DIR_T, TIME, TIME_STEP
+                READ (11) (((CTH(I,K,J,READ_TH_INDEX(N))
      &           ,I=0,NKX),K=0,TNKZ),J=1,NY)
-         CLOSE(11)
-        END DO
-        end if
+                CLOSE(11)
+              END DO
+            end if
 ! Done if NUM_PER_DIR.EQ.2
-      ELSEIF (NUM_PER_DIR.EQ.1) THEN
-        READ (10) (((CU1(I,K,J),I=0,NKX),K=1,NZ),J=1,NY),
-     *            (((CU2(I,K,J),I=0,NKX),K=1,NZ),J=2,NY),
-     *            (((CU3(I,K,J),I=0,NKX),K=2,NZ),J=1,NY)
-      ELSEIF (NUM_PER_DIR.EQ.0) THEN
-        READ (10) (((U1(I,K,J),I=2,NX),K=1,NZ),J=1,NY),
-     *            (((U2(I,K,J),I=1,NX),K=1,NZ),J=2,NY),
-     *            (((U3(I,K,J),I=1,NX),K=2,NZ),J=1,NY)
-      END IF
-      CLOSE(10)
-      CLOSE(11)
-      ELSE
+          ELSEIF (NUM_PER_DIR.EQ.1) THEN
+            READ (10) (((CU1(I,K,J),I=0,NKX),K=1,NZ),J=1,NY),
+     *                (((CU2(I,K,J),I=0,NKX),K=1,NZ),J=2,NY),
+     *                (((CU3(I,K,J),I=0,NKX),K=2,NZ),J=1,NY)
+          ELSEIF (NUM_PER_DIR.EQ.0) THEN
+            READ (10) (((U1(I,K,J),I=2,NX),K=1,NZ),J=1,NY),
+     *                (((U2(I,K,J),I=1,NX),K=1,NZ),J=2,NY),
+     *                (((U3(I,K,J),I=1,NX),K=2,NZ),J=1,NY)
+          END IF
+          CLOSE(10)
+          CLOSE(11)
+        ELSE
 
-        CALL MPI_IO_READ(FNAME,FNAME_TH,FNAME_P)
+          CALL MPI_IO_READ(FNAME,FNAME_TH,FNAME_P)
 
 !        CALL SAVE_STATS(.FALSE.)
 
-      END IF
+        END IF
+      end if
 
 
 C Apply initial boundary conditions, set ghost cells
@@ -418,38 +435,69 @@ C Apply initial boundary conditions, set ghost cells
 C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
       SUBROUTINE SAVE_FLOW(FINAL)
 C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
-      INCLUDE 'mpif.h'
       INCLUDE 'header'
-      include 'header_mpi'
       CHARACTER*60 FNAME
       CHARACTER*60 FNAME_P
       CHARACTER*60 FNAME_TH(N_TH)
       INTEGER      I, J, K, N
-      LOGICAL      FINAL
+      LOGICAL      FINAL, SAVE_PRESSURE
 
-      IF (FINAL) THEN
-        FNAME='diablo.end'
-        FNAME_P='diablo_p.end'
-        DO N=1,N_TH
-          FNAME_TH(N)='diablo_th'
+! NEW ###########################
+
+      SAVE_PRESSURE=.FALSE.
+      if (FINAL) then
+        FNAME='end.h5'
+        SAVE_PRESSURE=.TRUE.
+      else
+        if (N_TIME_STEPS/SAVE_FLOW_INT < 10) then
+          FNAME='out'//char(int(TIME_STEP/SAVE_FLOW_INT)+48)//'.h5'
+        else if (N_TIME_STEPS/SAVE_FLOW_INT < 100) then
+          FNAME='out'//char(floor(TIME_STEP/SAVE_FLOW_INT/10.)+48)
+     &           //char(mod(TIME_STEP/SAVE_FLOW_INT,10)+48)//'.h5'
+        else if (N_TIME_STEPS/SAVE_FLOW_INT < 1000) then
+          FNAME='out'//char(floor(TIME_STEP/SAVE_FLOW_INT/100.)+48)
+     &           //char(floor(mod(TIME_STEP/SAVE_FLOW_INT,100)/10.)+48)
+     &           //char(mod(TIME_STEP/SAVE_FLOW_INT,10)+48)//'.h5'
+        end if
+      end if
+      if (FNAME(len_trim(FNAME)-2:len_trim(FNAME)).eq.".h5") then
+!#ifdef HDF5
+        call mpi_barrier(MPI_COMM_WORLD,ierror)
+        call WriteHDF5('restart_files/'//FNAME,SAVE_PRESSURE)
+!#else
+!      IF (RANK.EQ.0) then
+!         write(*,*) ' **** ERROR ******************************'
+!         write(*,*) ' Program not compiled with HDF5 libraries.'
+!         end if
+!         stop
+!#endif
+! ##############################
+
+      else
+
+        IF (FINAL) THEN
+          FNAME='diablo.end'
+          FNAME_P='diablo_p.end'
+          DO N=1,N_TH
+            FNAME_TH(N)='diablo_th'
      &       //CHAR(MOD(N,100)/10+48)
      &       //CHAR(MOD(N,10)+48) // '.end'
-        END DO
-      ELSE
-         FNAME='./restart_files/diablo.saved.'
+          END DO
+        ELSE
+          FNAME='./restart_files/diablo.saved.'
      &        //CHAR(MOD(TIME_STEP,100000)/10000+48)
      &        //CHAR(MOD(TIME_STEP,10000)/1000+48)
      &        //CHAR(MOD(TIME_STEP,1000)/100+48)
      &        //CHAR(MOD(TIME_STEP,100)/10+48)
      &        //CHAR(MOD(TIME_STEP,10)+48)
-         FNAME_P='./restart_files/diablo_p.saved.'
+          FNAME_P='./restart_files/diablo_p.saved.'
      &        //CHAR(MOD(TIME_STEP,100000)/10000+48)
      &        //CHAR(MOD(TIME_STEP,10000)/1000+48)
      &        //CHAR(MOD(TIME_STEP,1000)/100+48)
      &        //CHAR(MOD(TIME_STEP,100)/10+48)
      &        //CHAR(MOD(TIME_STEP,10)+48)
-           DO N=1,N_TH
-           FNAME_TH(N)='./restart_files/diablo_th'
+          DO N=1,N_TH
+            FNAME_TH(N)='./restart_files/diablo_th'
      &        //CHAR(MOD(N,100)/10+48)
      &        //CHAR(MOD(N,10)+48) // '.saved.'
      &        //CHAR(MOD(TIME_STEP,100000)/10000+48)
@@ -457,60 +505,61 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
      &        //CHAR(MOD(TIME_STEP,1000)/100+48)
      &        //CHAR(MOD(TIME_STEP,100)/10+48)
      &        //CHAR(MOD(TIME_STEP,10)+48)
-           END DO
-      END IF
+          END DO
+        END IF
 
-      IF (.NOT.USE_MPI) THEN
-        OPEN(UNIT=10,FILE=FNAME,STATUS='NEW',FORM="UNFORMATTED")
-        WRITE(10) NX, NY, NZ, NUM_PER_DIR, TIME, TIME_STEP
+        IF (.NOT.USE_MPI) THEN
+          OPEN(UNIT=10,FILE=FNAME,STATUS='NEW',FORM="UNFORMATTED")
+          WRITE(10) NX, NY, NZ, NUM_PER_DIR, TIME, TIME_STEP
 
-      IF (NUM_PER_DIR.EQ.3) THEN
+          IF (NUM_PER_DIR.EQ.3) THEN
 
-         WRITE(10) (((CU1(I,K,J),I=0,NKX),K=0,TNKZ),J=0,TNKY),
+            WRITE(10) (((CU1(I,K,J),I=0,NKX),K=0,TNKZ),J=0,TNKY),
      &             (((CU2(I,K,J),I=0,NKX),K=0,TNKZ),J=0,TNKY),
      &             (((CU3(I,K,J),I=0,NKX),K=0,TNKZ),J=0,TNKY)
 
-         DO N=1,N_TH
-          OPEN(UNIT=11,FILE=FNAME_TH(N),STATUS="UNKNOWN"
-     &       ,FORM="UNFORMATTED")
-          WRITE(11) NX, NY, NZ, NUM_PER_DIR, TIME, TIME_STEP
-          WRITE(11) (((CTH(I,K,J,N),I=0,NKX),K=0,TNKZ),J=0,TNKY)
-          CLOSE(11)
-         END DO
-      ELSEIF (NUM_PER_DIR.EQ.2) THEN
-        WRITE(10) (((CU1(I,K,J),I=0,NKX),K=0,TNKZ),J=1,NY),
+            DO N=1,N_TH
+              OPEN(UNIT=11,FILE=FNAME_TH(N),STATUS="UNKNOWN"
+     &          ,FORM="UNFORMATTED")
+              WRITE(11) NX, NY, NZ, NUM_PER_DIR, TIME, TIME_STEP
+              WRITE(11) (((CTH(I,K,J,N),I=0,NKX),K=0,TNKZ),J=0,TNKY)
+              CLOSE(11)
+            END DO
+          ELSEIF (NUM_PER_DIR.EQ.2) THEN
+            WRITE(10) (((CU1(I,K,J),I=0,NKX),K=0,TNKZ),J=1,NY),
      *            (((CU2(I,K,J),I=0,NKX),K=0,TNKZ),J=2,NY),
      *            (((CU3(I,K,J),I=0,NKX),K=0,TNKZ),J=1,NY)
-        DO N=1,N_TH
-          OPEN(UNIT=11,FILE=FNAME_TH(N),STATUS="UNKNOWN"
-     &       ,FORM="UNFORMATTED")
-          WRITE(11) NX, NY, NZ, NUM_PER_DIR, TIME, TIME_STEP
-          WRITE(11) (((CTH(I,K,J,N),I=0,NKX),K=0,TNKZ),J=1,NY)
-          CLOSE(11)
-        END DO
-      ELSEIF (NUM_PER_DIR.EQ.1) THEN
-        WRITE(10) (((CU1(I,K,J),I=0,NKX),K=1,NZ),J=1,NY),
+            DO N=1,N_TH
+              OPEN(UNIT=11,FILE=FNAME_TH(N),STATUS="UNKNOWN"
+     &            ,FORM="UNFORMATTED")
+              WRITE(11) NX, NY, NZ, NUM_PER_DIR, TIME, TIME_STEP
+              WRITE(11) (((CTH(I,K,J,N),I=0,NKX),K=0,TNKZ),J=1,NY)
+              CLOSE(11)
+            END DO
+          ELSEIF (NUM_PER_DIR.EQ.1) THEN
+            WRITE(10) (((CU1(I,K,J),I=0,NKX),K=1,NZ),J=1,NY),
      *            (((CU2(I,K,J),I=0,NKX),K=1,NZ),J=2,NY),
      *            (((CU3(I,K,J),I=0,NKX),K=2,NZ),J=1,NY)
-      ELSEIF (NUM_PER_DIR.EQ.0) THEN
-        WRITE(10) (((U1(I,K,J),I=2,NX),K=1,NZ),J=1,NY),
+          ELSEIF (NUM_PER_DIR.EQ.0) THEN
+            WRITE(10) (((U1(I,K,J),I=2,NX),K=1,NZ),J=1,NY),
      *            (((U2(I,K,J),I=1,NX),K=1,NZ),J=2,NY),
      *            (((U3(I,K,J),I=1,NX),K=2,NZ),J=1,NY)
-      END IF
-      CLOSE(10)
-      CLOSE(11)
+          END IF
+          CLOSE(10)
+          CLOSE(11)
 
-      ELSE
-
-        CALL MPI_IO_WRITE(FNAME,FNAME_TH,FNAME_P)
-        IF (RANK.eq.0) then
-           write(*,*) 'Saved flow to ',FNAME
-           DO n=1,N_TH
-             write(*,*) 'Saved flow to ',FNAME_TH(n)
-           END DO
+        ELSE
+          CALL MPI_IO_WRITE(FNAME,FNAME_TH,FNAME_P)
+          IF (RANK.eq.0) then
+            write(*,*) 'Saved flow to ',FNAME
+            DO n=1,N_TH
+              write(*,*) 'Saved flow to ',FNAME_TH(n)
+            END DO
+          END IF
+          CALL MPI_BARRIER(MPI_COMM_WORLD,IERR)
         END IF
-        CALL MPI_BARRIER(MPI_COMM_WORLD,IERR)
-      END IF
+
+      end if
 
       RETURN
       END
@@ -531,4 +580,3 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
 
       RETURN
       END
-
