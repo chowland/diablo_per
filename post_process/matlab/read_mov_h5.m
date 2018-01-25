@@ -1,13 +1,13 @@
 % Run directory
-rundir = '/local/scratch/public/cjh225/force_run/';
+rundir = '../../plane_wave/';
 % Movie file (choose plane)
-fname = [rundir 'movie_xy.h5'];
+fname = [rundir 'movie_xz.h5'];
 % Quantity to plot ('/U', '/V', '/W' or '/THn')
-F = '/W';
+F = '/U';
 
 % Number of samples
 nk=h5readatt(fname,'/','Samples');
-plane = h5readatt(fname,'/0000','z');
+plane = h5readatt(fname,'/0000','y');
 
 for i=1:nk
     if i<=10
@@ -23,10 +23,10 @@ for i=1:nk
     xvec = linspace(0,2*pi,size(G,1));
     yvec = linspace(0,2*pi,size(G,2));
     pcolor(xvec,yvec,G(:,:)'); shading interp
-%     if i==1
+    if i==1
         c=max(abs(G(:)));
-%     end
-%     caxis([-c c])
+    end
+    caxis([-c c])
     colormap(cmocean('balance'))
     colorbar
 %     title(['$z = ' num2str(plane) ',\, t = ' num2str(tii(i),'%05.1f') '$'])

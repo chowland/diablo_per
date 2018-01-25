@@ -1,0 +1,82 @@
+!----*|--.---------.---------.---------.---------.---------.---------.-|-------|
+! Parameters for Adjoint Simulation
+!----*|--.---------.---------.---------.---------.---------.---------.-|-------|
+
+      INCLUDE   'header'
+	
+! Note: There might not be a need for adjoint storage arrays in real
+!	  space.  Investigate to make sure this is the case.
+
+! Note: Do these storage arrays really need to be 3D?  I am just saving
+!       planes on the walls.  Perhaps they only need to be the size of
+!       the measurement space.
+
+      INTEGER   NV, NM, THL
+      INCLUDE   'batch/meas_def'
+	
+! The following variables are needed to extract measurements in the 
+! channel case.  Hopefully, since Joe and I have talked about it, the 
+! variable definition will be consistent case to case.  The variables 
+! NV, NM, and THL are defined as below:
+!	NV = Number of Vehicles
+!	NM = Number of Measurements / vehicle
+!	THL = Time History Length (how many measurements will be necessary
+!					   for the adjoint calculation?)
+! The other variables defined below are general variables for extracting
+! measurements.  A brief summary of each is provided below:
+!	Z = Cx   (Extracted values from Est. corresponding to measurement)
+!       Y        (A stored time history of observed measurements)
+!	VEH_POS  (A stored time histore of the position of Each Vehicle)
+!	MEAS_VAR (Measurement variances for each measurement type)
+!	AVE_VAR  (Averaging variance over the domain)
+!	SMPL_FREQ(Frequency of Measurement Sampling)
+
+! General measurement variable used in all cases:
+      REAL*8   MEAS_VAR(1:NM), AVE_VAR, REG_MIXED
+      CHARACTER*10 MEAS_TYPE_ADJOINT(1:NM)
+      INTEGER SMPL_FREQ
+      COMMON /CHRIS/
+     & MEAS_VAR, AVE_VAR, SMPL_FREQ, MEAS_TYPE_ADJOINT, REG_MIXED
+
+! The following variables are used in the estimation problem.  The
+! additional storage array store the field needed in the adjoint
+! calculations:
+      REAL*8  U1S (0:NX+1,0:NZ+1,0:NY+1)
+     &	    , U2S (0:NX+1,0:NZ+1,0:NY+1)
+     &	    , U3S (0:NX+1,0:NZ+1,0:NY+1)
+     &	    , THS (0:NX+1,0:NZ+1,0:NY+1,1:N_TH)
+     &      , PS  (0:NX+1,0:NZ+1,0:NY+1)
+     &	    , F1S (0:NX+1,0:NZ+1,0:NY+1)
+     &	    , F2S (0:NX+1,0:NZ+1,0:NY+1)
+     &      , F3S (0:NX+1,0:NZ+1,0:NY+1)
+     &	    , FTHS (0:NX+1,0:NZ+1,0:NY+1,1:N_TH)
+     &      , Z(1:NV,1:NM)
+     &      , Y(1:NV,1:NM,0:THL-1)
+     &      , VEH_POS(1:3,1:NV,0:THL-1)
+
+      COMPLEX*16 CU1S(0:NX/2,0:NZ+1,0:NY+1)
+     &         , CU2S(0:NX/2,0:NZ+1,0:NY+1) 
+     &         , CU3S(0:NX/2,0:NZ+1,0:NY+1) 
+     &         , CTHS(0:NX/2,0:NZ+1,0:NY+1,1:N_TH)
+     &         , CPS (0:NX/2,0:NZ+1,0:NY+1)
+     &         , CF1S(0:NX/2,0:NZ+1,0:NY+1) 
+     &         , CF2S(0:NX/2,0:NZ+1,0:NY+1) 
+     &         , CF3S(0:NX/2,0:NZ+1,0:NY+1)
+     &         , CFTHS(0:NX/2,0:NZ+1,0:NY+1,1:N_TH)
+
+      EQUIVALENCE (U1S,CU1S)
+     &          , (U2S,CU2S)
+     &          , (U3S,CU3S)
+     &          , (F1S,CF1S)
+     &          , (F2S,CF2S)
+     &          , (F3S,CF3S)
+     &          , (PS,CPS)
+     &          , (THS,CTHS)
+     
+      COMMON /GLOBAL_VARS/ U1F1, U2F1, U3F1, THF
+     &		       , Z, Y, VEH_POS
+
+! Additional Variables needed for solving the implicit solve of a 
+! penta-diagonal system.
+      REAL*8     MATL3_C(0:NX/3,0:NY+1),MATL2_C(0:NX/3,0:NY+1)
+      REAL*8     MATU2_C(0:NX/3,0:NY+1),MATU3_C(0:NX/3,0:NY+1)
