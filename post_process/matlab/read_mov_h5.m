@@ -1,9 +1,9 @@
 % Run directory
-rundir = '../../plane_wave/';
+rundir = '/local/scratch/public/cjh225/plane_wave/';
 % Movie file (choose plane)
 fname = [rundir 'movie_xz.h5'];
 % Quantity to plot ('/U', '/V', '/W' or '/THn')
-F = '/U';
+F = '/W';
 
 % Number of samples
 nk=h5readatt(fname,'/','Samples');
@@ -23,9 +23,9 @@ for i=1:nk
     xvec = linspace(0,2*pi,size(G,1));
     yvec = linspace(0,2*pi,size(G,2));
     pcolor(xvec,yvec,G(:,:)'); shading interp
-    if i==1
+%     if i==1
         c=max(abs(G(:)));
-    end
+%     end
     caxis([-c c])
     colormap(cmocean('balance'))
     colorbar

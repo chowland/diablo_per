@@ -1155,7 +1155,7 @@ c     Dimensions in the memory and in the file
       call h5pcreate_f(H5P_DATASET_XFER_F, plist_id_w, error)
       call h5pset_dxpl_mpio_f(plist_id_w, H5FD_MPIO_COLLECTIVE_F,
      +        error)
-
+      if (RANKY==NY_MOV/(NY_S+1)) then
       do ith=1,3+N_TH
 
       select case(ith)
@@ -1232,6 +1232,7 @@ c     Dimensions in the memory and in the file
         call h5dclose_f(dset_id, error)
       end if
       end do
+      end if
 
 !     Close the dataspace for the memory and for the file
       call h5sclose_f(filspace_id, error)
