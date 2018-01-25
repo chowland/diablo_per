@@ -18,3 +18,4 @@
      &       ,NKX_S,TNKZ_S,NP_S,NXM_S,NYM_S,NZM_S
      &       ,NKX_S_TH,TNKZ_S_TH
      &       ,NXM_S_TH,NYM_S_TH,NZM_S_TH
+     &       ,RANKY,RANKZ,MPI_COMM_Y,MPI_COMM_Z

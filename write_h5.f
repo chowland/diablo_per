@@ -731,7 +731,7 @@ c     Identifiers
         if ( ((i.eq.1).and.(RANKZ.EQ.RANKZ_MOV)) .OR.
      &       ((i.eq.2).and.(RANKY.EQ.RANKY_MOV)) .OR.
      &        (i.eq.3) ) then
-
+        write(*,*) 'Pre-parallel access property setting.'
 ! Setup file access property list with parallel I/O access
       call h5pcreate_f(H5P_FILE_ACCESS_F, plist_id_d, error)
       call h5pset_fapl_mpio_f(plist_id_d, COMM_MPI,

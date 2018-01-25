@@ -57,13 +57,12 @@ C The string MPI_IO_NUM will be used to define the RANK+1 for each process
         ELSE
            WRITE(6,*) 'ERROR, NPROCS>10,000, Unsupported problem size'
         END IF
-
         MPI_NUM=RANK
 
         NXM_S=NX_S-1
         NYM_S=NY_S-1
         NZM_S=NZ_S-1
-
+        call MPI_BARRIER(MPI_COMM_WORLD,IERROR)
       RETURN
       END
 
