@@ -90,12 +90,12 @@ endif
 
 
 diablo: $(MAIN) diablo_io.o periodic.o channel.o $(LES_o) $(NETCDF_o) \
-	write_h5.o duct.o cavity.o fft.o fft_th.o rand.o $(HOOKS) \
+	write_h5.o duct.o cavity.o fft.o fft_th.o rand.o user_rhs.o $(HOOKS) \
 	$(ADJOINT) $(MPI) $(HEADER) grid_def grid_def_mpi
 	$(COMPILER) $(COMPOPTS) $(MAIN) -o diablo \
 	diablo_io.o periodic.o channel.o $(LES_o) $(NETCDF_o) \
-	write_h5.o duct.o cavity.o fft.o fft_th.o rand.o $(HOOKS) $(ADJOINT) \
-	$(MPI) $(LINKOPTS)
+	write_h5.o duct.o cavity.o fft.o fft_th.o rand.o user_rhs.o \
+	$(HOOKS) $(ADJOINT)	$(MPI) $(LINKOPTS)
 
 diablo_io.o: diablo_io.f header grid_def grid_def_mpi
 	$(COMPILER) $(COMPOPTS) -c diablo_io.f
@@ -137,6 +137,9 @@ header : header_mpi grid_def grid_def_mpi
 
 write_h5.o : write_h5.f
 	$(COMPILER) $(COMPOPTS) -c write_h5.f
+
+user_rhs.o: user_rhs.f periodic.o fft.o fft_th.o $(MPI) header grid_def grid_def_mpi
+	$(COMPILER) $(COMPOPTS) -c user_rhs.f
 
 duct.o: duct.f header grid_def
 	$(COMPILER) $(COMPOPTS) -c duct.f

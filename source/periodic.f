@@ -406,6 +406,8 @@ C ASSUME that the fine scale scalar structure does not affect the velocity
        END IF
        END DO
 
+       call USER_RHS_PER_FOURIER
+
 C Add some forcing to the system to keep the Batchelor scale fixed
 !      EK=0.d0
 !      DO J=0,NY_S
