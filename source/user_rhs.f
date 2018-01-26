@@ -16,7 +16,7 @@
       call RANDOM_NUMBER(alpha)
       alpha=2.*pi*alpha ! Random phase of forcing
       K0=7.
-      F_0=1.0           ! Amplitude of forcing
+      F_0=1000.0           ! Amplitude of forcing
 
       DO J=0,TNKY
         DO K=0,TNKZ_S
