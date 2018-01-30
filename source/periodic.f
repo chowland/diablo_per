@@ -155,6 +155,8 @@ C Note, on an f-plane under the traditional approximation, C_SIN=C_COS=0
         END DO
       END DO
 
+      call USER_RHS_PER_FOURIER
+
 
 C Transform the scalar concentration to physical space
       DO N=1,N_TH
@@ -406,7 +408,7 @@ C ASSUME that the fine scale scalar structure does not affect the velocity
        END IF
        END DO
 
-       call USER_RHS_PER_FOURIER
+       !call USER_RHS_PER_FOURIER
 
 C Add some forcing to the system to keep the Batchelor scale fixed
 !      EK=0.d0
