@@ -869,30 +869,34 @@ C Any background stratification must be added to the governing equations
 
       IF ((IC_TYPE.eq.0).or.(IC_TYPE.eq.1)) then
         DO N=1,N_TH
-        DO J=0,NY_S_TH
-          DO K=0,NZ_S_TH
-            DO I=0,NXM_TH
-              TH(I,K,J,n)=0.d0
+          IF (CREATE_NEW_TH(N)) THEN
+            DO J=0,NY_S_TH
+              DO K=0,NZ_S_TH
+                DO I=0,NXM_TH
+                  TH(I,K,J,n)=0.d0
+                END DO
+              END DO
             END DO
-          END DO
-        END DO
+          END IF
         END DO
       ELSE IF (IC_TYPE.eq.2) then
 ! for plane wave
         DO N=1,N_TH
-        theta0=45.d0*2.d0*PI/360.d0
-        a0=0.85d0
-        DO J=0,NY_S
-          DO K=0,NZ_S
-            DO I=0,NX+1
-              phi0=GX(I)+GY_S(J)*tan(theta0)
-              U1(I,K,J)=-a0*sin(theta0)*cos(phi0)
-              U2(I,K,J)=a0*cos(theta0)*cos(phi0)
-              U3(I,K,J)=0.d0
-              TH(I,K,J,1)=-a0*sin(phi0)
+          IF (CREATE_NEW_TH(N)) THEN
+            theta0=45.d0*2.d0*PI/360.d0
+            a0=0.85d0
+            DO J=0,NY_S
+              DO K=0,NZ_S
+                DO I=0,NX+1
+                  phi0=GX(I)+GY_S(J)*tan(theta0)
+                  U1(I,K,J)=-a0*sin(theta0)*cos(phi0)
+                  U2(I,K,J)=a0*cos(theta0)*cos(phi0)
+                  U3(I,K,J)=0.d0
+                  TH(I,K,J,1)=-a0*sin(phi0)
+                END DO
+              END DO
             END DO
-          END DO
-        END DO
+          END IF
         END DO
        ELSE
          WRITE(*,*) 'UNKNOWN IC_TYPE IN CREATE_TH_PER'
