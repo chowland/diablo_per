@@ -16,14 +16,14 @@
       call RANDOM_NUMBER(alpha)
       alpha=2.*pi*alpha ! Random phase of forcing
       K0=7.
-      F_0=1000.0           ! Amplitude of forcing
+      F_0=1.0e+4           ! Amplitude of forcing
 
       DO J=0,TNKY
         DO K=0,TNKZ_S
           do I=0,NKX_S
             IF ( (KX2_S(I)+KZ2_S(K)+KY2(J).LE.100.) .AND.
      &            (KY(J).NE.0) .AND. (KX2_S(I)+KZ2_S(K).NE.0) ) THEN
-              CS1(I,K,J)=cexp(cmplx(0,alpha))*(8.*pi)**(-0.5)*
+              CS1(I,K,J)=F_0*cexp(cmplx(0,alpha))*(8.*pi)**(-0.5)*
      &                      (KX2_S(I)+KZ2_S(K)+KY2(J)+K0**2)**(-3)
               CF1(I,K,J)=CF1(I,K,J)+CS1(I,K,J)*KY(J)*KX_S(I)/
      &       (KX2_S(I)+KZ2_S(K)+KY2(J))**(1./4.)/SQRT(KX2_S(I)+KZ2_S(K))
