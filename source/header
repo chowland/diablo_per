@@ -134,8 +134,8 @@
 !----*|--.---------.---------.---------.---------.---------.---------.-|-------|! Parameters for Chemotaxis simulations
 !----*|--.---------.---------.---------.---------.---------.---------.-|-------|
       REAL*8 CHI(1:N_TH),C0(1:N_TH),THTH(1:N_TH),THVAR(1:N_TH)
-     &        ,V_S(1:N_TH),THME(1:N_TH)
-      COMMON /CHEMOTAXIS_VARS/ CHI,C0,THTH,THVAR,V_S,THME
+     &        ,V_S(1:N_TH),THME(1:N_TH),th_flux(1:N_TH)
+      COMMON /CHEMOTAXIS_VARS/ CHI,C0,THTH,THVAR,V_S,THME,th_flux
 
 !----*|--.---------.---------.---------.---------.---------.---------.-|-------|! Parameters for Geophysical flow
 !----*|--.---------.---------.---------.---------.---------.---------.-|-------|

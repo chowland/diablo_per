@@ -1071,7 +1071,7 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
 
       real*8 urms_b_sum,vrms_b_sum,wrms_b_sum
       real*8 thth_sum(1:N_TH),thvar_sum(1:N_TH),thme_sum(1:N_TH)
-      real*8 l_th(1:N_TH),l_th_sum(1:N_TH)
+      real*8 l_th(1:N_TH),l_th_sum(1:N_TH),th_flux_sum(1:N_TH)
 
         IF (USE_MPI) THEN
            CALL MPI_BARRIER(MPI_COMM_WORLD,IERR)
@@ -1363,6 +1363,7 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
 ! Get the bacterial/nutrient correlation
       thth(n)=0.d0
       thvar(n)=0.d0
+      th_flux(n)=0.d0
       do j=0,NY_S_TH
       do k=0,NZ_S_TH
       do i=0,NXM_TH
@@ -1377,12 +1378,15 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
      &                   *DX_TH(I)*DY_TH(J)*DZ_TH(K)
         thme(n)=thme(n)+TH(i,k,j,n)
      &                   *DX_TH(I)*DY_TH(J)*DZ_TH(K)
+        th_flux(n)=th_flux(n)+TH(i,k,j,n)*U2(i,k,j)
+     &                   *DX_TH(I)*DY_TH(J)*DZ_TH(K)
       end do
       end do
       end do
       thth(n)=thth(n)
       thvar(n)=thvar(n)
       thme(n)=thme(n)/(LX*LY*LZ)
+      th_flux(n)=th_flux(n)/(LX*LY*LZ)
 
       IF (USE_MPI) THEN
         CALL MPI_ALLREDUCE(THTH(n),THTH_sum(n),1,MPI_DOUBLE_PRECISION
@@ -1390,6 +1394,8 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
         CALL MPI_ALLREDUCE(THVAR(n),THVAR_sum(n),1,MPI_DOUBLE_PRECISION
      &                    ,MPI_SUM,MPI_COMM_WORLD,IERROR)
         CALL MPI_ALLREDUCE(THME(n),THME_sum(n),1,MPI_DOUBLE_PRECISION
+     &                    ,MPI_SUM,MPI_COMM_WORLD,IERROR)
+        CALL MPI_ALLREDUCE(TH_flux(n),TH_flux_sum(n),1,MPI_DOUBLE_PRECISION
      &                    ,MPI_SUM,MPI_COMM_WORLD,IERROR)
       END IF
 
@@ -1484,6 +1490,7 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
               call WriteStatH5('thth',thth_sum(1))
               call WriteStatH5('thvar',thvar_sum(1))
               call WriteStatH5('thme',thme_sum(1))
+              call WriteStatH5('th_flux',th_flux_sum(1))
             END IF
 
 !      IF (USE_MPI) THEN
@@ -1582,8 +1589,88 @@ C The filter used is a sharpened raised cosine filter
       INCLUDE 'header'
 
       real*8 epsilon_mean,epsilon_sum,eta
+      real*8 chi_mean(1:N_TH),chi_sum(1:N_TH)
 
-      integer i,j,k
+      integer i,j,k,ith
+
+! Compute the scalar dissipation rates chi=<dth/dx_i dth/dx_i>
+      do ith=1,N_TH
+        chi_mean(ith)=0.
+
+        do j=0,TNKY_TH
+          do k=0,TNKZ_S_TH
+            do i=0,NKX_S_TH
+              CSTH1(i,k,j)=CIKX_S_TH(i)*CTH(i,k,j,ith)
+            end do
+          end do
+        end do
+
+        if (USE_MPI) THEN
+          call FFT_XZY_MPI_TO_FOURIER_TH(CSTH1,STH1)
+        else
+          call FFT_XZY_TO_FOURIER_TH(CSTH1,STH1)
+        end if
+
+        do j=0,NY_S_TH
+          do k=0,NZ_S_TH
+            do i=0,NXM_TH
+              chi_mean(ith)=chi_mean(ith)+(STH1(i,k,j)**2.0)
+            end do
+          end do
+        end do
+
+        do j=0,TNKY_TH
+          do k=0,TNKZ_S_TH
+            do i=0,NKX_S_TH
+              CSTH1(i,k,j)=CIKY(j)*CTH(i,k,j,ith)
+            end do
+          end do
+        end do
+
+        if (USE_MPI) THEN
+          call FFT_XZY_MPI_TO_FOURIER_TH(CSTH1,STH1)
+        else
+          call FFT_XZY_TO_FOURIER_TH(CSTH1,STH1)
+        end if
+
+        do j=0,NY_S_TH
+          do k=0,NZ_S_TH
+            do i=0,NXM_TH
+              chi_mean(ith)=chi_mean(ith)+(STH1(i,k,j)**2.0)
+            end do
+          end do
+        end do
+
+        do j=0,TNKY_TH
+          do k=0,TNKZ_S_TH
+            do i=0,NKX_S_TH
+              CSTH1(i,k,j)=CIKZ_S_TH(k)*CTH(i,k,j,ith)
+            end do
+          end do
+        end do
+
+        if (USE_MPI) THEN
+          call FFT_XZY_MPI_TO_FOURIER_TH(CSTH1,STH1)
+        else
+          call FFT_XZY_TO_FOURIER_TH(CSTH1,STH1)
+        end if
+
+        do j=0,NY_S_TH
+          do k=0,NZ_S_TH
+            do i=0,NXM_TH
+              chi_mean(ith)=chi_mean(ith)+(STH1(i,k,j)**2.0)
+            end do
+          end do
+        end do
+
+        chi_mean(ith)=chi_mean(ith)/float(NX*NY*NZ)
+
+        IF (USE_MPI) THEN
+          CALL MPI_ALLREDUCE(chi_mean(ith),chi_sum(ith),1,MPI_DOUBLE_PRECISION
+     &              ,MPI_SUM,MPI_COMM_WORLD,IERROR)
+        END IF
+
+      end do
 
 ! Compute the turbulent dissipation rate, epsilon=nu*<du_i/dx_j du_i/dx_j>
       epsilon_mean=0.
@@ -1805,6 +1892,7 @@ C The filter used is a sharpened raised cosine filter
               call WriteStatH5('epsilon',epsilon_sum)
               call WriteStatH5('eta',eta)
               call WriteStatH5('re_lambda',re_lambda)
+              call WriteStatH5('chi',chi_sum(1))
             END IF
 
       return
