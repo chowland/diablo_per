@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="ISO-8859-1" standalone="yes"?>
+<TransferFunction Type="ParamsBase" >
+<OpacityComposition Type="Long">
+  0 
+</OpacityComposition>
+<LeftBound Type="Double">
+  -1 
+</LeftBound>
+<RightBound Type="Double">
+  1 
+</RightBound>
+<OpacityMap Enabled="1"  Freq="5"  MaxValue="1"  Mean="0.5"  MinValue="0"  Phase="6.28319"  SSq="0.1"  Type="0" >
+<OpacityMapControlPoint Opacity="1"  Value="0" >
+</OpacityMapControlPoint>
+<OpacityMapControlPoint Opacity="0.5"  Value="0.45" >
+</OpacityMapControlPoint>
+<OpacityMapControlPoint Opacity="0.5"  Value="0.55" >
+</OpacityMapControlPoint>
+<OpacityMapControlPoint Opacity="1"  Value="1" >
+</OpacityMapControlPoint>
+</OpacityMap>
+<Colormap DiscreteColor="false"  MaxValue="1"  MinValue="0" >
+<ColorMapControlPoint HSV="0.648848118840011	0.643702149956638	0.261512388553055" Value="0">
+</ColorMapControlPoint>
+<ColorMapControlPoint HSV="0.643649318583260	0.666515176165306	0.419916338489678" Value="0.05">
+</ColorMapControlPoint>
+<ColorMapControlPoint HSV="0.634902200430061	0.730185385677442	0.598195979801379" Value="0.1">
+</ColorMapControlPoint>
+<ColorMapControlPoint HSV="0.603155287917996	0.888468777163063	0.741446191430072" Value="0.15">
+</ColorMapControlPoint>
+<ColorMapControlPoint HSV="0.575840718357846	0.883376776910051	0.736020680218979" Value="0.2">
+</ColorMapControlPoint>
+<ColorMapControlPoint HSV="0.564565833486316	0.699953725757052	0.728218116009790" Value="0.25">
+</ColorMapControlPoint>
+<ColorMapControlPoint HSV="0.552430625228137	0.515883019454283	0.732879449529720" Value="0.3">
+</ColorMapControlPoint>
+<ColorMapControlPoint HSV="0.543667343317413	0.321337723473406	0.752552627615132" Value="0.35">
+</ColorMapControlPoint>
+<ColorMapControlPoint HSV="0.542664168746656	0.162493524348601	0.795494181935962" Value="0.4">
+</ColorMapControlPoint>
+<ColorMapControlPoint HSV="0.553103081027683	0.0504660685592579	0.855216693170995" Value="0.45">
+</ColorMapControlPoint>
+<ColorMapControlPoint HSV="0.0259454011266644	0.0219976701988349	0.944450495782902" Value="0.5">
+</ColorMapControlPoint>
+<ColorMapControlPoint HSV="0.0375267808791500	0.123398925934282	0.898825359802197" Value="0.55">
+</ColorMapControlPoint>
+<ColorMapControlPoint HSV="0.0410034439177302	0.253582882940598	0.861531223593176" Value="0.6">
+</ColorMapControlPoint>
+<ColorMapControlPoint HSV="0.0424034683220161	0.396615661529125	0.827256349226947" Value="0.65">
+</ColorMapControlPoint>
+<ColorMapControlPoint HSV="0.0416322115266604	0.545162347511836	0.792043712668945" Value="0.7">
+</ColorMapControlPoint>
+<ColorMapControlPoint HSV="0.0370009683961296	0.688852809726689	0.752659174785312" Value="0.75">
+</ColorMapControlPoint>
+<ColorMapControlPoint HSV="0.0212567528702307	0.787056481129467	0.702657776395623" Value="0.8">
+</ColorMapControlPoint>
+<ColorMapControlPoint HSV="0.984200334446699	0.837858364028047	0.619296512795598" Value="0.85">
+</ColorMapControlPoint>
+<ColorMapControlPoint HSV="0.959968216233154	0.889708696813765	0.497716783975985" Value="0.9">
+</ColorMapControlPoint>
+<ColorMapControlPoint HSV="0.960586609746760	0.847568560472542	0.364332958302490" Value="0.95">
+</ColorMapControlPoint>
+<ColorMapControlPoint HSV="0.971657574461405	0.850470119726742	0.236056364664614" Value="1">
+</ColorMapControlPoint>
+</Colormap>
+</TransferFunction>
