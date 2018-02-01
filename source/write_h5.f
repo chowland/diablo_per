@@ -198,7 +198,6 @@ c$$$      ! -----------------------------
 
         select case(ith)
         case (1)
-!          call SWAPZY(U1,tmp)
           do j=0,NY_S
             do k=0,NZ_S
               do i=0,NXM
@@ -208,7 +207,6 @@ c$$$      ! -----------------------------
           end do
           dname="U"
         case (2)
-          !call SWAPZY(U2,tmp)
           do j=0,NY_S
             do k=0,NZ_S
               do i=0,NXM
@@ -218,7 +216,6 @@ c$$$      ! -----------------------------
           end do
           dname="V"
         case (3)
-          !call SWAPZY(U3,tmp)
           do j=0,NY_S
             do k=0,NZ_S
               do i=0,NXM
@@ -228,8 +225,6 @@ c$$$      ! -----------------------------
           end do
           dname="W"
         case (4:)
-          !STH1(:,:,:)=TH(:,:,:,ith-3)
-          !call SWAPZY_TH(STH1,tmp_th)
           do j=0,NY_S_TH
             do k=0,NZ_S_TH
               do i=0,NXM_TH
@@ -288,7 +283,13 @@ c$$$      ! -----------------------------
       if (SAVE_PRESSURE) then
          call fft_xzy_mpi_to_physical(CP,P)
 
-         call SWAPZY(P,tmp)
+         do j=0,NY_S
+           do k=0,NZ_S
+             do i=0,NXM
+               tmp(i+1,j+1,k+1)=P(i,k,j)
+             end do
+           end do
+         end do
          dname="P"
 
          call h5dcreate_f(file_id, trim(dname), H5T_IEEE_F64LE,
@@ -341,48 +342,6 @@ c$$$      ! -----------------------------
       ! stop
 
       end subroutine WriteHDF5
-
-C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
-      subroutine SWAPZY(in,out)
-C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
-
-      include 'header'
-
-      REAL*8 in(0:NX+1,0:NZ_S,0:NY_S+1)
-      REAL*8 out(1:NX,1:NY_S+1,1:NZ_S+1)
-      INTEGER i,j,k
-
-      out=0.d0
-      do j=0,NY_S
-        do k=0,NZ_S
-          do i=0,NXM
-            out(i+1,j+1,k+1)=in(i,k,j)
-           end do
-        end do
-      end do
-
-      end subroutine
-
-C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
-      subroutine SWAPZY_TH(in,out)
-C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
-
-      include 'header'
-
-      REAL*8 in(0:NX_TH+1,0:NZ_S_TH,0:NY_S_TH+1)
-      REAL*8 out(1:NX_TH,1:NY_S_TH+1,1:NZ_S_TH+1)
-      INTEGER i,j,k
-
-      out=0.d0
-      do j=0,NY_S_TH
-        do k=0,NZ_S_TH
-          do i=0,NXM_TH
-            out(i+1,j+1,k+1)=in(i,k,j)
-          end do
-        end do
-      end do
-
-      end subroutine
 
 C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
       subroutine time_string(cdt)
@@ -482,7 +441,7 @@ c     Dimensions in the memory and in the file
       character*80                  :: namnbuf
       character*20                  :: sttimec
 
-      integer error, ith
+      integer error, ith, i, j, k
 
       double precision En(4)
 
@@ -589,11 +548,29 @@ c     Dimensions in the memory and in the file
      +        mem_space_id = memspace_id, xfer_prp = plist_id_w)
           select case(ith)
           case (1)
-            call SWAPYZ(tmp,U1)
+          do j=0,NY_S
+            do k=0,NZ_S
+              do i=0,NXM
+                U1(i,k,j)=tmp(i+1,j+1,k+1)
+               end do
+            end do
+          end do
           case (2)
-            call SWAPYZ(tmp,U2)
+          do j=0,NY_S
+            do k=0,NZ_S
+              do i=0,NXM
+                U2(i,k,j)=tmp(i+1,j+1,k+1)
+               end do
+            end do
+          end do
           case (3)
-            call SWAPYZ(tmp,U3)
+          do j=0,NY_S
+            do k=0,NZ_S
+              do i=0,NXM
+                U3(i,k,j)=tmp(i+1,j+1,k+1)
+               end do
+            end do
+          end do
           end select
 
 ! Close dataset
@@ -613,7 +590,13 @@ c     Dimensions in the memory and in the file
           call h5dread_f(dset_id, H5T_NATIVE_DOUBLE, tmp_th,
      +        dimsm_th, error, file_space_id = filspace_id_th,
      +        mem_space_id = memspace_id_th, xfer_prp = plist_id_w)
-          call SWAPYZ(tmp_th,TH(:,:,:,ith-3))
+          do j=0,NY_S_TH
+            do k=0,NZ_S_TH
+              do i=0,NXM_TH
+                TH(i,k,j,ith-3)=tmp_th(i+1,j+1,k+1)
+               end do
+            end do
+          end do
 
 ! Close dataset
           call h5sclose_f(filspace_id_th, error)
@@ -640,7 +623,13 @@ c     Dimensions in the memory and in the file
      +        dimsm, error, file_space_id = filspace_id,
      +        mem_space_id = memspace_id, xfer_prp = plist_id_w)
 
-        call SWAPYZ(tmp,P)
+        do j=0,NY_S
+          do k=0,NZ_S
+            do i=0,NXM
+              P(i,k,j)=tmp(i+1,j+1,k+1)
+             end do
+          end do
+        end do
 ! Close dataset
         call h5sclose_f(filspace_id, error)
         call h5dclose_f(dset_id, error)
@@ -675,48 +664,6 @@ c     Dimensions in the memory and in the file
       end do
 
       end subroutine ReadHDF5
-
-C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
-      subroutine SWAPYZ(in,out)
-C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
-
-      include 'header'
-
-      REAL*8 out(0:NX+1,0:NZ_S,0:NY_S+1)
-      REAL*8 in(1:NX,1:NY_S+1,1:NZ_S+1)
-      INTEGER i,j,k
-
-      out=0.d0
-      do j=0,NY_S
-        do k=0,NZ_S
-          do i=0,NXM
-            out(i,k,j)=in(i+1,j+1,k+1)
-           end do
-        end do
-      end do
-
-      end subroutine
-
-C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
-      subroutine SWAPYZ_TH(in,out)
-C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
-
-      include 'header'
-
-      REAL*8 out(0:NX_TH,0:NZ_S_TH,0:NY_S_TH+1)
-      REAL*8 in(1:NX_TH,1:NY_S_TH+1,1:NZ_S_TH+1)
-      INTEGER i,j,k
-
-      out=0.d0
-      do j=0,NY_S_TH
-        do k=0,NZ_S_TH
-          do i=0,NXM_TH
-            out(i,k,j)=in(i+1,j+1,k+1)
-          end do
-        end do
-      end do
-
-      end subroutine
 
 C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
       SUBROUTINE INIT_MOVIE
