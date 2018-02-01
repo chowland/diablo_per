@@ -34,7 +34,7 @@ c     Dimensions in the memory and in the file
       integer(hsize_t), dimension(3) :: chunk_dims_th, offset_th
       integer(hsize_t), dimension(3) :: block_th
 
-      integer :: rHDF5 = 3, arank
+      integer :: rHDF5 = 3, arank, i, j, k
 
       integer(hsize_t),dimension(2) :: adims
       integer(size_t)               :: tdim
@@ -198,16 +198,45 @@ c$$$      ! -----------------------------
 
         select case(ith)
         case (1)
-          call SWAPZY(U1,tmp)
+!          call SWAPZY(U1,tmp)
+          do j=0,NY_S
+            do k=0,NZ_S
+              do i=0,NXM
+                tmp(i+1,j+1,k+1)=U1(i,k,j)
+              end do
+            end do
+          end do
           dname="U"
         case (2)
-          call SWAPZY(U2,tmp)
+          !call SWAPZY(U2,tmp)
+          do j=0,NY_S
+            do k=0,NZ_S
+              do i=0,NXM
+                tmp(i+1,j+1,k+1)=U2(i,k,j)
+              end do
+            end do
+          end do
           dname="V"
         case (3)
-          call SWAPZY(U3,tmp)
+          !call SWAPZY(U3,tmp)
+          do j=0,NY_S
+            do k=0,NZ_S
+              do i=0,NXM
+                tmp(i+1,j+1,k+1)=U3(i,k,j)
+              end do
+            end do
+          end do
           dname="W"
         case (4:)
-          call SWAPZY_TH(TH(:,:,:,ith-3),tmp_th)
+          !STH1(:,:,:)=TH(:,:,:,ith-3)
+          !call SWAPZY_TH(STH1,tmp_th)
+          do j=0,NY_S_TH
+            do k=0,NZ_S_TH
+              do i=0,NXM_TH
+                tmp_th(i+1,j+1,k+1)=TH(i,k,j,ith-3)
+              end do
+            end do
+          end do
           dname="TH"//CHAR(ith+45)
         end select
         if (ith.LE.3) then
@@ -303,9 +332,9 @@ c$$$      ! -----------------------------
       call fft_xzy_mpi_to_fourier(U2,CU2)
       call fft_xzy_mpi_to_fourier(U3,CU3)
       do ith=1,N_TH
-         S1(:,:,:)=TH(:,:,:,ith)
-         call fft_xzy_mpi_to_fourier_th(S1,CS1)
-         CTH(:,:,:,ith)=CS1(:,:,:)
+         STH1(:,:,:)=TH(:,:,:,ith)
+         call fft_xzy_mpi_to_fourier_th(STH1,CSTH1)
+         CTH(:,:,:,ith)=CSTH1(:,:,:)
       end do
 
       ! call mpi_finalize(ierror)
@@ -321,7 +350,7 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
 
       REAL*8 in(0:NX+1,0:NZ_S,0:NY_S+1)
       REAL*8 out(1:NX,1:NY_S+1,1:NZ_S+1)
-      INTEGER X,Z,Y
+      INTEGER i,j,k
 
       out=0.d0
       do j=0,NY_S
@@ -340,9 +369,9 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
 
       include 'header'
 
-      REAL*8 in(0:NX_TH,0:NZ_S_TH,0:NY_S_TH+1)
+      REAL*8 in(0:NX_TH+1,0:NZ_S_TH,0:NY_S_TH+1)
       REAL*8 out(1:NX_TH,1:NY_S_TH+1,1:NZ_S_TH+1)
-      INTEGER X,Z,Y
+      INTEGER i,j,k
 
       out=0.d0
       do j=0,NY_S_TH
@@ -655,7 +684,7 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
 
       REAL*8 out(0:NX+1,0:NZ_S,0:NY_S+1)
       REAL*8 in(1:NX,1:NY_S+1,1:NZ_S+1)
-      INTEGER X,Z,Y
+      INTEGER i,j,k
 
       out=0.d0
       do j=0,NY_S
@@ -676,7 +705,7 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
 
       REAL*8 out(0:NX_TH,0:NZ_S_TH,0:NY_S_TH+1)
       REAL*8 in(1:NX_TH,1:NY_S_TH+1,1:NZ_S_TH+1)
-      INTEGER X,Z,Y
+      INTEGER i,j,k
 
       out=0.d0
       do j=0,NY_S_TH
@@ -829,7 +858,7 @@ c     Dimensions in the memory and in the file
       integer(hsize_t), dimension(2) :: chunk_dims_th, offset_th
       integer(hsize_t), dimension(2) :: block_th
 
-      integer :: rHDF5 = 2, arank, NSAMP, IZ
+      integer :: rHDF5 = 2, arank, NSAMP, IZ, i, j
       logical flage
 
       integer(hsize_t),dimension(2) :: adims
@@ -1060,7 +1089,7 @@ c     Dimensions in the memory and in the file
       integer(hsize_t), dimension(2) :: chunk_dims_th, offset_th
       integer(hsize_t), dimension(2) :: block_th
 
-      integer :: rHDF5 = 2, arank = 1, NSAMP, IY
+      integer :: rHDF5 = 2, arank = 1, NSAMP, IY, i, k
       logical flage
 
       integer(hsize_t),dimension(1) :: adims
@@ -1290,7 +1319,7 @@ c     Dimensions in the memory and in the file
       integer(hsize_t), dimension(2) :: chunk_dims_th, offset_th
       integer(hsize_t), dimension(2) :: block_th
 
-      integer :: rHDF5 = 2, arank = 1, NSAMP, IX
+      integer :: rHDF5 = 2, arank = 1, NSAMP, IX, j, k
       logical flage
 
       integer(hsize_t),dimension(1) :: adims
