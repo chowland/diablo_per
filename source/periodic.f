@@ -398,13 +398,13 @@ C Fisrt, convert back to Fourier space
 C Add only to the velocity modes:
 C ASSUME that the fine scale scalar structure does not affect the velocity
 ! Note, this needs to be modified before it can be used with varying grid sizes
-!       DO J=0,TNKY
-!         DO K=0,TNKZ_S
-!           DO I=0,NKX_S
-!             CF2(I,K,J)=CF2(I,K,J)+RI_TAU(N)*CTH(I,K,J,N)
-!           END DO
-!         END DO
-!       END DO
+       DO J=0,TNKY
+         DO K=0,TNKZ_S
+           DO I=0,NKX_S
+             CF2(I,K,J)=CF2(I,K,J)+RI_TAU(N)*CTH(I,K,J,N)
+           END DO
+         END DO
+       END DO
        END IF
        END DO
 
