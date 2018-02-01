@@ -56,7 +56,7 @@ c     Dimensions in the memory and in the file
 
       IF (RANK.EQ.0)
      &     WRITE(6,*) 'Writing flow to ',FNAME
-      write(6,*) 'RANKY,RANKZ: ',RANKY,RANKZ
+      !write(6,*) 'RANKY,RANKZ: ',RANKY,RANKZ
 
       chunk_dims = (/NX,1,NZ_S+1/)
       chunk_dims_th = (/NX_TH,1,NZ_S_TH+1/)
@@ -459,8 +459,6 @@ c     Dimensions in the memory and in the file
       offset_th = (/ 0, RANKY*(NY_S_TH+1), RANKZ*(NZ_S_TH+1) /)
       offset_m(1:3)=0
 
-      write(*,*) 'P1 - block: ', block
-
 !     Initialize interface
       call h5open_f(error)
 
@@ -512,7 +510,6 @@ c     Dimensions in the memory and in the file
       call h5pcreate_f(H5P_DATASET_XFER_F, plist_id_w, error)
       call h5pset_dxpl_mpio_f(plist_id_w, H5FD_MPIO_COLLECTIVE_F,
      +        error)
-      write(*,*) 'P2 - block: ', block
 !     Dataspaces in memory
       call h5screate_simple_f(rHDF5, dimsm, memspace_id, error)
       call h5screate_simple_f(rHDF5, dimsm_th, memspace_id_th, error)
@@ -541,7 +538,6 @@ c     Dimensions in the memory and in the file
 !          write(*,*) 'RANK, RANKY, RANKZ, offset_f, block, count, '//
 !     &      'stride: ',
 !     &            RANK, RANKY, RANKZ, offset_f,block,count,stride
-          write(*,*) 'P3 - block: ', block
 ! Read the dataset collectively
           call h5dread_f(dset_id, H5T_NATIVE_DOUBLE, tmp,
      +        dimsm, error, file_space_id = filspace_id,
@@ -707,7 +703,6 @@ c     Identifiers
         if ( ((i.eq.1).and.(RANKZ.EQ.RANKZ_MOV)) .OR.
      &       ((i.eq.2).and.(RANKY.EQ.RANKY_MOV)) .OR.
      &        (i.eq.3) ) then
-        write(*,*) 'Pre-parallel access property setting.'
 ! Setup file access property list with parallel I/O access
       call h5pcreate_f(H5P_FILE_ACCESS_F, plist_id_d, error)
       call h5pset_fapl_mpio_f(plist_id_d, COMM_MPI,

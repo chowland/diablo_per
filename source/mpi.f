@@ -9,7 +9,7 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-----|
 ! This subroutine initializes all mpi variables
 
       CALL MPI_INIT(IERROR)
-      write(*,*) 'MPI_COMM_WORLD: ',MPI_COMM_WORLD
+      !write(*,*) 'MPI_COMM_WORLD: ',MPI_COMM_WORLD
 
       CALL MPI_COMM_SIZE(MPI_COMM_WORLD,NPROCS,IERROR)
       CALL MPI_COMM_RANK(MPI_COMM_WORLD,RANK,IERROR)

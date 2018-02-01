@@ -21,7 +21,7 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
       ETA_TARGET=0.111d0
 ! High Reynolds number, SC=30
       ETA_TARGET=0.0336078d0
-      write(*,*) 'TARGET KOLMOGOROV SCALE: ',ETA_TARGET
+      if (rank.eq.0) write(*,*) 'TARGET KOLMOGOROV SCALE: ',ETA_TARGET
 !      EPSILON_TARGET=((3.d0/(2.d0*DX(1)))**4.d0)
 !     &        *(NU**3.d0)*(100)**(-2.d0)
 !      write(*,*) 'EPSILON_TARGET: ',EPSILON_TARGET
@@ -850,7 +850,7 @@ C Start with an ideal vortex centered in the domain
            CALL MPI_BARRIER(MPI_COMM_WORLD,IERR)
         END IF
 
-      write(*,*) 'calling rem_div...'
+      if (RANK.eq.0) write(*,*) 'calling rem_div...'
       CALL REM_DIV_PER
 
 !      CALL POISSON_P_PER
@@ -923,22 +923,22 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
       INCLUDE 'header'
       INTEGER I,J,K
 
-      IF ((FLAVOR.NE.'Ensemble') .AND. (RANK.eq.0)) WRITE (6,*)
-     &            'Fourier in X'
+!      IF ((FLAVOR.NE.'Ensemble') .AND. (RANK.eq.0)) WRITE (6,*)
+!     &            'Fourier in X'
       DO I=0,NX
         GX(I)=(I*LX)/NX
         DX(I)=LX/NX
         IF (VERBOSITY .GT. 3) WRITE(6,*) 'GX(',I,') = ',GX(I)
       END DO
-      IF ((FLAVOR.NE.'Ensemble') .AND. (RANK.eq.0)) WRITE (6,*)
-     &            'Fourier in Z'
+!      IF ((FLAVOR.NE.'Ensemble') .AND. (RANK.eq.0)) WRITE (6,*)
+!     &            'Fourier in Z'
       DO K=0,NZ
         GZ(K)=(K*LZ)/NZ
         DZ(K)=LZ/NZ
         IF (VERBOSITY .GT. 3) WRITE(6,*) 'GZ(',K,') = ',GZ(K)
       END DO
-      IF ((FLAVOR.NE.'Ensemble') .AND. (RANK.eq.0)) WRITE (6,*)
-     &            'Fourier in Y'
+!      IF ((FLAVOR.NE.'Ensemble') .AND. (RANK.eq.0)) WRITE (6,*)
+!     &            'Fourier in Y'
       DO J=0,NY
         GY(J)=(J*LY)/NY
         DY(J)=LY/NY
@@ -961,22 +961,22 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
          END DO
 
 
-         IF ((FLAVOR.NE.'Ensemble') .AND. (RANK.eq.0)) WRITE (6,*)
-     &            'Fourier in X'
+!         IF ((FLAVOR.NE.'Ensemble') .AND. (RANK.eq.0)) WRITE (6,*)
+!     &            'Fourier in X'
          DO I=0,NX_TH
            GX_TH(I)=(I*LX)/NX_TH
            DX_TH(I)=LX/NX_TH
            IF (VERBOSITY .GT. 3) WRITE(6,*) 'GX_TH(',I,') = ',GX_TH(I)
          END DO
-         IF ((FLAVOR.NE.'Ensemble') .AND. (RANK.eq.0)) WRITE (6,*)
-     &            'Fourier in Z'
+!         IF ((FLAVOR.NE.'Ensemble') .AND. (RANK.eq.0)) WRITE (6,*)
+!     &            'Fourier in Z'
          DO K=0,NZ_TH
            GZ_TH(K)=(K*LZ)/NZ_TH
            DZ_TH(K)=LZ/NZ_TH
            IF (VERBOSITY .GT. 3) WRITE(6,*) 'GZ_TH(',K,') = ',GZ_TH(K)
          END DO
-         IF ((FLAVOR.NE.'Ensemble') .AND. (RANK.eq.0)) WRITE (6,*)
-     &            'Fourier in Y'
+!         IF ((FLAVOR.NE.'Ensemble') .AND. (RANK.eq.0)) WRITE (6,*)
+!     &            'Fourier in Y'
          DO J=0,NY_TH
            GY_TH(J)=(J*LY)/NY_TH
            DY_TH(J)=LY/NY_TH
@@ -1021,20 +1021,20 @@ C Read input file.
       READ(11,*) VERSION
       IF (VERSION .NE. CURRENT_VERSION)
      &         STOP 'Wrong input data format input_chan'
-      write(*,*) 'VERSION: ',VERSION
+      if (RANK.eq.0) write(*,*) 'VERSION: ',VERSION
       READ(11,*)
       READ(11,*) TIME_AD_METH
-      write(*,*) 'TIME_AD_METH: ',TIME_AD_METH
+      if (RANK.eq.0) write(*,*) 'TIME_AD_METH: ',TIME_AD_METH
       READ(11,*)
       READ(11,*) LES_MODEL_TYPE
-      write(*,*) 'LES_MODEL_TYPE: ',LES_MODEL_TYPE
+      if (RANK.eq.0) write(*,*) 'LES_MODEL_TYPE: ',LES_MODEL_TYPE
       READ(11,*)
       READ(11,*) IC_TYPE, KICK
-      write(*,*) 'IC_TYPE,KICK: ',IC_TYPE,KICK
+      if (RANK.eq.0) write(*,*) 'IC_TYPE,KICK: ',IC_TYPE,KICK
       READ(11,*)
       READ(11,*) I_RO_TAU, PHI, GAMMA, G_TAU, BETA
-      write(*,*) 'I_RO_TAU,PHI,GAMMA,G_TAU,BETA: ',I_RO_TAU,PHI
-     &            ,GAMMA,G_TAU,BETA
+      if (RANK.eq.0) write(*,*) 'I_RO_TAU,PHI,GAMMA,G_TAU,BETA: '
+     &            ,I_RO_TAU,PHI,GAMMA,G_TAU,BETA
       DO N=1,N_TH
         READ(11,*)
         READ(11,*) BACKGROUND_GRAD(N)
@@ -1167,15 +1167,15 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
          write(*,*) 'Done FFT'
        end if
 
-      if (MOVIE.AND.(RANK.eq.0)) then
+!      if (MOVIE.AND.(RANK.eq.0)) then
 ! Output a 2d slice through the velocity field for animation in matlab
-        open(79,file='line_v.txt',status='unknown',form='formatted')
-        write(*,*) NX,TIME,DT
-        do i=0,NXM
-          write(79,*) U2(i,NZ_S/2,NY_S/2)
-        end do
+!        open(79,file='line_v.txt',status='unknown',form='formatted')
+!        write(*,*) NX,TIME,DT
+!        do i=0,NXM
+!          write(79,*) U2(i,NZ_S/2,NY_S/2)
+!        end do
 
-      END IF
+!      END IF
 
       IF (MOVIE) THEN
 !      IF (USE_MPI) THEN

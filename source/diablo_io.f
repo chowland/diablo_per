@@ -59,8 +59,10 @@ C If we are using MPI, then Initialize the MPI Variables
 
       IF (MOVIE) THEN
         CALL INIT_MOVIE
+        if (rank.eq.0) write(*,*) 'Movie files created & initialized.'
       END IF
       CALL INIT_STATS
+      if (rank.eq.0) write(*,*) 'Stats file created & initialized.'
 
 C Initialize case-specific packages.
       IF (NUM_PER_DIR.EQ.3) THEN
@@ -86,19 +88,19 @@ C Initialize case-specific packages.
       END IF
 
 C Initialize grid
-      IF (FLAVOR.NE.'Ensemble') THEN
-	WRITE(6,*) 'Note that this code is distributed under the ',
+      IF ((FLAVOR.NE.'Ensemble') .AND. (RANK.eq.0)) THEN
+	      WRITE(6,*) 'Note that this code is distributed under the ',
      *           'GNU General Public License.'
-      WRITE(6,*) 'No warranty is expressed or implied.'
-      WRITE(6,*)
-      write(*,*) 'Flavor: ',FLAVOR
-      WRITE(6,*) 'Grid size: NX =',NX,', NY =',NY,', NZ =',NZ,'.'
-      DO N=1,N_TH
-        WRITE(6,*) 'Scalar number: ',N
-        WRITE(6,*) '  Richardson number: ',RI_TAU(N)
-        WRITE(6,*) '  Prandlt number: ',PR(N)
-      END DO
-	END IF
+        WRITE(6,*) 'No warranty is expressed or implied.'
+        WRITE(6,*)
+        write(*,*) 'Flavor: ',FLAVOR
+        WRITE(6,*) 'Grid size: NX =',NX,', NY =',NY,', NZ =',NZ,'.'
+        DO N=1,N_TH
+          WRITE(6,*) 'Scalar number: ',N
+          WRITE(6,*) '  Richardson number: ',RI_TAU(N)
+          WRITE(6,*) '  Prandtl number: ',PR(N)
+        END DO
+	    END IF
       NXM=NX-1
       NYM=NY-1
       NZM=NZ-1
@@ -177,7 +179,6 @@ C Initialize values for reading of scalars
 
 C Create flow.
       IF (CREATE_NEW_FLOW) THEN
-        IF (RANK.eq.0) write(*,*) 'Creating flow...'
         IF (NUM_PER_DIR.EQ.3) THEN
           CALL CREATE_FLOW_PER
         ELSEIF (NUM_PER_DIR.EQ.2) THEN
@@ -197,7 +198,6 @@ C Create flow.
         END IF
 
       ELSE
-        IF (RANK.eq.0) write(*,*) 'Reading flow...'
         CALL READ_FLOW
 
 C Temporary...
