@@ -8,6 +8,7 @@
       include 'header'
 
       character*85 FNAME
+      logical CREATE_NEW_FLOW
 
 ! Define Variables
       integer i,j,k,n
@@ -21,11 +22,12 @@
 ! Variables for movie
       integer FIRST_OUT, LAST_OUT, OUT_NUM, loop_index
       FIRST_OUT=1
-      LAST_OUT=16
-      NUM_TIMES='17' ! Remember to add 1 for start.h5 here
+      LAST_OUT=120
+      NUM_TIMES='121' ! Remember to add 1 for start.h5 here if not CREATE_NEW_FLOW
 
 ! Number of periodic directions used in the simulation
       NUM_PER_DIR=3
+      CREATE_NEW_FLOW=.FALSE.
 ! This string should contain the size of the buffer array
       size_str='128x128x128'
       len_str='0.0:0.0:0.0:6.28:6.28:6.28'
@@ -33,7 +35,7 @@
       LY=6.28
       LZ=6.28
 
-      run_dir='../../../scratch_backup/create_th_test' ! Run directory
+      run_dir='../../../scratch_backup/active_long_run' ! Run directory
 
 !      RI_TAU(1)=1.0d0
 
@@ -78,98 +80,101 @@
      &      vapor.vdf')
       end if
 
-      FNAME=trim(run_dir)//'/start.h5'
-      write(*,*) 'reading flow from ',FNAME
-      call ReadHDF5(FNAME)
+      if (.NOT. CREATE_NEW_FLOW) then
+        FNAME=trim(run_dir)//'/start.h5'
+        write(*,*) 'reading flow from ',FNAME
+        call ReadHDF5(FNAME)
 
-      do i=0,NXM
-        do j=0,NYM
-          do k=0,NZM
-            buffer3(i,k,j)=real(U1(i,k,j))
-          end do
-        end do
-      end do
-      open (22,file='temp.raw',form='UNFORMATTED',
-     &    ACCESS='DIRECT',RECL=NX*NY*NZ)
-      write(22,REC=1) buffer3
-      close(22)
-      write(*,*) 'raw2vdf for U1...'
-      call SYSTEM('raw2vdf -ts 0 -varname U1 vapor.vdf temp.raw')
-
-      do i=0,NXM
-        do j=0,NYM
-          do k=0,NZM
-            buffer3(i,k,j)=real(U2(i,k,j))
-          end do
-        end do
-      end do
-      open (22,file='temp.raw',form='UNFORMATTED',
-     &    ACCESS='DIRECT',RECL=NX*NY*NZ)
-      write(22,REC=1) buffer3
-      close(22)
-      write(*,*) 'raw2vdf for U2...'
-      call SYSTEM('raw2vdf -ts 0 -varname U2 vapor.vdf temp.raw')
-
-      do i=0,NXM
-        do j=0,NYM
-          do k=0,NZM
-            buffer3(i,k,j)=real(U3(i,k,j))
-          end do
-        end do
-      end do
-      open (22,file='temp.raw',form='UNFORMATTED',
-     &    ACCESS='DIRECT',RECL=NX*NY*NZ)
-      write(22,REC=1) buffer3
-      close(22)
-      write(*,*) 'raw2vdf for U3...'
-      call SYSTEM('raw2vdf -ts 0 -varname U3 vapor.vdf temp.raw')
-
-      if (N_TH.ge.1) then
         do i=0,NXM
           do j=0,NYM
             do k=0,NZM
-              buffer3(i,k,j)=real(TH(i,k,j,1))
+              buffer3(i,k,j)=real(U1(i,k,j))
             end do
           end do
         end do
         open (22,file='temp.raw',form='UNFORMATTED',
-     &    ACCESS='DIRECT',RECL=NX*NY*NZ)
+     &      ACCESS='DIRECT',RECL=NX*NY*NZ)
         write(22,REC=1) buffer3
         close(22)
-        write(*,*) 'raw2vdf for TH1...'
-        call SYSTEM('raw2vdf -ts 0 -varname TH1 vapor.vdf temp.raw')
-      end if
+        write(*,*) 'raw2vdf for U1...'
+        call SYSTEM('raw2vdf -ts 0 -varname U1 vapor.vdf temp.raw')
 
-      if (N_TH.ge.2) then
         do i=0,NXM
           do j=0,NYM
             do k=0,NZM
-              buffer3(i,k,j)=real(TH(i,k,j,2))
+              buffer3(i,k,j)=real(U2(i,k,j))
             end do
           end do
         end do
         open (22,file='temp.raw',form='UNFORMATTED',
-     &    ACCESS='DIRECT',RECL=NX*NY*NZ)
+     &      ACCESS='DIRECT',RECL=NX*NY*NZ)
         write(22,REC=1) buffer3
         close(22)
-        write(*,*) 'raw2vdf for TH2...'
-        call SYSTEM('raw2vdf -ts 0 -varname TH2 vapor.vdf temp.raw')
-      end if
+        write(*,*) 'raw2vdf for U2...'
+        call SYSTEM('raw2vdf -ts 0 -varname U2 vapor.vdf temp.raw')
 
-      if (N_TH.ge.3) then
         do i=0,NXM
           do j=0,NYM
             do k=0,NZM
-              buffer3(i,k,j)=real(TH(i,k,j,3))
+              buffer3(i,k,j)=real(U3(i,k,j))
             end do
           end do
         end do
         open (22,file='temp.raw',form='UNFORMATTED',
-     &    ACCESS='DIRECT',RECL=NX*NY*NZ)
+     &      ACCESS='DIRECT',RECL=NX*NY*NZ)
         write(22,REC=1) buffer3
         close(22)
-        write(*,*) 'raw2vdf for TH3...'
-        call SYSTEM('raw2vdf -ts 0 -varname TH3 vapor.vdf temp.raw')
+        write(*,*) 'raw2vdf for U3...'
+        call SYSTEM('raw2vdf -ts 0 -varname U3 vapor.vdf temp.raw')
+
+        if (N_TH.ge.1) then
+          do i=0,NXM
+            do j=0,NYM
+              do k=0,NZM
+                buffer3(i,k,j)=real(TH(i,k,j,1))
+              end do
+            end do
+          end do
+          open (22,file='temp.raw',form='UNFORMATTED',
+     &      ACCESS='DIRECT',RECL=NX*NY*NZ)
+          write(22,REC=1) buffer3
+          close(22)
+          write(*,*) 'raw2vdf for TH1...'
+          call SYSTEM('raw2vdf -ts 0 -varname TH1 vapor.vdf temp.raw')
+        end if
+
+        if (N_TH.ge.2) then
+          do i=0,NXM
+            do j=0,NYM
+              do k=0,NZM
+                buffer3(i,k,j)=real(TH(i,k,j,2))
+              end do
+            end do
+          end do
+          open (22,file='temp.raw',form='UNFORMATTED',
+     &      ACCESS='DIRECT',RECL=NX*NY*NZ)
+          write(22,REC=1) buffer3
+          close(22)
+          write(*,*) 'raw2vdf for TH2...'
+          call SYSTEM('raw2vdf -ts 0 -varname TH2 vapor.vdf temp.raw')
+        end if
+
+        if (N_TH.ge.3) then
+          do i=0,NXM
+            do j=0,NYM
+              do k=0,NZM
+                buffer3(i,k,j)=real(TH(i,k,j,3))
+              end do
+            end do
+          end do
+          open (22,file='temp.raw',form='UNFORMATTED',
+     &      ACCESS='DIRECT',RECL=NX*NY*NZ)
+          write(22,REC=1) buffer3
+          close(22)
+          write(*,*) 'raw2vdf for TH3...'
+          call SYSTEM('raw2vdf -ts 0 -varname TH3 vapor.vdf temp.raw')
+        end if
+
       end if
 
       DO OUT_NUM=FIRST_OUT,LAST_OUT
