@@ -25,21 +25,21 @@
               call RANDOM_NUMBER(alpha)
               alpha=2.*pi*alpha ! Random phase of forcing
               CS1(I,K,J)=F_0*cexp(cmplx(0,alpha))*(8.*pi)**(-0.5)*
+                            (KX2_S(I)+KZ2_S(K)+KY2(J))**(1./4.)*
      &                      (KX2_S(I)+KZ2_S(K)+KY2(J)+K0**2)**(-3)
-              CF1(I,K,J)=CF1(I,K,J)+CS1(I,K,J)*KY(J)*KX_S(I)/
-     &       (KX2_S(I)+KZ2_S(K)+KY2(J))**(1./4.)/SQRT(KX2_S(I)+KZ2_S(K))
-              CF2(I,K,J)=CF2(I,K,J)+CS1(I,K,J)*KY(J)*KZ_S(K)/
-     &       (KX2_S(I)+KZ2_S(K)+KY2(J))**(1./4.)/SQRT(KX2_S(I)+KZ2_S(K))
-              CF3(I,K,J)=CF3(I,K,J)+CS1(I,K,J)*SQRT(KX2_S(I)+KZ2_S(K))/
-     &           (KX2_S(I)+KZ2_S(K)+KY2(J))**(1./4.)
-              CFTH(I,K,J,1)=CFTH(I,K,J,1)+CS1(I,K,J)*CI*
-     &       (KX2_S_TH(I)+KZ2_S_TH(K)+KY2_TH(J))**(1./4.)
+              CF1(I,K,J)=CF1(I,K,J)+CS1(i,k,j)*KY(j)*KX_S(i)/sqrt(
+                (KX2_S(i)+KZ2_S(k)+KY2(j))*(KX2_S(i)+KZ2_S(k)))
+              CF2(I,K,J)=CF2(I,K,J)+CS1(i,k,j)*sqrt(KX2_S(i)+KZ2_S(k))
+                /sqrt(KX2_S(i)+KZ2_S(k)+KY2(j))
+              CF3(I,K,J)=CF3(I,K,J)+CS1(i,k,j)*KY(j)*KZ_S(i)/sqrt(
+                (KX2_S(i)+KZ2_S(k)+KY2(j))*(KX2_S(i)+KZ2_S(k)))
+              CFTH(I,K,J,1)=CFTH(I,K,J,1)+CS1(i,k,j)*CI/sqrt(RI_TAU)
             END IF
           end do
         END DO
       END DO
 
-      
+
 
 ! For example, to add a linear damping term (e.g. -alpha*U) to the RHS:
 !       alpha=-0.1d0
