@@ -710,6 +710,7 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
       REAL*8 RNUM1,RNUM2,RNUM3
       REAL*8 K0,K_MAG
       CHARACTER*60 FNAME
+      REAL*8 b3,f03,E3,Sigma3,A3,alpha
 
 
 C For an initial vortex, define the location of the centerline
@@ -796,19 +797,52 @@ C Start with an ideal vortex centered in the domain
             END DO
           END DO
         END DO
+      ELSE IF (IC_TYPE.eq.3) THEN
+        ! Initialize with a GM spectrum of internal waves
+        b3=65.
+        f03=0.014*sqrt(RI_TAU(1))
+        E3=6.3e-5
+        Sigma3=0.468
+        A3=sqrt(RI_TAU(1)*b3*E3*f03*sqrt(RI_TAU(1)-f03**2)*LX*LY*LZ)
+     &          /sqrt(2*PI*Sigma3)
+        do j=0,TNKY
+          do k=0,TNKZ_S
+            do i=0,NKX_S
+              if ( (KX2_S(i)+KZ2_S(k)+KY2(j).le.100.) .and.
+     &              (KY(j).ne.0) .and. (KX2_S(i)+KZ2_S(k).ne.0) ) then
+                call RANDOM_NUMBER(alpha)
+                alpha=2.*pi*alpha ! Random phase of each wave
+                CS1(i,k,j)=A3*cexp(cmplx(0,alpha))*KY(j)/
+     &         (sqrt(KX2_S(i)+KZ2_S(k))*
+     &          (KX2_S(i)+KZ2_S(k)+KY2(j))**(1./4.)
+     &         *(RI_TAU(1)*(KX2_S(i)+KZ2_S(k))+f03**2*KY2(j))
+     &         *(KY2(j)+pi**2*9/b3**2))**(0.5)
+                CU1(i,k,j)=CS1(i,k,j)*KY(j)*KX_S(i)/sqrt(
+     &            (KX2_S(i)+KZ2_S(k)+KY2(j))*(KX2_S(i)+KZ2_S(k)))
+                CU2(i,k,j)=CS1(i,k,j)*sqrt(KX2_S(i)+KZ2_S(k))/sqrt(
+     &            KX2_S(i)+KZ2_S(k)+KY2(j))
+                CU3(i,k,j)=CS1(i,k,j)*KY(j)*KZ_S(i)/sqrt(
+     &            (KX2_S(i)+KZ2_S(k)+KY2(j))*(KX2_S(i)+KZ2_S(k)))
+                CTH(i,k,j,1)=CS1(i,k,j)*CI/sqrt(RI_TAU(1))
+              end if
+            end do
+          end do
+        end do
       ELSE
         WRITE(*,*) 'Warning, Undefined Initial conditions in periodic.f'
       END IF
 
-      IF (USE_MPI) THEN
-        CALL FFT_XZY_MPI_TO_FOURIER(U1,CU1)
-        CALL FFT_XZY_MPI_TO_FOURIER(U3,CU3)
-        CALL FFT_XZY_MPI_TO_FOURIER(U2,CU2)
-      ELSE
-        CALL FFT_XZY_TO_FOURIER(U1,CU1)
-        CALL FFT_XZY_TO_FOURIER(U2,CU2)
-        CALL FFT_XZY_TO_FOURIER(U3,CU3)
-      END IF
+      if (IC_TYPE.ne.3) then
+        IF (USE_MPI) THEN
+          CALL FFT_XZY_MPI_TO_FOURIER(U1,CU1)
+          CALL FFT_XZY_MPI_TO_FOURIER(U3,CU3)
+          CALL FFT_XZY_MPI_TO_FOURIER(U2,CU2)
+        ELSE
+          CALL FFT_XZY_TO_FOURIER(U1,CU1)
+          CALL FFT_XZY_TO_FOURIER(U2,CU2)
+          CALL FFT_XZY_TO_FOURIER(U3,CU3)
+        END IF
+      end if
 
       IF (RANK.eq.0) THEN
       DO J=0,TNKY
@@ -869,7 +903,7 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
 C Note, Since stratification is not permitted in the periodic flow field
 C Any background stratification must be added to the governing equations
 
-      IF ((IC_TYPE.eq.0).or.(IC_TYPE.eq.1)) then
+      IF ((IC_TYPE.eq.0).or.(IC_TYPE.eq.1).or.(IC_TYPE.eq.3)) then
         DO N=1,N_TH
           IF (CREATE_NEW_TH(N)) THEN
             DO J=0,NY_S_TH
