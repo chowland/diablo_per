@@ -31,7 +31,7 @@
      &          (KX2_S(i)+KZ2_S(k)+KY2(j))*(KX2_S(i)+KZ2_S(k)))
               CF2(I,K,J)=CF2(I,K,J)+CS1(i,k,j)*sqrt(KX2_S(i)+KZ2_S(k))
      &          /sqrt(KX2_S(i)+KZ2_S(k)+KY2(j))
-              CF3(I,K,J)=CF3(I,K,J)+CS1(i,k,j)*KY(j)*KZ_S(i)/sqrt(
+              CF3(I,K,J)=CF3(I,K,J)+CS1(i,k,j)*KY(j)*KZ_S(k)/sqrt(
      &          (KX2_S(i)+KZ2_S(k)+KY2(j))*(KX2_S(i)+KZ2_S(k)))
               CFTH(I,K,J,1)=CFTH(I,K,J,1)+CS1(i,k,j)*CI/sqrt(RI_TAU(1))
             END IF

@@ -155,7 +155,7 @@ C Note, on an f-plane under the traditional approximation, C_SIN=C_COS=0
         END DO
       END DO
 
-      call USER_RHS_PER_FOURIER
+!      call USER_RHS_PER_FOURIER
 
 
 C Transform the scalar concentration to physical space
@@ -821,7 +821,7 @@ C Start with an ideal vortex centered in the domain
      &            (KX2_S(i)+KZ2_S(k)+KY2(j))*(KX2_S(i)+KZ2_S(k)))
                 CU2(i,k,j)=CS1(i,k,j)*sqrt(KX2_S(i)+KZ2_S(k))/sqrt(
      &            KX2_S(i)+KZ2_S(k)+KY2(j))
-                CU3(i,k,j)=CS1(i,k,j)*KY(j)*KZ_S(i)/sqrt(
+                CU3(i,k,j)=CS1(i,k,j)*KY(j)*KZ_S(k)/sqrt(
      &            (KX2_S(i)+KZ2_S(k)+KY2(j))*(KX2_S(i)+KZ2_S(k)))
                 CTH(i,k,j,1)=CS1(i,k,j)*CI/sqrt(RI_TAU(1))
               end if
