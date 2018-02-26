@@ -803,18 +803,19 @@ C Start with an ideal vortex centered in the domain
         f03=0.014*sqrt(RI_TAU(1))
         E3=6.3e-5
         Sigma3=0.468
-        A3=sqrt(RI_TAU(1)*b3*E3*f03*sqrt(RI_TAU(1)-f03**2)*LX*LY*LZ)
-     &          /sqrt(2*PI*Sigma3)
+        A3=sqrt(2*RI_TAU(1)*b3*E3*f03*sqrt(RI_TAU(1)-f03**2))
+     &          /sqrt(2*PI*Sigma3)!*LX*LY*LZ)
+!        A3=A3/2.
         do j=0,TNKY
           do k=0,TNKZ_S
             do i=0,NKX_S
-              if ( (KX2_S(i)+KZ2_S(k)+KY2(j).le.100.) .and.
+              if (! (KX2_S(i)+KZ2_S(k)+KY2(j).le.100.) .and.
      &              (KY(j).ne.0) .and. (KX2_S(i)+KZ2_S(k).ne.0) ) then
                 call RANDOM_NUMBER(alpha)
                 alpha=2.*pi*alpha ! Random phase of each wave
                 CS1(i,k,j)=A3*cexp(cmplx(0,alpha))*KY(j)/
      &         (sqrt(KX2_S(i)+KZ2_S(k))*
-     &          (KX2_S(i)+KZ2_S(k)+KY2(j))**(1./4.)
+     &          sqrt(KX2_S(i)+KZ2_S(k)+KY2(j))
      &         *(RI_TAU(1)*(KX2_S(i)+KZ2_S(k))+f03**2*KY2(j))
      &         *(KY2(j)+pi**2*9/b3**2))**(0.5)
                 CU1(i,k,j)=CS1(i,k,j)*KY(j)*KX_S(i)/sqrt(
@@ -883,6 +884,8 @@ C Start with an ideal vortex centered in the domain
         IF (USE_MPI) THEN
            CALL MPI_BARRIER(MPI_COMM_WORLD,IERR)
         END IF
+
+!        call WriteHDF5('start.h5',.FALSE.)   ! For testing
 
       if (RANK.eq.0) write(*,*) 'calling rem_div...'
       CALL REM_DIV_PER
@@ -1105,7 +1108,7 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
 
       real*8 urms_b_sum,vrms_b_sum,wrms_b_sum
       real*8 thth_sum(1:N_TH),thvar_sum(1:N_TH),thme_sum(1:N_TH)
-      real*8 l_th(1:N_TH),l_th_sum(1:N_TH)
+      real*8 l_th(1:N_TH),l_th_sum(1:N_TH),thflux_sum(1:N_TH)
 
         IF (USE_MPI) THEN
            CALL MPI_BARRIER(MPI_COMM_WORLD,IERR)
@@ -1397,6 +1400,7 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
 ! Get the bacterial/nutrient correlation
       thth(n)=0.d0
       thvar(n)=0.d0
+      thflux(n)=0.d0
       do j=0,NY_S_TH
       do k=0,NZ_S_TH
       do i=0,NXM_TH
@@ -1411,12 +1415,14 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
      &                   *DX_TH(I)*DY_TH(J)*DZ_TH(K)
         thme(n)=thme(n)+TH(i,k,j,n)
      &                   *DX_TH(I)*DY_TH(J)*DZ_TH(K)
+        thflux(n)=thflux(n)+TH(i,k,j,n)*U2(i,k,j)
       end do
       end do
       end do
       thth(n)=thth(n)
       thvar(n)=thvar(n)
       thme(n)=thme(n)/(LX*LY*LZ)
+      thflux(n)=thflux(n)/(NX*NY*NZ)
 
       IF (USE_MPI) THEN
         CALL MPI_ALLREDUCE(THTH(n),THTH_sum(n),1,MPI_DOUBLE_PRECISION
@@ -1425,6 +1431,8 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
      &                    ,MPI_SUM,MPI_COMM_WORLD,IERROR)
         CALL MPI_ALLREDUCE(THME(n),THME_sum(n),1,MPI_DOUBLE_PRECISION
      &                    ,MPI_SUM,MPI_COMM_WORLD,IERROR)
+        CALL MPI_ALLREDUCE(THFLUX(n),THFLUX_sum(n),1
+     &        ,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,IERROR)
       END IF
 
       IF (RANK.eq.0) THEN
@@ -1518,6 +1526,7 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
               call WriteStatH5('thth',thth_sum(1))
               call WriteStatH5('thvar',thvar_sum(1))
               call WriteStatH5('thme',thme_sum(1))
+              call WriteStatH5('thflux',thflux_sum(1))
             END IF
 
 !      IF (USE_MPI) THEN
@@ -1880,7 +1889,7 @@ C The filter used is a sharpened raised cosine filter
       if (RANK.eq.0) write(*,*) 'NX,NY,NZ: ',NX,NY,NZ
 
       epsilon_mean=NU*epsilon_mean/float(NX*NY*NZ)
-      chi_mean=chi_mean/float(NX*NY*NZ)
+      chi_mean=NU*Pr(1)*chi_mean/float(NX*NY*NZ)
 
       IF (USE_MPI) THEN
         CALL MPI_ALLREDUCE(epsilon_mean,epsilon_sum,1
