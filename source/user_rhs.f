@@ -15,7 +15,7 @@
 
 
       K0=7.
-      F_0=1.0e+4           ! Amplitude of forcing
+      F_0=1.0e3           ! Amplitude of forcing
 
       DO J=0,TNKY
         DO K=0,TNKZ_S
