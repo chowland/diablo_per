@@ -1554,6 +1554,14 @@ c     Identifiers
       call h5sclose_f(tspace,error)
       call h5gclose_f(gid,error)
 
+      call h5gcreate_f(file_id,'thflux',gid,error)
+      call h5screate_f(H5S_SCALAR_F,tspace,error)
+      call h5acreate_f(gid,'Samples',H5T_STD_I32LE,tspace,aid,error)
+      call h5awrite_f(aid,H5T_NATIVE_INTEGER,0,adims,error)
+      call h5aclose_f(aid,error)
+      call h5sclose_f(tspace,error)
+      call h5gclose_f(gid,error)
+
       call h5gcreate_f(file_id,'epsilon',gid,error)
       call h5screate_f(H5S_SCALAR_F,tspace,error)
       call h5acreate_f(gid,'Samples',H5T_STD_I32LE,tspace,aid,error)
