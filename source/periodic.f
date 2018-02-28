@@ -408,7 +408,7 @@ C ASSUME that the fine scale scalar structure does not affect the velocity
        END IF
        END DO
 
-       !call USER_RHS_PER_FOURIER
+       call USER_RHS_PER_FOURIER
 
 C Add some forcing to the system to keep the Batchelor scale fixed
 !      EK=0.d0
@@ -803,13 +803,13 @@ C Start with an ideal vortex centered in the domain
         f03=0.014*sqrt(RI_TAU(1))
         E3=6.3e-5
         Sigma3=0.468
-        A3=sqrt(2*RI_TAU(1)*b3*E3*f03*sqrt(RI_TAU(1)-f03**2))
-     &          /sqrt(2*PI*Sigma3)!*LX*LY*LZ)
+        A3=sqrt(RI_TAU(1)*b3*E3*f03*sqrt(RI_TAU(1)-f03**2))
+     &          /sqrt(2*PI*Sigma3)
 !        A3=A3/2.
         do j=0,TNKY
           do k=0,TNKZ_S
             do i=0,NKX_S
-              if (! (KX2_S(i)+KZ2_S(k)+KY2(j).le.100.) .and.
+              if ( (KX2_S(i)+KZ2_S(k)+KY2(j).le.100.) .and.
      &              (KY(j).ne.0) .and. (KX2_S(i)+KZ2_S(k).ne.0) ) then
                 call RANDOM_NUMBER(alpha)
                 alpha=2.*pi*alpha ! Random phase of each wave
