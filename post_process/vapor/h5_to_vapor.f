@@ -21,13 +21,13 @@
 ! **** User Input *****
 ! Variables for movie
       integer FIRST_OUT, LAST_OUT, OUT_NUM, loop_index
-      FIRST_OUT=1
-      LAST_OUT=120
-      NUM_TIMES='121' ! Remember to add 1 for start.h5 here if not CREATE_NEW_FLOW
+      FIRST_OUT=0
+      LAST_OUT=60
+      NUM_TIMES='61' ! Remember to add 1 for start.h5 here if not CREATE_NEW_FLOW
 
 ! Number of periodic directions used in the simulation
       NUM_PER_DIR=3
-      CREATE_NEW_FLOW=.FALSE.
+      CREATE_NEW_FLOW=.TRUE.
 ! This string should contain the size of the buffer array
       size_str='128x128x128'
       len_str='0.0:0.0:0.0:6.28:6.28:6.28'
@@ -35,7 +35,7 @@
       LY=6.28
       LZ=6.28
 
-      run_dir='../../../scratch_backup/active_long_run' ! Run directory
+      run_dir='/local/scratch/public/cjh225/GM9_init_forced' ! Run directory
 
 !      RI_TAU(1)=1.0d0
 
@@ -178,7 +178,11 @@
       end if
 
       DO OUT_NUM=FIRST_OUT,LAST_OUT
-        loop_index=OUT_NUM-FIRST_OUT+1
+        if (CREATE_NEW_FLOW) then
+          loop_index=OUT_NUM-FIRST_OUT
+        else
+          loop_index=OUT_NUM-FIRST_OUT+1
+        end if
         if (LAST_OUT.lt.10) then
           FNAME=trim(run_dir)//'/restart_files/out'
      &        //char(mod(OUT_NUM,10)+48)//'.h5'
