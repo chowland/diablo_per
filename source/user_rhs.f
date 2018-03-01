@@ -24,7 +24,7 @@
      &            (KY(J).NE.0) .AND. (KX2_S(I)+KZ2_S(K).NE.0) ) THEN
               call RANDOM_NUMBER(alpha)
               alpha=2.*pi*alpha ! Random phase of forcing
-              CS1(I,K,J)=F_0*cexp(cmplx(0,alpha))*(8.*pi)**(-0.5)*
+              CS1(I,K,J)=F_0*cexp(cmplx(0,alpha))*(4.*pi)**(-0.5)*
      &                      (KX2_S(I)+KZ2_S(K)+KY2(J))**(1./4.)*
      &                      (KX2_S(I)+KZ2_S(K)+KY2(J)+K0**2)**(-3)
               CF1(I,K,J)=CF1(I,K,J)+CS1(i,k,j)*KY(j)*KX_S(i)/sqrt(

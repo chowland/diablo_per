@@ -804,7 +804,7 @@ C Start with an ideal vortex centered in the domain
         E3=6.3e-5
         Sigma3=0.468
         A3=sqrt(RI_TAU(1)*b3*E3*f03*sqrt(RI_TAU(1)-f03**2))
-     &          /sqrt(2*PI*Sigma3)
+     &          /sqrt(PI*Sigma3)
 !        A3=A3/2.
         do j=0,TNKY
           do k=0,TNKZ_S
