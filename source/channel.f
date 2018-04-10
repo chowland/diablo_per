@@ -71,7 +71,7 @@ C Each RK step, there are 14 FFT calls. 11 storage variables are used.
 C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
       INCLUDE 'header'
 
-      INTEGER I,J,K,N      
+      INTEGER I,J,K,N,J1,J2      
       REAL*8 TEMP1, TEMP2, TEMP3, TEMP4, TEMP5, UBULK
 
 C Communicate the information between ghost cells

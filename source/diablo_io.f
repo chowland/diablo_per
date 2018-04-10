@@ -147,7 +147,7 @@ C Initialize FFT package (includes defining the wavenumber vectors).
       write(*,*) 'Initializing FFT',RANK
       CALL INIT_FFT
       CALL INIT_FFT_TH
-      CALL MPI_BARRIER(MPI_COMM_WORLD,IERR)
+      CALL MPI_BARRIER(MPI_COMM_WORLD,IERROR)
       write(*,*) 'RANK, done init fft',RANK
 
 C Initialize RKW3 parameters.
@@ -393,7 +393,8 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
 ! Specify in input.dat which scalars are to be read
                 OPEN(UNIT=11,FILE=FNAME_TH(READ_TH_INDEX(N))
      &           ,STATUS="OLD",FORM="UNFORMATTED")
-                READ (11) NX_T, NY_T, NZ_T, NUM_PER_DIR_T, TIME, TIME_STEP
+                READ (11) NX_T, NY_T, NZ_T, NUM_PER_DIR_T
+     &           ,TIME, TIME_STEP
                 READ (11) (((CTH(I,K,J,READ_TH_INDEX(N))
      &           ,I=0,NKX),K=0,TNKZ),J=1,NY)
                 CLOSE(11)
@@ -556,7 +557,7 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
               write(*,*) 'Saved flow to ',FNAME_TH(n)
             END DO
           END IF
-          CALL MPI_BARRIER(MPI_COMM_WORLD,IERR)
+          CALL MPI_BARRIER(MPI_COMM_WORLD,IERROR)
         END IF
 
       end if

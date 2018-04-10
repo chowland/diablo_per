@@ -25,7 +25,7 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-----|
       complex*16 SENDBUF(0:NKX_S_TH,0:NZ_S_TH,0:NY_S_TH)
       complex*16 RECVBUF(0:NKX_S_TH,0:NZ_S_TH,0:NY_S_TH)
 
-      integer DIAG
+      integer DIAG,I,J,K
       integer block
       integer sendcount,recvcount
       integer shift,dir,dir_min
@@ -143,7 +143,7 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-----|
       COMPLEX*16 SENDBUF(0:NKX_S_TH,0:NZ_S_TH,0:NY_S_TH)
       COMPLEX*16 RECVBUF(0:NKX_S_TH,0:NZ_S_TH,0:NY_S_TH)
 
-      integer DIAG
+      integer DIAG,I,J,K
       integer block
       integer shift,dir,dir_min
       integer sendcount,recvcount
@@ -258,7 +258,7 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-----|
       complex*16 SENDBUF(0:NKX_S_TH,0:TNKZ_S_TH,0:NY_S_TH)
       complex*16 RECVBUF(0:NKX_S_TH,0:TNKZ_S_TH,0:NY_S_TH)
 
-      integer DIAG
+      integer DIAG,I,J,K
       integer block
       integer sendcount,recvcount
       integer shift,dir,dir_min
@@ -376,7 +376,7 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-----|
       complex*16 SENDBUF(0:NKX_S_TH,0:TNKZ_S_TH,0:NY_S_TH)
       complex*16 RECVBUF(0:NKX_S_TH,0:TNKZ_S_TH,0:NY_S_TH)
 
-      integer DIAG
+      integer DIAG,I,J,K
       integer block
       integer sendcount,recvcount
       integer shift,dir,dir_min
@@ -497,7 +497,7 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-----|
       complex*16 SENDBUF(0:NKX_S,0:TNKZ_S,0:NY_S_TH)
       complex*16 RECVBUF(0:NKX_S,0:TNKZ_S,0:NY_S_TH)
 
-      integer DIAG
+      integer DIAG,I,J,K
       integer block
       integer sendcount,recvcount
       integer shift,dir,dir_min
@@ -616,7 +616,7 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-----|
       complex*16 SENDBUF(0:NKX_S,0:NZ_S_TH,0:NY_S_TH)
       complex*16 RECVBUF(0:NKX_S,0:NZ_S_TH,0:NY_S_TH)
 
-      integer DIAG
+      integer DIAG,I,J,K
       integer block
       integer sendcount,recvcount
       integer shift,dir,dir_min

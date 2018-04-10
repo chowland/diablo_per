@@ -38,6 +38,7 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
 
 
       subroutine handle_err(errcode)
+      integer errcode
       return
       end
 

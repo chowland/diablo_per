@@ -196,23 +196,23 @@ C The FFTs are done in-place, so this is safe
 
 C Inverse transform in the x-direction:
       CALL FFT_Y_TO_PHYSICAL(CU,CU_Y)
-      CALL MPI_BARRIER(MPI_COMM_WORLD,IERR)
+      CALL MPI_BARRIER(MPI_COMM_WORLD,IERROR)
 
 C Perform a parallel transpose to get data stored locally in the z-direction
       CALL TRANSPOSE_MPI_Y_TO_Z(CU_Y,CU_Z)
-      CALL MPI_BARRIER(MPI_COMM_WORLD,IERR)
+      CALL MPI_BARRIER(MPI_COMM_WORLD,IERROR)
 
 C Inverse transform in the z-direction:
       CALL FFT_Z_TO_PHYSICAL(CU_Z,CU_Z)
-      CALL MPI_BARRIER(MPI_COMM_WORLD,IERR)
+      CALL MPI_BARRIER(MPI_COMM_WORLD,IERROR)
 
 C Perform a parallel transpose to get data stored locally in the y-direction
       CALL TRANSPOSE_MPI_Z_TO_X(CU_Z,CU_X)
-      CALL MPI_BARRIER(MPI_COMM_WORLD,IERR)
+      CALL MPI_BARRIER(MPI_COMM_WORLD,IERROR)
 
 C Inverse transform in the y-direction:
       CALL FFT_X_TO_PHYSICAL(CU_X,U_X)
-      CALL MPI_BARRIER(MPI_COMM_WORLD,IERR)
+      CALL MPI_BARRIER(MPI_COMM_WORLD,IERROR)
 
 C Now, transfer from U_X to the output array
       DO J=0,NY_S
@@ -273,24 +273,24 @@ C Intermediate arrays local X, and Z
 
       CALL FFT_X_TO_FOURIER(U_X,CU_X)
 
-      CALL MPI_BARRIER(MPI_COMM_WORLD,IERR)
+      CALL MPI_BARRIER(MPI_COMM_WORLD,IERROR)
 
 C Parallel transpose to get data stored locally in the z-direction
       CALL TRANSPOSE_MPI_X_TO_Z(CU_X,CU_Z)
-      CALL MPI_BARRIER(MPI_COMM_WORLD,IERR)
+      CALL MPI_BARRIER(MPI_COMM_WORLD,IERROR)
 
 C FFT in the z-direction:
       CALL FFT_Z_TO_FOURIER(CU_Z,CU_Z)
 
-      CALL MPI_BARRIER(MPI_COMM_WORLD,IERR)
+      CALL MPI_BARRIER(MPI_COMM_WORLD,IERROR)
 
 C Parallel transpose to get data stored locally in the z-direction
       CALL TRANSPOSE_MPI_Z_TO_Y(CU_Z,CU_Y)
-      CALL MPI_BARRIER(MPI_COMM_WORLD,IERR)
+      CALL MPI_BARRIER(MPI_COMM_WORLD,IERROR)
 
 C FFT in the y-direction:
       CALL FFT_Y_TO_FOURIER(CU_Y,CU_Y)
-      CALL MPI_BARRIER(MPI_COMM_WORLD,IERR)
+      CALL MPI_BARRIER(MPI_COMM_WORLD,IERROR)
 
       DO J=0,NY+1
         DO K=0,TNKZ_S
@@ -558,44 +558,44 @@ C Perform De-aliasing on the largest third of the wavenumbers
       END
 
 C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
-      SUBROUTINE FFT_XZ_TO_FOURIER(U,CU,JMIN,JMAX)
+C      SUBROUTINE FFT_XZ_TO_FOURIER(U,CU,JMIN,JMAX)
 C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
 C This routine transforms (in 2 directions) planes JMIN-JMAX to Fourier space.
 C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
 
-      RETURN
-      END
+C      RETURN
+C      END
 
 C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
-      SUBROUTINE FFT_XZ_TO_PHYSICAL(CU,U,JMIN,JMAX)
+C      SUBROUTINE FFT_XZ_TO_PHYSICAL(CU,U,JMIN,JMAX)
 C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
 C This routine transforms (in 2 directions) planes JMIN-JMAX to physical space.
-      RETURN
-      END
+C      RETURN
+C      END
 
 C******************************************************************************|
 C--------> The transform routines for the fully-periodic box follow. <---------|
 C******************************************************************************|
 
 C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
-      SUBROUTINE FFT_XZY_TO_FOURIER(U,CU)
+C      SUBROUTINE FFT_XZY_TO_FOURIER(U,CU)
 C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
 C This routine transforms (in 3 directions) the entire box to Fourier space.
 C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
 
-      RETURN
-      END
+C      RETURN
+C      END
 
 C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
-      SUBROUTINE FFT_XZY_TO_PHYSICAL(CU,U)
+C      SUBROUTINE FFT_XZY_TO_PHYSICAL(CU,U)
 C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
 C This routine transforms (in 3 directions) the entire box to physical space.
 C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
-      INCLUDE 'header'
-      INTEGER I, J, K
-      REAL*8     U (0:NX+1,0:NZ+1,0:NY+1)
-      COMPLEX*16 CU(0:NX/2,0:NZ+1,0:NY+1)
+C      INCLUDE 'header'
+C      INTEGER I, J, K
+C      REAL*8     U (0:NX+1,0:NZ+1,0:NY+1)
+C      COMPLEX*16 CU(0:NX/2,0:NZ+1,0:NY+1)
 
 
-      RETURN
-      END
+C      RETURN
+C      END

@@ -198,23 +198,23 @@ C The FFTs are done in-place, so this is safe
 
 C Inverse transform in the x-direction:
       CALL FFT_Y_TO_PHYSICAL_TH(CU,CU_Y)
-      CALL MPI_BARRIER(MPI_COMM_WORLD,IERR)
+      CALL MPI_BARRIER(MPI_COMM_WORLD,IERROR)
 
 C Perform a parallel transpose to get data stored locally in the z-direction
       CALL TRANSPOSE_MPI_Y_TO_Z_TH(CU_Y,CU_Z)
-      CALL MPI_BARRIER(MPI_COMM_WORLD,IERR)
+      CALL MPI_BARRIER(MPI_COMM_WORLD,IERROR)
 
 C Inverse transform in the z-direction:
       CALL FFT_Z_TO_PHYSICAL_TH(CU_Z,CU_Z)
-      CALL MPI_BARRIER(MPI_COMM_WORLD,IERR)
+      CALL MPI_BARRIER(MPI_COMM_WORLD,IERROR)
 
 C Perform a parallel transpose to get data stored locally in the y-direction
       CALL TRANSPOSE_MPI_Z_TO_X_TH(CU_Z,CU_X)
-      CALL MPI_BARRIER(MPI_COMM_WORLD,IERR)
+      CALL MPI_BARRIER(MPI_COMM_WORLD,IERROR)
 
 C Inverse transform in the y-direction:
       CALL FFT_X_TO_PHYSICAL_TH(CU_X,U_X)
-      CALL MPI_BARRIER(MPI_COMM_WORLD,IERR)
+      CALL MPI_BARRIER(MPI_COMM_WORLD,IERROR)
 
 C Now, transfer from U_X to the output array
       DO J=0,NY_S_TH
@@ -275,24 +275,24 @@ C Intermediate arrays local X, and Z
 
       CALL FFT_X_TO_FOURIER_TH(U_X,CU_X)
 
-      CALL MPI_BARRIER(MPI_COMM_WORLD,IERR)
+      CALL MPI_BARRIER(MPI_COMM_WORLD,IERROR)
 
 C Parallel transpose to get data stored locally in the z-direction
       CALL TRANSPOSE_MPI_X_TO_Z_TH(CU_X,CU_Z)
-      CALL MPI_BARRIER(MPI_COMM_WORLD,IERR)
+      CALL MPI_BARRIER(MPI_COMM_WORLD,IERROR)
 
 C FFT in the z-direction:
       CALL FFT_Z_TO_FOURIER_TH(CU_Z,CU_Z)
 
-      CALL MPI_BARRIER(MPI_COMM_WORLD,IERR)
+      CALL MPI_BARRIER(MPI_COMM_WORLD,IERROR)
 
 C Parallel transpose to get data stored locally in the z-direction
       CALL TRANSPOSE_MPI_Z_TO_Y_TH(CU_Z,CU_Y)
-      CALL MPI_BARRIER(MPI_COMM_WORLD,IERR)
+      CALL MPI_BARRIER(MPI_COMM_WORLD,IERROR)
 
 C FFT in the y-direction:
       CALL FFT_Y_TO_FOURIER_TH(CU_Y,CU_Y)
-      CALL MPI_BARRIER(MPI_COMM_WORLD,IERR)
+      CALL MPI_BARRIER(MPI_COMM_WORLD,IERROR)
 
       DO J=0,NY_TH+1
         DO K=0,TNKZ_S_TH
@@ -604,11 +604,11 @@ C First, pad the velocity array with zeros
       END DO
 C Inverse transform in the x-direction:
       CALL FFT_Y_TO_PHYSICAL_INTERP(CU_Y,CU_Y)
-      CALL MPI_BARRIER(MPI_COMM_WORLD,IERR)
+      CALL MPI_BARRIER(MPI_COMM_WORLD,IERROR)
 
 C Perform a parallel transpose to get data stored locally in the z-direction
       CALL TRANSPOSE_MPI_Y_TO_Z_INTERP(CU_Y,CU_Z)
-      CALL MPI_BARRIER(MPI_COMM_WORLD,IERR)
+      CALL MPI_BARRIER(MPI_COMM_WORLD,IERROR)
 
 C Pad the high resolution array with zeros
       CU_Z_TH(:,:,:)=0.d0
@@ -621,11 +621,11 @@ C Pad the high resolution array with zeros
 
 C Inverse transform in the z-direction:
       CALL FFT_Z_TO_PHYSICAL_INTERP(CU_Z_TH,CU_Z_TH)
-      CALL MPI_BARRIER(MPI_COMM_WORLD,IERR)
+      CALL MPI_BARRIER(MPI_COMM_WORLD,IERROR)
 
 C Perform a parallel transpose to get data stored locally in the y-direction
       CALL TRANSPOSE_MPI_Z_TO_X_INTERP(CU_Z_TH,CU_X)
-      CALL MPI_BARRIER(MPI_COMM_WORLD,IERR)
+      CALL MPI_BARRIER(MPI_COMM_WORLD,IERROR)
 
 C Pad the high resolution array with zeros
       CU_X_TH(:,:,:)=0.d0
@@ -635,7 +635,7 @@ C Pad the high resolution array with zeros
 
 C Inverse transform in the y-direction:
       CALL FFT_X_TO_PHYSICAL_TH(CU_X_TH,U_X)
-      CALL MPI_BARRIER(MPI_COMM_WORLD,IERR)
+      CALL MPI_BARRIER(MPI_COMM_WORLD,IERROR)
 
 C Now, transfer from U_X to the output array
       DO J=0,NY_S_TH
@@ -758,39 +758,39 @@ C Then, perform a complex -> real transform in the y-direction
 
 
 C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
-      SUBROUTINE FFT_XZ_TO_FOURIER_TH(U,CU,JMIN,JMAX)
+C      SUBROUTINE FFT_XZ_TO_FOURIER_TH(U,CU,JMIN,JMAX)
 C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
 C This routine transforms (in 2 directions) planes JMIN-JMAX to Fourier space.
 
-      RETURN
-      END
+C      RETURN
+C      END
 
 C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
-      SUBROUTINE FFT_XZ_TO_PHYSICAL_TH(CU,U,JMIN,JMAX)
+C      SUBROUTINE FFT_XZ_TO_PHYSICAL_TH(CU,U,JMIN,JMAX)
 C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
 C This routine transforms (in 2 directions) planes JMIN-JMAX to physical space.
-      RETURN
-      END
+C      RETURN
+C      END
 C******************************************************************************|
 C--------> The transform routines for the fully-periodic box follow. <---------|
 C******************************************************************************|
 
 C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
-      SUBROUTINE FFT_XZY_TO_FOURIER_TH(U,CU)
+C      SUBROUTINE FFT_XZY_TO_FOURIER_TH(U,CU)
 C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
 C This routine transforms (in 3 directions) the entire box to Fourier space.
 C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
 
-      RETURN
-      END
+C      RETURN
+C      END
 
 C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
       SUBROUTINE FFT_XZY_TO_PHYSICAL_TH(CU,U)
 C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
 C This routine transforms (in 3 directions) the entire box to physical space.
 C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
-      INCLUDE 'header'
+C      INCLUDE 'header'
 
 
-      RETURN
-      END
+C      RETURN
+C      END

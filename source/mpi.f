@@ -6,6 +6,7 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-----|
       INCLUDE 'header'
 
       INTEGER DIMS(2), PERDIM(2)
+      INTEGER COMM_CART
 ! This subroutine initializes all mpi variables
 
       CALL MPI_INIT(IERROR)
@@ -78,7 +79,7 @@ C The string MPI_IO_NUM will be used to define the RANK+1 for each process
       complex*16 SENDBUF(0:NKX_S,0:NZ_S,0:NY_S)
       complex*16 RECVBUF(0:NKX_S,0:NZ_S,0:NY_S)
 
-      integer DIAG
+      integer DIAG,I,J,K
       integer block
       integer sendcount,recvcount
       integer shift,dir,dir_min
@@ -195,7 +196,7 @@ C The string MPI_IO_NUM will be used to define the RANK+1 for each process
       COMPLEX*16 SENDBUF(0:NKX_S,0:NZ_S,0:NY_S)
       COMPLEX*16 RECVBUF(0:NKX_S,0:NZ_S,0:NY_S)
 
-      integer DIAG
+      integer DIAG,I,J,K
       integer block
       integer shift,dir,dir_min
       integer sendcount,recvcount
@@ -304,7 +305,7 @@ C The string MPI_IO_NUM will be used to define the RANK+1 for each process
       INCLUDE 'header_mpi'
 ! This subroutine initializes all mpi variables
 
-
+      integer NX,NX_S,NY,NY_S,NZ,NZ_S
       complex*16 A_X(0:NX,0:NZ_S,0:NY_S)
       complex*16 A_Y(0:NX_S,0:NZ_S,0:NY)
       complex*16 B(0:NX_S,0:NZ_S,0:NY)
@@ -312,7 +313,7 @@ C The string MPI_IO_NUM will be used to define the RANK+1 for each process
       complex*16 SENDBUF(0:NX_S,0:NZ_S,0:NY_S)
       complex*16 RECVBUF(0:NX_S,0:NZ_S,0:NY_S)
 
-      integer DIAG
+      integer DIAG,I,J,K
       integer block
       integer sendcount,recvcount
 
@@ -397,7 +398,7 @@ C The string MPI_IO_NUM will be used to define the RANK+1 for each process
       INCLUDE 'header_mpi'
 ! This subroutine initializes all mpi variables
 
-
+      integer NX,NX_S,NY,NY_S,NZ,NZ_S
       complex*16 A_X(0:NX,0:NZ_S,0:NY_S)
       complex*16 A_Y(0:NX_S,0:NZ_S,0:NY)
       complex*16 B(0:NX,0:NZ_S,0:NY_S)
@@ -405,7 +406,7 @@ C The string MPI_IO_NUM will be used to define the RANK+1 for each process
       complex*16 SENDBUF(0:NX_S,0:NZ_S,0:NY_S)
       complex*16 RECVBUF(0:NX_S,0:NZ_S,0:NY_S)
 
-      integer DIAG
+      integer DIAG,I,J,K
       integer block
       integer sendcount,recvcount
 
@@ -495,7 +496,7 @@ C The string MPI_IO_NUM will be used to define the RANK+1 for each process
       complex*16 SENDBUF(0:NKX_S,0:TNKZ_S,0:NY_S)
       complex*16 RECVBUF(0:NKX_S,0:TNKZ_S,0:NY_S)
 
-      integer DIAG
+      integer DIAG,I,J,K
       integer block
       integer sendcount,recvcount
       integer shift,dir,dir_min
@@ -615,7 +616,7 @@ C The string MPI_IO_NUM will be used to define the RANK+1 for each process
       complex*16 SENDBUF(0:NKX_S,0:TNKZ_S,0:NY_S)
       complex*16 RECVBUF(0:NKX_S,0:TNKZ_S,0:NY_S)
 
-      integer DIAG
+      integer DIAG,I,J,K
       integer block
       integer sendcount,recvcount
       integer shift,dir,dir_min
@@ -1962,16 +1963,16 @@ C prevent the tridiagonal matrix from becomming singular for i,k=0
      &                   , MPI_MODE_CREATE + MPI_MODE_EXCL
      &                     + MPI_MODE_WRONLY
      &                   , MPI_INFO_NULL, fh, IERROR)
-      CALL MPI_BARRIER(MPI_COMM_WORLD,IERR)
+      CALL MPI_BARRIER(MPI_COMM_WORLD,IERROR)
       IF (IERROR.NE.0) THEN
         WRITE(*,*) '****ERROR***** OUTPUT FILE EXISTS: ',FNAME
         STOP
 !        write(*,*) 'WARNING, FILE EXISTS, RANK=',RANK
-!        CALL MPI_BARRIER(MPI_COMM_WORLD,IERR)
+!        CALL MPI_BARRIER(MPI_COMM_WORLD,IERROR)
 !        IF (RANK.eq.0) THEN
 !          CALL SYSTEM('rm -f '//FNAME)
 !        END IF
-!        CALL MPI_BARRIER(MPI_COMM_WORLD,IERR)
+!        CALL MPI_BARRIER(MPI_COMM_WORLD,IERROR)
 !        CALL MPI_FILE_OPEN(MPI_COMM_WORLD, FNAME
 !     &                   , MPI_MODE_CREATE + MPI_MODE_EXCL
 !     &                     + MPI_MODE_WRONLY
@@ -2103,7 +2104,7 @@ C prevent the tridiagonal matrix from becomming singular for i,k=0
       end do
 
 ! Make sure that all processes are done reading
-      CALL MPI_BARRIER(MPI_COMM_WORLD,IERR)
+      CALL MPI_BARRIER(MPI_COMM_WORLD,IERROR)
 ! Write the fortran post-header
        IF (RANK.eq.0) THEN
          HEADER=(TNKY+1)*(TNKZ+1)*(NKX+1)*16*3
@@ -2118,15 +2119,15 @@ C prevent the tridiagonal matrix from becomming singular for i,k=0
      &                   , MPI_MODE_CREATE + MPI_MODE_EXCL
      &                     + MPI_MODE_WRONLY
      &                   , MPI_INFO_NULL, fh_th(N), IERROR)
-      CALL MPI_BARRIER(MPI_COMM_WORLD,IERR)
+      CALL MPI_BARRIER(MPI_COMM_WORLD,IERROR)
       IF (IERROR.NE.0) THEN
         WRITE(*,*) '****ERROR***** OUTPUT FILE EXISTS: ',FNAME_TH(N)
         STOP
-!        CALL MPI_BARRIER(MPI_COMM_WORLD,IERR)
+!        CALL MPI_BARRIER(MPI_COMM_WORLD,IERROR)
 !        IF (RANK.eq.0) THEN
 !          CALL SYSTEM('rm -f '//FNAME_TH(N))
 !        END IF
-!        CALL MPI_BARRIER(MPI_COMM_WORLD,IERR)
+!        CALL MPI_BARRIER(MPI_COMM_WORLD,IERROR)
 !        CALL MPI_FILE_OPEN(MPI_COMM_WORLD, FNAME_TH(N)
 !     &                   , MPI_MODE_CREATE + MPI_MODE_EXCL
 !     &                     + MPI_MODE_WRONLY
@@ -2206,7 +2207,7 @@ C prevent the tridiagonal matrix from becomming singular for i,k=0
         end if
       end do
 ! Make sure that all processes are done reading
-      CALL MPI_BARRIER(MPI_COMM_WORLD,IERR)
+      CALL MPI_BARRIER(MPI_COMM_WORLD,IERROR)
 ! Write the Fortran post-header
        IF (RANK.eq.0) THEN
          HEADER=(TNKY_TH+1)*(TNKZ_TH+1)*(NKX_TH+1)*16
@@ -2222,15 +2223,15 @@ C prevent the tridiagonal matrix from becomming singular for i,k=0
      &                   , MPI_MODE_CREATE + MPI_MODE_EXCL
      &                     + MPI_MODE_WRONLY
      &                   , MPI_INFO_NULL, fh_p, IERROR)
-      CALL MPI_BARRIER(MPI_COMM_WORLD,IERR)
+      CALL MPI_BARRIER(MPI_COMM_WORLD,IERROR)
       IF (IERROR.NE.0) THEN
         WRITE(*,*) '****ERROR***** OUTPUT P FILE EXISTS: ',FNAME_P
         STOP
-!        CALL MPI_BARRIER(MPI_COMM_WORLD,IERR)
+!        CALL MPI_BARRIER(MPI_COMM_WORLD,IERROR)
 !        IF (RANK.eq.0) THEN
 !          CALL SYSTEM('rm -f '//FNAME_P)
 !        END IF
-!        CALL MPI_BARRIER(MPI_COMM_WORLD,IERR)
+!        CALL MPI_BARRIER(MPI_COMM_WORLD,IERROR)
 !        CALL MPI_FILE_OPEN(MPI_COMM_WORLD, FNAME_P
 !     &                   , MPI_MODE_CREATE + MPI_MODE_EXCL
 !     &                     + MPI_MODE_WRONLY
@@ -2307,7 +2308,7 @@ C prevent the tridiagonal matrix from becomming singular for i,k=0
         end if
       end do
 ! Make sure that all processes are done reading
-      CALL MPI_BARRIER(MPI_COMM_WORLD,IERR)
+      CALL MPI_BARRIER(MPI_COMM_WORLD,IERROR)
 ! Write the Fortran post-header
        IF (RANK.eq.0) THEN
          HEADER=(TNKY+1)*(TNKZ+1)*(NKX+1)*16

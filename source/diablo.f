@@ -147,7 +147,7 @@ C A flag to determine if we are considering the first time-step
       WRITE(6,*) '        ****** Hello world!  Have a nice day! ******'
       WRITE(6,*)
       end if
-      CALL MPI_BARRIER(MPI_COMM_WORLD,IERR)
+      CALL MPI_BARRIER(MPI_COMM_WORLD,IERROR)
 
 
       END

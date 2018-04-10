@@ -1333,7 +1333,7 @@ c     Dimensions in the memory and in the file
 
       call h5sclose_f(tspace,error)
       ! ----------------------------
-      call mpi_barrier(mpi_comm_world,ierr)
+      call mpi_barrier(mpi_comm_world,ierror)
 ! #### WRITE DATASETS ####
 
 ! Create property list for the chunked dataset creation
