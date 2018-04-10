@@ -7,13 +7,11 @@
 
 #**********   User Defined Variables Below *********
 # Fortran 90 complier to use:
-COMPILER = mpif90
+COMPILER = ifort
 
 # Any desired options for the compiler (e.g. -O2, -g, etc.)
-#USEROPTS = -O3 -xP -i-dynamic -unroll -fno-alias -fPIC -align dcommons
-#USEROPTs = -g
-USEROPTS =  -O3 -mcmodel=medium
-#USEROPTS =
+USEROPTS =  -O3 -mcmodel=medium						# to run locally on maths PCs
+#USEROPTS = -02 -mcmodel=medium -u -fPIC -shared	# to run on Cambridge HPC
 
 # Location where fftw and netcdf (optional) libraries are installed
 LINKDIR = /mhome/damtp/atmos/jrt51/local/lib
@@ -45,7 +43,8 @@ LINKOPTS = -L$(LINKDIR) -lrfftw -lfftw -lnetcdf
 NETCDF_o = netcdf.o
 else
 COMPOPTS = $(USEROPTS)
-LINKOPTS = -L$(LINKDIR) -lrfftw -lfftw #-lnetcdf
+LINKOPTS = -L$(LINKDIR) -lrfftw -lfftw			# to run locally on maths PCs
+# LINKOPTS = -L$(LINKDIR) -ldrfftw -ldfftw		# to run on Cambridge HPC
 NETCDF_o = no_netcdf.o
 endif
 
