@@ -10,8 +10,10 @@
 COMPILER = ifort
 
 # Any desired options for the compiler (e.g. -O2, -g, etc.)
-USEROPTS =  -O3 -mcmodel=medium						# to run locally on maths PCs
-#USEROPTS = -02 -mcmodel=medium -u -fPIC -shared	# to run on Cambridge HPC
+# to run locally on maths PCs
+USEROPTS =  -O3 -mcmodel=medium
+# to run on Cambridge HPC
+#USEROPTS = -O2 -mcmodel=medium -u -fPIC -shared
 
 # Location where fftw and netcdf (optional) libraries are installed
 LINKDIR = /mhome/damtp/atmos/jrt51/local/lib
@@ -90,16 +92,16 @@ endif
 
 diablo: $(MAIN) diablo_io.o periodic.o channel.o $(LES_o) $(NETCDF_o) \
 	write_h5.o duct.o cavity.o fft.o fft_th.o rand.o user_rhs.o $(HOOKS) \
-	$(ADJOINT) $(MPI) $(HEADER) grid_def grid_def_mpi
+	$(ADJOINT) $(MPI) $(HEADER) grid_def
 	$(COMPILER) $(COMPOPTS) $(MAIN) -o diablo \
 	diablo_io.o periodic.o channel.o $(LES_o) $(NETCDF_o) \
 	write_h5.o duct.o cavity.o fft.o fft_th.o rand.o user_rhs.o \
 	$(HOOKS) $(ADJOINT)	$(MPI) $(LINKOPTS)
 
-diablo_io.o: diablo_io.f header grid_def grid_def_mpi
+diablo_io.o: diablo_io.f header grid_def
 	$(COMPILER) $(COMPOPTS) -c diablo_io.f
 
-periodic.o: periodic.f fft.o fft_th.o header grid_def grid_def_mpi
+periodic.o: periodic.f header grid_def
 	$(COMPILER) $(COMPOPTS) -c periodic.f
 
 channel.o: channel.f fft.o $(MPI) header grid_def
