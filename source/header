@@ -26,7 +26,7 @@
       CHARACTER*35 FLAVOR
       CHARACTER MPI_IO_NUM
       INTEGER MPI_NUM
-      REAL*8  NU, LX, LY, LZ, DELTA_T, KICK, UBULK0, PX0
+      REAL*8  NU, LX, LY, LZ, DELTA_T, KICK, F_AMP, UBULK0, PX0
       REAL*8  U_BC_XMIN_C1, U_BC_XMIN_C2, U_BC_XMIN_C3
       REAL*8  V_BC_XMIN_C1, V_BC_XMIN_C2, V_BC_XMIN_C3
       REAL*8  W_BC_XMIN_C1, W_BC_XMIN_C2, W_BC_XMIN_C3
@@ -98,7 +98,7 @@
      &  U_BC_YMAX_C1, U_BC_YMAX_C2, U_BC_YMAX_C3,
      &  V_BC_YMAX_C1, V_BC_YMAX_C2, V_BC_YMAX_C3,
      &  W_BC_YMAX_C1, W_BC_YMAX_C2, W_BC_YMAX_C3,
-     &  NU, LX, LY, LZ, DELTA_T, KICK, UBULK0, PX0,
+     &  NU, LX, LY, LZ, DELTA_T, KICK, F_AMP, UBULK0, PX0,
      &  N_TIME_STEPS, NUM_PER_DIR, TIME_AD_METH, VERBOSITY,
      &  SAVE_FLOW_INT, SAVE_STATS_INT, IC_TYPE, F_TYPE, CFL,
      &  PREVIOUS_TIME_STEP, MOVIE, CREATE_NEW_FLOW,
@@ -194,7 +194,8 @@
 
       INTEGER*8  FFTW_X_TO_P_PLAN, FFTW_X_TO_F_PLAN,
      &           FFTW_Y_TO_P_PLAN, FFTW_Y_TO_F_PLAN,
-     &           FFTW_Z_TO_P_PLAN, FFTW_Z_TO_F_PLAN
+     &           FFTW_Z_TO_P_PLAN, FFTW_Z_TO_F_PLAN,
+     &           FFTW_TEST_PLAN
       INTEGER NKX, NKY, NKZ
 
       COMMON /FFT_PARAMS/
@@ -227,7 +228,8 @@
 
       INTEGER*8  FFTW_X_TO_P_PLAN_TH, FFTW_X_TO_F_PLAN_TH,
      &           FFTW_Y_TO_P_PLAN_TH, FFTW_Y_TO_F_PLAN_TH,
-     &           FFTW_Z_TO_P_PLAN_TH, FFTW_Z_TO_F_PLAN_TH
+     &           FFTW_Z_TO_P_PLAN_TH, FFTW_Z_TO_F_PLAN_TH,
+     &           FFTW_TEST_PLAN_TH
       INTEGER NKX_TH, NKY_TH, NKZ_TH
       INTEGER TNKY_TH,TNKZ_TH
       INTEGER NZM_TH,NXM_TH,NYM_TH
@@ -243,6 +245,7 @@
      &                  FFTW_X_TO_P_PLAN_TH, FFTW_X_TO_F_PLAN_TH,
      &                  FFTW_Y_TO_P_PLAN_TH, FFTW_Y_TO_F_PLAN_TH,
      &                  FFTW_Z_TO_P_PLAN_TH, FFTW_Z_TO_F_PLAN_TH,
+     &                  FFTW_TEST_PLAN_TH,
      &                  NKX_TH, NKY_TH, NKZ_TH,
      &                  TNKY_TH,TNKZ_TH,
      &                  NXM_TH,NYM_TH,NZM_TH
