@@ -155,8 +155,6 @@ C Note, on an f-plane under the traditional approximation, C_SIN=C_COS=0
         END DO
       END DO
 
-!      call USER_RHS_PER_FOURIER
-
 
 C Transform the scalar concentration to physical space
       DO N=1,N_TH
@@ -708,15 +706,15 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
       INCLUDE 'header'
       INTEGER I, J, K
       REAL*8 RNUM1,RNUM2,RNUM3
-      REAL*8 K0,K_MAG
+      REAL*8 K0,K_MAG, a0, theta0, phi0
       CHARACTER*60 FNAME
-      REAL*8 b3,f03,E3,Sigma3,A3,alpha
+      REAL*8 b3,f03,E3,Sigma3,A3,alpha,h3,beta3
 
 
 C For an initial vortex, define the location of the centerline
       REAL*8 XC(0:NY+1),ZC(0:NY+1)
 
-      CALL MPI_BARRIER(MPI_COMM_WORLD,IERR)
+      CALL MPI_BARRIER(MPI_COMM_WORLD,IERROR)
 
       IF (FLAVOR .EQ. 'Basic') THEN
 
@@ -799,18 +797,30 @@ C Start with an ideal vortex centered in the domain
         END DO
       ELSE IF (IC_TYPE.eq.3) THEN
         ! Initialize with a GM spectrum of internal waves
-        b3=65.
+        b3=130./sqrt(RI_TAU(1))
         f03=0.014*sqrt(RI_TAU(1))
         E3=6.3e-5
         Sigma3=0.468
         A3=sqrt(RI_TAU(1)*b3*E3*f03*sqrt(RI_TAU(1)-f03**2))
-     &          /sqrt(PI*Sigma3)
-!        A3=A3/2.
+     &          /sqrt(2*PI*Sigma3)
+        h3=1/sqrt(2.)
         do j=0,TNKY
           do k=0,TNKZ_S
             do i=0,NKX_S
               if ( (KX2_S(i)+KZ2_S(k)+KY2(j).le.100.) .and.
-     &              (KY(j).ne.0) .and. (KX2_S(i)+KZ2_S(k).ne.0) ) then
+     &              (KY(j).ne.0)) then
+              if (KX2_S(i)+KZ2_S(k).eq.0) then ! Shear Flow component
+                CS1(i,k,j)=sqrt(2*b3*E3*RI_TAU(1)/PI/Sigma3/h3**2)
+     &         *(KY2(j)+9*pi**2/b3**2)**(-0.5)*(atan(h3*
+     &        sqrt(RI_TAU(1)-f03**2)/f03/sqrt(h3**2+KY2(j))))**(0.5)
+                call RANDOM_NUMBER(beta3)
+                call RANDOM_NUMBER(alpha)
+                CU1(i,k,j)=sqrt(beta3)*cexp(cmplx(0,2.*pi*alpha))
+     &                      *CS1(i,k,j)
+                call RANDOM_NUMBER(alpha)
+                CU3(i,k,j)=sqrt(1-beta3)*cexp(cmplx(0,2.*pi*alpha))
+     &                      *CS1(i,k,j)
+             else
                 call RANDOM_NUMBER(alpha)
                 alpha=2.*pi*alpha ! Random phase of each wave
                 CS1(i,k,j)=A3*cexp(cmplx(0,alpha))*KY(j)/
@@ -825,6 +835,7 @@ C Start with an ideal vortex centered in the domain
                 CU3(i,k,j)=CS1(i,k,j)*KY(j)*KZ_S(k)/sqrt(
      &            (KX2_S(i)+KZ2_S(k)+KY2(j))*(KX2_S(i)+KZ2_S(k)))
                 CTH(i,k,j,1)=CS1(i,k,j)*CI/sqrt(RI_TAU(1))
+              end if
               end if
             end do
           end do
@@ -882,7 +893,7 @@ C Start with an ideal vortex centered in the domain
 !      CALL SAVE_STATS_PER(.FALSE.)
 
         IF (USE_MPI) THEN
-           CALL MPI_BARRIER(MPI_COMM_WORLD,IERR)
+           CALL MPI_BARRIER(MPI_COMM_WORLD,IERROR)
         END IF
 
 !        call WriteHDF5('start.h5',.FALSE.)   ! For testing
@@ -902,6 +913,7 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
 C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
       INCLUDE 'header'
       INTEGER I,J,K,N
+      REAL*8 a0,theta0,phi0
 
 C Note, Since stratification is not permitted in the periodic flow field
 C Any background stratification must be added to the governing equations
@@ -1045,6 +1057,7 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
 C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
       INCLUDE 'header'
       REAL    VERSION, CURRENT_VERSION
+      INTEGER N
 
 ! Read in input parameters specific for channel flow case
       OPEN (11,file='input_per.dat',form='formatted',status='old')
@@ -1066,7 +1079,7 @@ C Read input file.
       READ(11,*) LES_MODEL_TYPE
       if (RANK.eq.0) write(*,*) 'LES_MODEL_TYPE: ',LES_MODEL_TYPE
       READ(11,*)
-      READ(11,*) IC_TYPE, KICK
+      READ(11,*) IC_TYPE, KICK, F_AMP
       if (RANK.eq.0) write(*,*) 'IC_TYPE,KICK: ',IC_TYPE,KICK
       READ(11,*)
       READ(11,*) I_RO_TAU, PHI, GAMMA, G_TAU, BETA
@@ -1111,7 +1124,7 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
       real*8 l_th(1:N_TH),l_th_sum(1:N_TH),thflux_sum(1:N_TH)
 
         IF (USE_MPI) THEN
-           CALL MPI_BARRIER(MPI_COMM_WORLD,IERR)
+           CALL MPI_BARRIER(MPI_COMM_WORLD,IERROR)
         END IF
 
         IF (RANK.eq.0) THEN
@@ -1174,7 +1187,7 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
       end if
 
         IF (USE_MPI) THEN
-           CALL MPI_BARRIER(MPI_COMM_WORLD,IERR)
+           CALL MPI_BARRIER(MPI_COMM_WORLD,IERROR)
         END IF
 
 ! Now, convert the velocity and vertical gradients to physical space
@@ -1496,7 +1509,7 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
       end do
 
         IF (USE_MPI) THEN
-           CALL MPI_BARRIER(MPI_COMM_WORLD,IERR)
+           CALL MPI_BARRIER(MPI_COMM_WORLD,IERROR)
         END IF
 
 ! Convert back to Fourier space
@@ -1564,7 +1577,7 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
       EK=0.5d0*(urms_b_sum**2.d0+vrms_b_sum**2.d0+wrms_b_sum**2.d0)
 
         IF (USE_MPI) THEN
-           CALL MPI_BARRIER(MPI_COMM_WORLD,IERR)
+           CALL MPI_BARRIER(MPI_COMM_WORLD,IERROR)
         END IF
 
 C Convert velocity back to Fourier space
