@@ -785,7 +785,7 @@ C      RETURN
 C      END
 
 C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
-      SUBROUTINE FFT_XZY_TO_PHYSICAL_TH(CU,U)
+C      SUBROUTINE FFT_XZY_TO_PHYSICAL_TH(CU,U)
 C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
 C This routine transforms (in 3 directions) the entire box to physical space.
 C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
