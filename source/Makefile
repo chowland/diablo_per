@@ -13,7 +13,7 @@ COMPILER = ifort
 # to run locally on maths PCs
 USEROPTS =  -O3 -mcmodel=medium
 # to run on Cambridge HPC
-#USEROPTS = -O2 -mcmodel=medium -u -fPIC -shared
+#USEROPTS = -O2 -mcmodel=medium -u
 
 # Location where fftw and netcdf (optional) libraries are installed
 LINKDIR = /mhome/damtp/atmos/jrt51/local/lib
