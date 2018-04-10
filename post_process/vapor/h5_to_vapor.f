@@ -22,21 +22,21 @@
 ! Variables for movie
       integer FIRST_OUT, LAST_OUT, OUT_NUM, loop_index
       FIRST_OUT=0
-      LAST_OUT=60
-      NUM_TIMES='61' ! Remember to add 1 for start.h5 here if not CREATE_NEW_FLOW
+      LAST_OUT=120
+      NUM_TIMES='121' ! Remember to add 1 for start.h5 here if not CREATE_NEW_FLOW
 
 ! Number of periodic directions used in the simulation
       NUM_PER_DIR=3
       CREATE_NEW_FLOW=.TRUE.
 ! This string should contain the size of the buffer array
-      size_str='128x128x128'
+      size_str='250x250x250'
       len_str='0.0:0.0:0.0:6.28:6.28:6.28'
       LX=6.28
       LY=6.28
       LZ=6.28
 
-      run_dir='/local/scratch/public/cjh225/GM9_init_forced' ! Run directory
-
+!      run_dir='/store/DAMTP/cjh225/scratch_backup/long_right_forcing' ! Run directory
+      run_dir='/local/scratch/public/cjh225/xShear/ri0.01_F1e3'
 !      RI_TAU(1)=1.0d0
 
       NXM=NX-1
@@ -88,7 +88,7 @@
         do i=0,NXM
           do j=0,NYM
             do k=0,NZM
-              buffer3(i,k,j)=real(U1(i,k,j))
+              buffer3(i,j,k)=real(U1(i,k,j))
             end do
           end do
         end do
@@ -102,7 +102,7 @@
         do i=0,NXM
           do j=0,NYM
             do k=0,NZM
-              buffer3(i,k,j)=real(U2(i,k,j))
+              buffer3(i,j,k)=real(U2(i,k,j))
             end do
           end do
         end do
@@ -116,7 +116,7 @@
         do i=0,NXM
           do j=0,NYM
             do k=0,NZM
-              buffer3(i,k,j)=real(U3(i,k,j))
+              buffer3(i,j,k)=real(U3(i,k,j))
             end do
           end do
         end do
@@ -131,7 +131,7 @@
           do i=0,NXM
             do j=0,NYM
               do k=0,NZM
-                buffer3(i,k,j)=real(TH(i,k,j,1))
+                buffer3(i,j,k)=real(TH(i,k,j,1))+GY(j)
               end do
             end do
           end do
@@ -147,7 +147,7 @@
           do i=0,NXM
             do j=0,NYM
               do k=0,NZM
-                buffer3(i,k,j)=real(TH(i,k,j,2))
+                buffer3(i,j,k)=real(TH(i,k,j,2))
               end do
             end do
           end do
@@ -163,7 +163,7 @@
           do i=0,NXM
             do j=0,NYM
               do k=0,NZM
-                buffer3(i,k,j)=real(TH(i,k,j,3))
+                buffer3(i,j,k)=real(TH(i,k,j,3))
               end do
             end do
           end do
@@ -204,7 +204,7 @@
         do i=0,NXM
           do j=0,NYM
             do k=0,NZM
-              buffer3(i,k,j)=real(U1(i,k,j))
+              buffer3(i,j,k)=real(U1(i,k,j))
             end do
           end do
         end do
@@ -233,7 +233,7 @@
         do i=0,NXM
           do j=0,NYM
             do k=0,NZM
-              buffer3(i,k,j)=real(U2(i,k,j))
+              buffer3(i,j,k)=real(U2(i,k,j))
             end do
           end do
         end do
@@ -262,7 +262,7 @@
         do i=0,NXM
           do j=0,NYM
             do k=0,NZM
-              buffer3(i,k,j)=real(U3(i,k,j))
+              buffer3(i,j,k)=real(U3(i,k,j))
             end do
           end do
         end do
@@ -292,7 +292,7 @@
           do i=0,NXM
             do j=0,NYM
               do k=0,NZM
-                buffer3(i,k,j)=real(TH(i,k,j,1))
+                buffer3(i,j,k)=real(TH(i,k,j,1))+GY(j)
               end do
             end do
           end do
@@ -323,7 +323,7 @@
           do i=0,NXM
             do j=0,NYM
               do k=0,NZM
-                buffer3(i,k,j)=real(TH(i,k,j,2))
+                buffer3(i,j,k)=real(TH(i,k,j,2))
               end do
             end do
           end do
@@ -354,7 +354,7 @@
           do i=0,NXM
             do j=0,NYM
               do k=0,NZM
-                buffer3(i,k,j)=real(TH(i,k,j,3))
+                buffer3(i,j,k)=real(TH(i,k,j,3))
               end do
             end do
           end do
