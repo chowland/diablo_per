@@ -558,44 +558,44 @@ C Perform De-aliasing on the largest third of the wavenumbers
       END
 
 C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
-C      SUBROUTINE FFT_XZ_TO_FOURIER(U,CU,JMIN,JMAX)
+      SUBROUTINE FFT_XZ_TO_FOURIER(U,CU,JMIN,JMAX)
 C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
 C This routine transforms (in 2 directions) planes JMIN-JMAX to Fourier space.
 C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
 
-C      RETURN
-C      END
+      RETURN
+      END
 
 C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
-C      SUBROUTINE FFT_XZ_TO_PHYSICAL(CU,U,JMIN,JMAX)
+      SUBROUTINE FFT_XZ_TO_PHYSICAL(CU,U,JMIN,JMAX)
 C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
 C This routine transforms (in 2 directions) planes JMIN-JMAX to physical space.
-C      RETURN
-C      END
+      RETURN
+      END
 
 C******************************************************************************|
 C--------> The transform routines for the fully-periodic box follow. <---------|
 C******************************************************************************|
 
 C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
-C      SUBROUTINE FFT_XZY_TO_FOURIER(U,CU)
+      SUBROUTINE FFT_XZY_TO_FOURIER(U,CU)
 C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
 C This routine transforms (in 3 directions) the entire box to Fourier space.
 C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
 
-C      RETURN
-C      END
+      RETURN
+      END
 
 C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
-C      SUBROUTINE FFT_XZY_TO_PHYSICAL(CU,U)
+      SUBROUTINE FFT_XZY_TO_PHYSICAL(CU,U)
 C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
 C This routine transforms (in 3 directions) the entire box to physical space.
 C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
-C      INCLUDE 'header'
-C      INTEGER I, J, K
-C      REAL*8     U (0:NX+1,0:NZ+1,0:NY+1)
-C      COMPLEX*16 CU(0:NX/2,0:NZ+1,0:NY+1)
+      INCLUDE 'header'
+      INTEGER I, J, K
+      REAL*8     U (0:NX+1,0:NZ+1,0:NY+1)
+      COMPLEX*16 CU(0:NX/2,0:NZ+1,0:NY+1)
 
 
-C      RETURN
-C      END
+      RETURN
+      END

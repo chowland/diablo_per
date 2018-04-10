@@ -758,39 +758,39 @@ C Then, perform a complex -> real transform in the y-direction
 
 
 C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
-C      SUBROUTINE FFT_XZ_TO_FOURIER_TH(U,CU,JMIN,JMAX)
+      SUBROUTINE FFT_XZ_TO_FOURIER_TH(U,CU,JMIN,JMAX)
 C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
 C This routine transforms (in 2 directions) planes JMIN-JMAX to Fourier space.
 
-C      RETURN
-C      END
+      RETURN
+      END
 
 C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
-C      SUBROUTINE FFT_XZ_TO_PHYSICAL_TH(CU,U,JMIN,JMAX)
+      SUBROUTINE FFT_XZ_TO_PHYSICAL_TH(CU,U,JMIN,JMAX)
 C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
 C This routine transforms (in 2 directions) planes JMIN-JMAX to physical space.
-C      RETURN
-C      END
+      RETURN
+      END
 C******************************************************************************|
 C--------> The transform routines for the fully-periodic box follow. <---------|
 C******************************************************************************|
 
 C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
-C      SUBROUTINE FFT_XZY_TO_FOURIER_TH(U,CU)
+      SUBROUTINE FFT_XZY_TO_FOURIER_TH(U,CU)
 C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
 C This routine transforms (in 3 directions) the entire box to Fourier space.
 C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
 
-C      RETURN
-C      END
+      RETURN
+      END
 
 C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
-C      SUBROUTINE FFT_XZY_TO_PHYSICAL_TH(CU,U)
+      SUBROUTINE FFT_XZY_TO_PHYSICAL_TH(CU,U)
 C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
 C This routine transforms (in 3 directions) the entire box to physical space.
 C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
-C      INCLUDE 'header'
+      INCLUDE 'header'
 
 
-C      RETURN
-C      END
+      RETURN
+      END
