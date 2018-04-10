@@ -9,13 +9,12 @@
 
       integer i,j,k,n
 
-      real*8 alpha, K0, F_0
+      real*8 alpha, K0
 
 ! **** LOW WAVENUMBER (FURUE, 2003) FORCING ****
 
 
       K0=7.
-      F_0=1.0e3           ! Amplitude of forcing
 
       DO J=0,TNKY
         DO K=0,TNKZ_S
@@ -24,7 +23,7 @@
      &            (KY(J).NE.0) .AND. (KX2_S(I)+KZ2_S(K).NE.0) ) THEN
               call RANDOM_NUMBER(alpha)
               alpha=2.*pi*alpha ! Random phase of forcing
-              CS1(I,K,J)=F_0*cexp(cmplx(0,alpha))*(4.*pi)**(-0.5)*
+              CS1(I,K,J)=F_AMP*cexp(cmplx(0,alpha))*(4.*pi)**(-0.5)*
      &                      (KX2_S(I)+KZ2_S(K)+KY2(J))**(1./4.)*
      &                      (KX2_S(I)+KZ2_S(K)+KY2(J)+K0**2)**(-3)
               CF1(I,K,J)=CF1(I,K,J)+CS1(i,k,j)*KY(j)*KX_S(i)/sqrt(

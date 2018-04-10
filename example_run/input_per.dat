@@ -7,8 +7,8 @@ C TIME_AD_METH
       1              
 C LES:   LES_MODEL_TYPE
                2            
-C ICs:    IC_TYPE,    KICK
-             2        0.00001
+C ICs:    IC_TYPE,    KICK,    F_AMP
+             2        0.0       1.0e3
 C GEOPHYSICAL FORCING, (ROSSBY NUMBER)^-1, PHI,  GAMMA,  G_TAU, BETA
                           0.0             90.0   90.0    0.0     1.0
 C BACKGROUND_GRAD(N)
