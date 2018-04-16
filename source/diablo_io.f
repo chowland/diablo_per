@@ -450,9 +450,9 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
         FNAME='end.h5'
         SAVE_PRESSURE=.TRUE.
       else
-        if (N_TIME_STEPS/SAVE_FLOW_INT < 10) then
-          FNAME='out'//char(int(TIME_STEP/SAVE_FLOW_INT)+48)//'.h5'
-        else if (N_TIME_STEPS/SAVE_FLOW_INT < 100) then
+!        if (N_TIME_STEPS/SAVE_FLOW_INT < 10) then
+!          FNAME='out'//char(int(TIME_STEP/SAVE_FLOW_INT)+48)//'.h5'
+        if (N_TIME_STEPS/SAVE_FLOW_INT < 100) then
           FNAME='out'//char(floor(TIME_STEP/SAVE_FLOW_INT/10.)+48)
      &           //char(mod(TIME_STEP/SAVE_FLOW_INT,10)+48)//'.h5'
         else if (N_TIME_STEPS/SAVE_FLOW_INT < 1000) then
