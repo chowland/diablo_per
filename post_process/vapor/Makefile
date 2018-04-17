@@ -2,7 +2,7 @@
 # COMPILER = /data/oceanus/ed441/lib/hdf5/1.8.12-ifort/bin/h5fc
 COMPILER = h5fc
 COMPOPTS = -i-dynamic -fPIC -shared-intel -mcmodel=large
-#COMPOPTS = -03 -mcmodel=medium -dhdf5
+#COMPOPTS = -O3 -mcmodel=medium -dhdf5
 %COMPILER = h5fc
 %COMPOPTS = -i-dynamic -fPIC -shared-intel -mcmodel=medium
 # LINKOPTS = -L/usr/local/lib -lrfftw -lfftw -lm
