@@ -184,37 +184,6 @@ c     Dimensions in the memory and in the file
 
       end do
 
-! Decide whether to compute the pressure or to read
-      call h5lexists_f(file_id, 'P', READ_PRESSURE, error)
-      if (READ_PRESSURE) then
-        dname="P"
-        call h5dopen_f(file_id,trim(dname),dset_id,error)
-        call h5dget_space_f(dset_id,filspace_id,error)
-
-! Select hyperslab in the file.
-        call h5sselect_hyperslab_f (filspace_id, H5S_SELECT_SET_F,
-     &        offset_f, count, error, stride, block)
-        call h5sselect_hyperslab_f (memspace_id, H5S_SELECT_SET_F,
-     +        offset_m, count, error, stride, block)
-
-! Write the dataset collectively
-        call h5dread_f(dset_id, H5T_NATIVE_DOUBLE, tmp,
-     +        dimsm, error, file_space_id = filspace_id,
-     +        mem_space_id = memspace_id)
-
-      do j=0,NY-1
-        do k=0,NZ-1
-          do i=0,NX-1
-            P(i,k,j)=tmp(i+1,j+1,k+1)
-            end do
-        end do
-      end do
-! Close dataset
-        call h5sclose_f(filspace_id, error)
-        call h5dclose_f(dset_id, error)
-!        call fft_xzy_mpi_to_fourier(P,CP)
-      end if
-
 ! Close the dataspace for the memory
       call h5sclose_f(memspace_id, error)
       call h5sclose_f(memspace_id_th, error)
@@ -222,21 +191,5 @@ c     Dimensions in the memory and in the file
       ! Close file
       call h5fclose_f(file_id, error)
       call h5close_f(error)
-
-!      IF (VARIABLE_DT) THEN
-!        CALL COURANT_MPI
-!      END IF
-
-      ! Convert to Fourier space
-!      call fft_xzy_mpi_to_fourier(U1,CU1)
-!      call fft_xzy_mpi_to_fourier(U2,CU2)
-!      call fft_xzy_mpi_to_fourier(U3,CU3)
-!      do ith=1,N_TH
-!        if (.NOT.CREATE_NEW_TH(ith)) then
-!         S1(:,:,:)=TH(:,:,:,ith)
-!         call fft_xzy_mpi_to_fourier_th(S1,CS1)
-!         CTH(:,:,:,ith)=CS1(:,:,:)
-!        end if
-!      end do
 
       end subroutine ReadHDF5
