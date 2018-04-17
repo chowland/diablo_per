@@ -22,21 +22,21 @@
 ! Variables for movie
       integer FIRST_OUT, LAST_OUT, OUT_NUM, loop_index
       FIRST_OUT=0
-      LAST_OUT=120
-      NUM_TIMES='121' ! Remember to add 1 for start.h5 here if not CREATE_NEW_FLOW
+      LAST_OUT=15
+      NUM_TIMES='16' ! Remember to add 1 for start.h5 here if not CREATE_NEW_FLOW
 
 ! Number of periodic directions used in the simulation
       NUM_PER_DIR=3
       CREATE_NEW_FLOW=.TRUE.
 ! This string should contain the size of the buffer array
-      size_str='250x250x250'
+      size_str='512x512x512'  ! Remember to change grid_def as well
       len_str='0.0:0.0:0.0:6.28:6.28:6.28'
       LX=6.28
       LY=6.28
       LZ=6.28
 
 !      run_dir='/store/DAMTP/cjh225/scratch_backup/long_right_forcing' ! Run directory
-      run_dir='/local/scratch/public/cjh225/xShear/ri0.01_F1e3'
+      run_dir='/local/scratch/public/cjh225/DARWIN/Re1e4_Ri1e-2'
 !      RI_TAU(1)=1.0d0
 
       NXM=NX-1
