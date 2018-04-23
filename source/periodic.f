@@ -708,7 +708,7 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
       REAL*8 RNUM1,RNUM2,RNUM3
       REAL*8 K0,K_MAG, a0, theta0, phi0
       CHARACTER*60 FNAME
-      REAL*8 b3,f03,E3,Sigma3,A3,alpha,h3,beta3
+      REAL*8 b3,f03,E3,Sigma3,A3,alpha,h3,beta3,N03
 
 
 C For an initial vortex, define the location of the centerline
@@ -797,8 +797,9 @@ C Start with an ideal vortex centered in the domain
         END DO
       ELSE IF (IC_TYPE.eq.3) THEN
         ! Initialize with a GM spectrum of internal waves
-        b3=130./sqrt(RI_TAU(1))
-        f03=0.014*sqrt(RI_TAU(1))
+        b3=1300./1e-2/sqrt(RI_TAU(1)/NU)
+        f03=7.3e-5*1e2*sqrt(RI_TAU(1))
+        N03=5.2e-3*1e2*sqrt(RI_TAU(1))
         E3=6.3e-5
         Sigma3=0.468
         A3=sqrt(RI_TAU(1)*b3*E3*f03*sqrt(RI_TAU(1)-f03**2))
@@ -811,7 +812,7 @@ C Start with an ideal vortex centered in the domain
      &              (KY(j).ne.0)) then
               if (KX2_S(i)+KZ2_S(k).eq.0) then ! Shear Flow component
                 CS1(i,k,j)=sqrt(2*b3*E3*RI_TAU(1)/PI/Sigma3/h3**2)
-     &         *(KY2(j)+9*pi**2/b3**2)**(-0.5)*(atan(h3*
+     &    *(KY2(j)+9*RI_TAU(1)*pi**2/b3**2/N03**2)**(-0.5)*(atan(h3*
      &        sqrt(RI_TAU(1)-f03**2)/f03/sqrt(h3**2+KY2(j))))**(0.5)
                 call RANDOM_NUMBER(beta3)
                 call RANDOM_NUMBER(alpha)
@@ -827,7 +828,7 @@ C Start with an ideal vortex centered in the domain
      &         (sqrt(KX2_S(i)+KZ2_S(k))*
      &          sqrt(KX2_S(i)+KZ2_S(k)+KY2(j))
      &         *(RI_TAU(1)*(KX2_S(i)+KZ2_S(k))+f03**2*KY2(j))
-     &         *(KY2(j)+pi**2*9/b3**2))**(0.5)
+     &         *(KY2(j)+pi**2*9*RI_TAU(1)/N03**2/b3**2))**(0.5)
                 CU1(i,k,j)=CS1(i,k,j)*KY(j)*KX_S(i)/sqrt(
      &            (KX2_S(i)+KZ2_S(k)+KY2(j))*(KX2_S(i)+KZ2_S(k)))
                 CU2(i,k,j)=CS1(i,k,j)*sqrt(KX2_S(i)+KZ2_S(k))/sqrt(
