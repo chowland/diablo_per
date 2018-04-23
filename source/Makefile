@@ -11,9 +11,9 @@ COMPILER = ifort
 
 # Any desired options for the compiler (e.g. -O2, -g, etc.)
 # to run locally on maths PCs
-USEROPTS =  -O3 -mcmodel=medium
+#USEROPTS =  -O3 -mcmodel=medium
 # to run on Cambridge HPC
-#USEROPTS = -O2 -mcmodel=large -u
+USEROPTS = -O2 -mcmodel=large -u
 
 # Location where fftw and netcdf (optional) libraries are installed
 LINKDIR = /mhome/damtp/atmos/jrt51/local/lib
@@ -45,8 +45,8 @@ LINKOPTS = -L$(LINKDIR) -lrfftw -lfftw -lnetcdf
 NETCDF_o = netcdf.o
 else
 COMPOPTS = $(USEROPTS)
-LINKOPTS = -L$(LINKDIR) -lrfftw -lfftw			# to run locally on maths PCs
-# LINKOPTS = -L$(LINKDIR) -ldrfftw -ldfftw		# to run on Cambridge HPC
+# LINKOPTS = -L$(LINKDIR) -lrfftw -lfftw			# to run locally on maths PCs
+LINKOPTS = -L$(LINKDIR) -ldrfftw -ldfftw		# to run on Cambridge HPC
 NETCDF_o = no_netcdf.o
 endif
 
