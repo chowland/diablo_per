@@ -2323,3 +2323,17 @@ C prevent the tridiagonal matrix from becomming singular for i,k=0
 
       RETURN
       END
+
+
+      SUBROUTINE END_RUN_MPI(FLAG)
+
+      INCLUDE 'header'
+
+      LOGICAL FLAG
+
+      IF (RANK.EQ.0) THEN
+        CALL END_RUN(FLAG)
+      END IF
+      CALL MPI_BCAST(FLAG,1,MPI_LOGICAL,0,MPI_COMM_WORLD,IERROR)
+
+      END

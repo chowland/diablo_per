@@ -581,3 +581,84 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
 
       RETURN
       END
+
+
+      SUBROUTINE END_RUN(FLAG)
+
+      INCLUDE 'header'
+
+      LOGICAL FLAG,FILE_EXISTS
+
+      FLAG=.FALSE.
+      ! Check for the time
+      call WALL_TIME(END_TIME)
+      if (END_TIME-START_TIME.gt.TIME_LIMIT) THEN
+        IF (RANK.EQ.0) THEN
+          write(*,*) ' STOP because of wall-time hit!'
+        END IF
+        FLAG=.TRUE.
+      END IF
+
+      RETURN
+      END
+
+      subroutine wall_time(wt)
+c
+c     Return wall-clock time as seconds after Jan. 1, 2018.
+c     Support for leap year is not included anymore.
+c
+c     By using a 'save' statement, the wall-time after the first
+c     call to the subroutine could be computed, but that is not
+c     intended with the present subroutine (e.g. the history file)
+c
+      implicit none
+
+      real*8 wt
+      integer val(8),i,shift,day
+
+      integer mon(12,2)
+      data mon /
+     &     31,28,31,30,31,30,31,31,30,31,30,31,
+     &     31,29,31,30,31,30,31,31,30,31,30,31/
+c
+c     Get current date and time
+c     val(1) : year
+c     val(2) : month
+c     val(3) : day
+c     val(4) : difference to GMT
+c     val(5) : hour
+c     val(6) : minute
+c     val(7) : second
+c     val(8) : 1/1000 second
+c
+      call date_and_time(values=val)
+c
+c     Determine leap year
+c
+      if (mod(val(1),4).eq.0) then
+         if (mod(val(1),100).eq.0) then
+            if (mod(val(1),400).eq.0) then
+               shift=2
+            else
+               shift=1
+            end if
+         else
+            shift=2
+         end if
+      else
+         shift = 1
+      end if
+c
+c     Construct day of the year
+c
+      day = val(3)-1
+      do i=1,val(2)-1
+         day=day+mon(i,shift)
+      end do
+c
+c     And compute wall-clock time
+c
+      wt = (val(1)-2018)*365*86400+
+     &     day*86400+val(5)*3600+val(6)*60+val(7)+dble(val(8)/1000.d0)
+
+      end

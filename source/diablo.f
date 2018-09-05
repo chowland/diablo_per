@@ -59,7 +59,8 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
       PROGRAM DIABLO
       INCLUDE 'header'
       INTEGER N
-
+      LOGICAL FLAG
+      
 
       CALL INITIALIZE
 
@@ -123,7 +124,14 @@ C A flag to determine if we are considering the first time-step
           CALL FILTER(N)
           END IF
         END DO
-
+! Check for wall-time restriction
+      IF (USE_MPI) THEN
+        CALL END_RUN_MPI(FLAG)
+      ELSE
+        CALL END_RUN(FLAG)
+      END IF
+      IF (FLAG) EXIT
+      
       END DO
 
 ! Calculate and display the runtime for the simulation
