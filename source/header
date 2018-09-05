@@ -114,7 +114,8 @@
      &        , NX_T, NY_T, NZ_T, NKX_T, TNKZ_T, NUM_PER_DIR_T
 
       INTEGER TIME_ARRAY(8)
-      REAL*8 START_TIME,END_TIME
+      REAL*8 START_TIME,END_TIME,TIME_LIMIT
+      COMMON /TIMINGS/ START_TIME,END_TIME,TIME_LIMIT
 
 !----*|--.---------.---------.---------.---------.---------.---------.-|-------|! Parameters for scalar advection
 !----*|--.---------.---------.---------.---------.---------.---------.-|-------|
