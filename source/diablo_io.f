@@ -29,8 +29,8 @@ C    CURRENT_VERSION number to make obsolete previous input files!)
       READ(11,*)
       READ(11,*) NUM_PER_DIR, CREATE_NEW_FLOW
       READ(11,*)
-      READ(11,*) N_TIME_STEPS, DELTA_T, RESET_TIME, VARIABLE_DT, CFL
-     &            , UPDATE_DT
+      READ(11,*) N_TIME_STEPS, TIME_LIMIT, DELTA_T, RESET_TIME,
+     &             VARIABLE_DT, CFL, UPDATE_DT
       READ(11,*)
       READ(11,*) VERBOSITY, SAVE_FLOW_INT, SAVE_STATS_INT, MOVIE
       READ(11,*)
