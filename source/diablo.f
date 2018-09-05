@@ -65,9 +65,7 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
       CALL INITIALIZE
 
 ! Initialize START_TIME for run timing
-      CALL DATE_AND_TIME (VALUES=TIME_ARRAY)
-      START_TIME=TIME_ARRAY(5)*3600+TIME_ARRAY(6)*60
-     &   +TIME_ARRAY(7)+TIME_ARRAY(8)*0.001
+      call WALL_TIME(START_TIME)
 
       IF (RANK.eq.0) THEN
       WRITE(6,*)
@@ -135,10 +133,8 @@ C A flag to determine if we are considering the first time-step
       END DO
 
 ! Calculate and display the runtime for the simulation
+      call WALL_TIME(END_TIME)
       IF (RANK.eq.0) THEN
-        CALL DATE_AND_TIME (VALUES=TIME_ARRAY)
-        END_TIME=TIME_ARRAY(5)*3600+TIME_ARRAY(6)*60
-     &   +TIME_ARRAY(7)+TIME_ARRAY(8)*0.001
         WRITE(*,*) 'Elapsed Time (sec): ',end_time-start_time
         WRITE(*,*) 'Seconds per Iteration: '
      &     ,(end_time-start_time)/N_TIME_STEPS
