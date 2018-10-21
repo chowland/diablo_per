@@ -91,7 +91,7 @@
       DO J=0,TNKY
         DO K=0,TNKZ_S
           DO I=0,NKX_S
-            kappa2=KX_2(I)+KZ2_S(K)
+            kappa2=KX2_S(I)+KZ2_S(K)
             IF ((kappa2.gt.6.25) .and. (KY(J).EQ.0)
      &        .and. (kappa2.lt.12.25)) THEN
               call RANDOM_NUMBER(alpha)
