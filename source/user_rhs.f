@@ -29,8 +29,8 @@
           do I=0,NKX_S
             kappa2=KX2_S(I)+KZ2_S(K)
             K2=kappa2+KY2(J)
-            IF ( (K2.LE.100.) .AND. (KY(J).NE.0)) THEN
-              IF (kappa2.EQ.0) ) THEN
+            IF ((K2.LE.100.) .AND. (KY(J).NE.0)) THEN
+              IF (kappa2.EQ.0) THEN
                 CS1(I,K,J)=(4.*pi)**-0.5*K2**0.25*(K2+K0**2)**-3
                 call RANDOM_NUMBER(alpha)
                 alpha=2.d0*pi*alpha
