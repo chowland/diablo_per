@@ -42,7 +42,7 @@
                 CF3(I,K,J)=sqrt(1-F0)*CS1(I,K,J)*cexp(cmplx(0,alpha))
                 PS=PS+conjg(CU1(I,K,J))*CF1(I,K,J)+
      &              conjg(CU3(I,K,J))*CF3(I,K,J)
-                PF=PF+abs(CS1(I,K,J))**2
+                PF=PF+0.5*abs(CS1(I,K,J))**2
               ELSE
               call RANDOM_NUMBER(alpha)
               alpha=2.d0*pi*alpha ! Random phase of forcing
@@ -89,8 +89,13 @@
             DO I=0,NKX_S
             kappa2=KX2_S(I)+KZ2_S(K)
             if (kappa2.eq.0) then
+              if (abs(FS1)<abs(FS2)) then
               CF1(I,K,J)=FS1*CF1(I,K,J)
               CF3(I,K,J)=FS1*CF3(I,K,J)
+              else
+              CF1(I,K,J)=FS2*CF1(I,K,J)
+              CF3(I,K,J)=FS2*CF3(I,K,J)
+              end if
             else
               CF1(I,K,J)=F01*CF1(I,K,J)
               CF2(I,K,J)=F01*CF2(I,K,J)
@@ -106,8 +111,13 @@
             DO I=0,NKX_S
             kappa2=KX2_S(I)+KZ2_S(K)
             if (kappa2.eq.0) then
+              if (abs(FS1)<abs(FS2)) then
+              CF1(I,K,J)=FS1*CF1(I,K,J)
+              CF3(I,K,J)=FS1*CF3(I,K,J)
+              else
               CF1(I,K,J)=FS2*CF1(I,K,J)
               CF3(I,K,J)=FS2*CF3(I,K,J)
+              end if
             else
               CF1(I,K,J)=F02*CF1(I,K,J)
               CF2(I,K,J)=F02*CF2(I,K,J)
