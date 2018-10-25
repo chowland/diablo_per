@@ -22,26 +22,26 @@ for n=1:4
     % Calculate 1-sided energy spectrum:
     CS2=zeros(NX,NKY+1,NZ);
 
-    CS2(:,1,:)=CS1(:,1,:)
+    CS2(:,1,:)=CS1(:,1,:);
     for j=2:NKY+1
         CS2(:,j,:)=CS1(:,j,:)+CS1(:,NY-j+2,:);
     end
 
     if n==4
-        CS2=RI*CS2;
+        CS2=Ri_t*CS2;
     end
     E{n}=sum(sum(CS2,3),1);
-    if n<=2
-        Fr{n}=KY.^2.*E{n}/RI;
-        Fr_shear{n}=KY.^2.*CS2(1,:,1)/RI;
+    if mod(n,2)==1
+        Fr{n}=KY.^2.*E{n}/Ri_t;
+        Fr_shear{n}=KY.^2.*CS2(1,:,1)/Ri_t;
     end
     disp(['Computed spectra for ' dname{n}])
     clear CS1 CS2
 end
 
 figure(1);
-loglog(KY,Fr{1}+Fr{2}); hold on
-loglog(KY,Fr_shear{1}+Fr_shear{2},'--');
+loglog(KY,Fr{1}+Fr{3}); hold on
+loglog(KY,Fr_shear{1}+Fr_shear{3},'--');
 xlabel('$|m|$')
 ylabel('$\Phi_{Fr}$')
 
