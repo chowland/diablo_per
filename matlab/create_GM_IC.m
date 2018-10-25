@@ -36,7 +36,7 @@ for i=2:NKX+1
                 CU2(i,j,k)=sqrt(CS1(i,j,k))*kappa(i,k)/sqrt(K2)*exp(1i*alpha);
                 CU3(i,j,k)=sqrt(CS1(i,j,k))*KY(j)*KZ(k)/sqrt(K2) ...
                     /kappa(i,k)*exp(1i*alpha);
-                CTH(i,j,k)=sqrt(CS1(i,k,j)/Ri_t)*1i*exp(1i*alpha);
+                CTH(i,j,k)=sqrt(CS1(i,j,k)/Ri_t)*1i*exp(1i*alpha);
             end
         end
     end
@@ -54,13 +54,13 @@ for k=2:NKZ+1
             CU2(1,j,k)=sqrt(CS1(1,j,k))*kappa(1,k)/sqrt(K2)*exp(1i*alpha);
             CU3(1,j,k)=sqrt(CS1(1,j,k))*KY(j)*KZ(k)/sqrt(K2) ...
                 /kappa(1,k)*exp(1i*alpha);
-            CTH(1,j,k)=sqrt(CS1(1,k,j)/Ri_t)*1i*exp(1i*alpha);
+            CTH(1,j,k)=sqrt(CS1(1,j,k)/Ri_t)*1i*exp(1i*alpha);
         end
     end
 end
 for j=2:NKY+1      % SHEAR FLOW COMPONENT DEFINED HERE
-    if KY(j)^2<=KY_C^2
-    CS1(1,j,1)=sqrt(Ri_t/2/KY_C)/KY(j);
+    if KY(j)^2<=KY_C^2      % Set so that mean Ri_g = Ri_tau
+    CS1(1,j,1)=1./(sqrt(2*KY_C)*KY(j));
     alpha=2*pi*rand; beta=rand;
     CU1(1,j,1)=sqrt(beta)*CS1(1,j,1)*exp(1i*alpha);
     alpha=2*pi*rand;
