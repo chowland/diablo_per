@@ -32,6 +32,7 @@
             K2=kappa2+KY2(J)
             IF ((K2.LE.100.) .AND. (KY(J).NE.0)) THEN
               IF (kappa2.EQ.0) THEN
+                IF (FORCE_SHEAR) THEN
                 CS1(I,K,J)=(4.*pi)**-0.5*K2**0.25*(K2+K0**2)**-3
                 call RANDOM_NUMBER(alpha)
                 alpha=2.d0*pi*alpha
@@ -43,6 +44,7 @@
                 PS=PS+conjg(CU1(I,K,J))*CF1(I,K,J)+
      &              conjg(CU3(I,K,J))*CF3(I,K,J)
                 PF=PF+0.5*abs(CS1(I,K,J))**2
+                END IF
               ELSE
               call RANDOM_NUMBER(alpha)
               alpha=2.d0*pi*alpha ! Random phase of forcing
@@ -70,31 +72,37 @@
       CALL MPI_ALLREDUCE(pff,pff_sum,1,MPI_DOUBLE_PRECISION,MPI_SUM,
      &              MPI_COMM_WORLD,IERROR)
       end if
+      if (FORCE_SHEAR) then
       CALL MPI_ALLREDUCE(PS,PS_sum,1,MPI_DOUBLE_PRECISION,MPI_SUM,
      &              MPI_COMM_WORLD,IERROR)
       CALL MPI_ALLREDUCE(PF,PF_sum,1,MPI_DOUBLE_PRECISION,MPI_SUM,
      &              MPI_COMM_WORLD,IERROR)
+      end if
 
       F01=(-puf_sum+SQRT(puf_sum**2+4*pff_sum*DELTA_T*P_AIM))
      &      /(2*DELTA_T*pff_sum)
       F02=(-puf_sum-SQRT(puf_sum**2+4*pff_sum*DELTA_T*P_AIM))
      &      /(2*DELTA_T*pff_sum)
-      FS1=(-PS_sum+SQRT(PS_sum**2+4*PF_sum*DELTA_T*P_AIM))
+      if (FORCE_SHEAR) then
+        FS1=(-PS_sum+SQRT(PS_sum**2+4*PF_sum*DELTA_T*P_AIM))
      &      /(2*DELTA_T*PF_sum)
-      FS2=(-PS_sum-SQRT(PS_sum**2+4*PF_sum*DELTA_T*P_AIM))
+        FS2=(-PS_sum-SQRT(PS_sum**2+4*PF_sum*DELTA_T*P_AIM))
      &      /(2*DELTA_T*PF_sum)
+      end if
       if (abs(F01)<abs(F02)) THEN
         DO J=0,TNKY
           DO K=0,TNKZ_S
             DO I=0,NKX_S
             kappa2=KX2_S(I)+KZ2_S(K)
             if (kappa2.eq.0) then
-              if (abs(FS1)<abs(FS2)) then
-              CF1(I,K,J)=FS1*CF1(I,K,J)
-              CF3(I,K,J)=FS1*CF3(I,K,J)
-              else
-              CF1(I,K,J)=FS2*CF1(I,K,J)
-              CF3(I,K,J)=FS2*CF3(I,K,J)
+              if (FORCE_SHEAR) then
+                if (abs(FS1)<abs(FS2)) then
+                  CF1(I,K,J)=FS1*CF1(I,K,J)
+                  CF3(I,K,J)=FS1*CF3(I,K,J)
+                else
+                CF1(I,K,J)=FS2*CF1(I,K,J)
+                CF3(I,K,J)=FS2*CF3(I,K,J)
+                end if
               end if
             else
               CF1(I,K,J)=F01*CF1(I,K,J)
@@ -111,12 +119,14 @@
             DO I=0,NKX_S
             kappa2=KX2_S(I)+KZ2_S(K)
             if (kappa2.eq.0) then
-              if (abs(FS1)<abs(FS2)) then
-              CF1(I,K,J)=FS1*CF1(I,K,J)
-              CF3(I,K,J)=FS1*CF3(I,K,J)
-              else
-              CF1(I,K,J)=FS2*CF1(I,K,J)
-              CF3(I,K,J)=FS2*CF3(I,K,J)
+              if (FORCE_SHEAR) then
+                if (abs(FS1)<abs(FS2)) then
+                CF1(I,K,J)=FS1*CF1(I,K,J)
+                CF3(I,K,J)=FS1*CF3(I,K,J)
+                else
+                CF1(I,K,J)=FS2*CF1(I,K,J)
+                CF3(I,K,J)=FS2*CF3(I,K,J)
+                end if
               end if
             else
               CF1(I,K,J)=F02*CF1(I,K,J)

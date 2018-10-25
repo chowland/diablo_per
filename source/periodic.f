@@ -865,12 +865,14 @@ C Read input file.
      &         STOP 'Wrong input data format input_chan'
       if (RANK.eq.0) write(*,*) 'VERSION: ',VERSION
       READ(11,*)
-      READ(11,*) IC_TYPE, KICK, target_Reb
+      READ(11,*) IC_TYPE, KICK
       if (RANK.eq.0) write(*,*) 'IC_TYPE,KICK: ',IC_TYPE,KICK
       READ(11,*)
       READ(11,*) I_RO_TAU, PHI, GAMMA, G_TAU, BETA, F_TYPE
       if (RANK.eq.0) write(*,*) 'I_RO_TAU,PHI,GAMMA,G_TAU,BETA: '
      &            ,I_RO_TAU,PHI,GAMMA,G_TAU,BETA
+      READ(11,*)
+      READ(11,*) F_TYPE, FORCE_SHEAR, target_Reb
       DO N=1,N_TH
         READ(11,*)
         READ(11,*) BACKGROUND_GRAD(N)

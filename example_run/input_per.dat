@@ -3,10 +3,12 @@ C input, as long as you don't change the number of comment lines.
 C Note that the grid size is defined in the file grid_def.
 C VERSION
     2.0    
-C ICs:    IC_TYPE,    KICK,    target_Reb
-             3        0.0       10
-C GEOPHYSICAL FORCING: (ROSSBY NUMBER)^-1, PHI,  GAMMA,  G_TAU, BETA, F_TYPE
-                          0.0             90.0   90.0    0.0     1.0    2
+C ICs:    IC_TYPE,    KICK,
+            3           0.0
+C GEOPHYSICAL FORCING: (ROSSBY NUMBER)^-1, PHI,  GAMMA,  G_TAU, BETA
+                        0.0                 90.0    90.0    0.0     1.0
+C SPECTRAL FORCING: F_TYPE, FORCE_SHEAR, target_Reb
+                    2       .FALSE.         10
 C BACKGROUND_GRAD(N)
            .TRUE.    
 
@@ -14,4 +16,5 @@ C Description
 C For triply-periodic flows (NUM_PER_DIR=3):
 C IC_TYPE specifies the functional form for the initial velocity
 C KICK is a scale factor on the noise added when creating a new flow.
-C BACKGROUND_GRAD(N) specifies if the scalar should be considered as a perturbation to a linear background gradient. This is designed to allow simulations of stratified flows in the triply periodic flow geometry.
+C BACKGROUND_GRAD(N) specifies if the scalar should be considered as a perturbation to a linear background gradient.
+C This is designed to allow simulations of stratified flows in the triply periodic flow geometry.
