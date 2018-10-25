@@ -1,16 +1,18 @@
 % Read vertical profiles from mean.h5
 
-% rundir='/local/scratch/public/cjh225/mini_diablo/Reb20aim/';
-rundir='/store/DAMTP/cjh225/HPC_forcing_tests/256_Reb1/';
+rundir='../example_run/';
 
-NU=6e-4; Re=1/NU; Ri_t=1; Pr=1;
+read_input; Re=1/NU;
 
 fname=[rundir 'mean.h5'];
 
 nk=h5readatt(fname,'/U1me','Samples');
-NY=256;
+h=h5info(fname,'/U1me/0000');
+NY=h.Dataspace.Size;
 
 U1me=zeros(nk,NY); U3me=zeros(nk,NY); THme=zeros(nk,NY);
+epsilon=zeros(nk,NY); chi=zeros(nk,NY); THflux=zeros(nk,NY);
+U1U2=zeros(nk,NY);  U3U2=zeros(nk,NY);
 
 for i=1:nk
     % Create the right dataset name for each time step

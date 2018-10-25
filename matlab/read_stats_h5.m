@@ -1,9 +1,8 @@
 % Read bulk quantities from stats.h5
 
-% rundir='/local/scratch/public/cjh225/mini_diablo/example_run/';
 rundir='../example_run/';
 
-NU=2e-3; Re=1/NU; Ri_t=1; Pr=1;
+read_input; Re=1/NU;
 
 fname=[rundir 'stats.h5'];
 
