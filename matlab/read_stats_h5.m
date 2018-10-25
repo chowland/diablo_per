@@ -36,17 +36,17 @@ for i=1:nk
     dname=['/THrms/' num];
     THrms(i)=h5read(fname,dname);
     dname=['/THflux/' num];
-    THflux(i)=h5read(fname,dname);
+    THflux_av(i)=h5read(fname,dname);
     dname=['/epsilon/' num];
-    epsilon(i)=h5read(fname,dname);
+    epsilon_av(i)=h5read(fname,dname);
     dname=['/chi/' num];
-    chi(i)=h5read(fname,dname);
+    chi_av(i)=h5read(fname,dname);
 end
 
 % Compute further quantities
-eta=(Re^3*epsilon).^(-1/4);
+eta_av=(Re^3*epsilon_av).^(-1/4);
 EK=0.5*(U1rms.^2+U2rms.^2+U3rms.^2);
 EP=0.5*Ri_t*THrms.^2;
 E=EK+EP;
-Re_lambda=EK.*sqrt(15*Re./epsilon);
-Re_b=epsilon*Re/Ri_t;
+Re_lambda=EK.*sqrt(15*Re./epsilon_av);
+Re_b_av=epsilon_av*Re/Ri_t;
