@@ -851,7 +851,7 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
       REAL    VERSION, CURRENT_VERSION
       INTEGER N
 
-! Read in input parameters specific for channel flow case
+! Read in input parameters specific for periodic flow case
       OPEN (11,file='input_per.dat',form='formatted',status='old')
 C Read input file.
 
@@ -868,7 +868,7 @@ C Read input file.
       READ(11,*) IC_TYPE, KICK
       if (RANK.eq.0) write(*,*) 'IC_TYPE,KICK: ',IC_TYPE,KICK
       READ(11,*)
-      READ(11,*) I_RO_TAU, PHI, GAMMA, G_TAU, BETA, F_TYPE
+      READ(11,*) I_RO_TAU, PHI, GAMMA, G_TAU, BETA
       if (RANK.eq.0) write(*,*) 'I_RO_TAU,PHI,GAMMA,G_TAU,BETA: '
      &            ,I_RO_TAU,PHI,GAMMA,G_TAU,BETA
       READ(11,*)
