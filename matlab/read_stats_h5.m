@@ -10,8 +10,8 @@ nk=h5readatt(fname,'/U1rms','Samples');
 
 tii=zeros(1,nk);
 U1rms=zeros(1,nk);  U2rms=zeros(1,nk);  U3rms=zeros(1,nk);
-THrms=zeros(1,nk);  THflux=zeros(1,nk);
-epsilon=zeros(1,nk);    chi=zeros(1,nk);
+THrms=zeros(1,nk);  THflux_av=zeros(1,nk);
+epsilon_av=zeros(1,nk);    chi_av=zeros(1,nk);
 
 for i=1:nk
     % Create the right dataset name for each time step
