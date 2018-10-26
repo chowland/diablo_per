@@ -2,9 +2,8 @@
 
 rundir='../example_run/';
 
-% Select plane and variable to read (U1, U2, U3, TH1) & whether to write to
-% AVI or not
-plane='xy';     F='/U1';    write_out=true;
+% Select plane and variable to read (U1, U2, U3, TH1)
+plane='xy';     F='/U1';
 
 fname=[rundir 'movie_' plane '.h5'];
 
@@ -51,15 +50,4 @@ for n=1:nk
         cmocean('balance');
     end
     M(n)=getframe;
-end
-
-% Optionally write to an AVI file
-if write_out
-    filename=[F(2:end) '_' plane '.avi'];
-    myVideo=VideoWriter(filename);
-    myVideo.Quality=100;
-    myVideo.FrameRate=15;
-    open(myVideo)
-    writeVideo(myVideo,M)
-    close(myVideo)
 end

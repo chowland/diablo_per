@@ -1,10 +1,10 @@
 % Read movie slices from movie_ij.h5
 
-% rundir='/local/scratch/public/cjh225/mini_diablo/example_run/';
 rundir='../example_run/';
 
-% Select plane and variable to read (U1, U2, U3, TH1)
-plane='xy';     F='/U1';
+% Select plane and variable to read (U1, U2, U3, TH1) & whether to write to
+% AVI or not (edit parameters for video at end of script)
+plane='xy';     F='/U1';    write_out=true;
 
 fname=[rundir 'movie_' plane '.h5'];
 
@@ -73,4 +73,15 @@ for n=1:nk
         M(n)=im2frame(im,cmocean('balance'));
     end
     
+end
+
+% Optionally write to an AVI file
+if write_out
+    filename=[F(2:end) '_' plane '.avi'];
+    myVideo=VideoWriter(filename);
+    myVideo.Quality=100;
+    myVideo.FrameRate=15;
+    open(myVideo)
+    writeVideo(myVideo,M)
+    close(myVideo)
 end
