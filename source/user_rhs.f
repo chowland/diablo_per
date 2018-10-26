@@ -33,7 +33,7 @@
             IF ((K2.LE.100.) .AND. (KY(J).NE.0)) THEN
               IF (kappa2.EQ.0) THEN
                 IF (FORCE_SHEAR) THEN
-                CS1(I,K,J)=(4.*pi)**-0.5*K2**0.25*(K2+K0**2)**-3
+                CS1(I,K,J)=(4.*pi)**(-0.5)*K2**0.25*(K2+K0**2)**(-3)
                 call RANDOM_NUMBER(alpha)
                 alpha=2.d0*pi*alpha
                 call RANDOM_NUMBER(F0)

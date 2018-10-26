@@ -908,6 +908,7 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
       real*8 U1U2(0:NY_S), U3U2(0:NY_S), THU2(0:NY_S_TH,1:N_TH)
       real*8 U1U2_sum(0:NY_S), U3U2_sum(0:NY_S)
       real*8 THU2_sum(0:NY_S_TH,1:N_TH)
+      character(10) :: gname
 
       CALL MPI_BARRIER(MPI_COMM_WORLD,IERROR)
 
@@ -986,9 +987,12 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
       if (rank.eq.0) write(*,*) 'Horizontal means computed'
 
       if (RANKZ.eq.0) then
-      call WriteMeanH5('U1me',U1me)
-      call WriteMeanH5('U3me',U3me)
-      call WriteMeanH5('THme',TH1me)
+      gname='U1me'
+      call WriteMeanH5(gname,U1me)
+      gname='U3me'
+      call WriteMeanH5(gname,U3me)
+      gname='THme'
+      call WriteMeanH5(gname,TH1me)
       end if
       call mpi_barrier(MPI_COMM_WORLD,ierror)
 
@@ -1050,14 +1054,19 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
         write(*,*) '<U2rms>: ',U2rms_sum
         write(*,*) '<U3rms>: ',U3rms_sum
         
-        call WriteStatH5('U1rms',U1rms_sum)
-        call WriteStatH5('U2rms',U2rms_sum)
-        call WriteStatH5('U3rms',U3rms_sum)
+        gname='U1rms'
+        call WriteStatH5(gname,U1rms_sum)
+        gname='U2rms'
+        call WriteStatH5(gname,U2rms_sum)
+        gname='U3rms'
+        call WriteStatH5(gname,U3rms_sum)
       END IF
 
       if (RANKZ.eq.0) then
-      call WriteMeanH5('U1U2',U1U2_sum)
-      call WriteMeanH5('U3U2',U3U2_sum)
+      gname='U1U2'
+      call WriteMeanH5(gname,U1U2_sum)
+      gname='U3U2'
+      call WriteMeanH5(gname,U3U2_sum)
       end if
       CALL MPI_BARRIER(MPI_COMM_WORLD,IERROR)
 
@@ -1094,12 +1103,15 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
         write(*,*) 'n,THrms(n),THflux(n): '
      &         ,n,THrms_sum(n),THflux_sum(n)
 
-        call WriteStatH5('THrms',THrms_sum(n))
-        call WriteStatH5('THflux',THflux_sum(n))
+        gname='THrms'
+        call WriteStatH5(gname,THrms_sum(n))
+        gname='THflux'
+        call WriteStatH5(gname,THflux_sum(n))
       END IF
 
       if (RANKZ.eq.0) then
-      call WriteMeanH5('THflux',THU2_sum(:,n))
+      gname='THflux'
+      call WriteMeanH5(gname,THU2_sum(:,n))
       end if
       CALL MPI_BARRIER(MPI_COMM_WORLD,IERROR)
 
@@ -1140,6 +1152,7 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-----|
       real*8 chi_mean,chi_sum
       real*8 epsilon_h(0:NY_S), chi_h(0:NY_S)
       real*8 epsilon_h_sum(0:NY_S), chi_h_sum(0:NY_S)
+      character(10) :: gname
 
       integer i,j,k
 
@@ -1387,13 +1400,17 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-----|
       IF (RANK.eq.0) write(*,*) 'epsilon_mean: ',epsilon_sum
 
             IF (RANK.eq.0) THEN
-              call WriteStatH5('epsilon',epsilon_sum)
-              call WriteStatH5('chi',chi_sum)
+              gname='epsilon'
+              call WriteStatH5(gname,epsilon_sum)
+              gname='chi'
+              call WriteStatH5(gname,chi_sum)
             END IF
 
       if (RANKZ.eq.0) then
-      call WriteMeanH5('epsilon',epsilon_h_sum)
-      call WriteMeanH5('chi',chi_h_sum)
+      gname='epsilon'
+      call WriteMeanH5(gname,epsilon_h_sum)
+      gname='chi'
+      call WriteMeanH5(gname,chi_h_sum)
       end if
       call mpi_barrier(MPI_COMM_WORLD,ierror)
 
