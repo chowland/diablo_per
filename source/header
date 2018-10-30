@@ -268,7 +268,7 @@
 ! Variables for tkebudget
       REAL*8 EPSILON(0:NY+1)
 
-      REAL*8 f_phase(0:NKX_S,0:TNKZ_S,0:TNKY)
+      REAL*8 f_phase(0:NX_S/2,0:NZ_S,0:NY+1)
 
       INTEGER NSAMPLES
 
