@@ -273,5 +273,6 @@
       INTEGER NSAMPLES
 
       COMMON /GLOBAL_VARS/ U1,U2,U3,P,R1,R2,R3,F1,F2,F3,TH,FTH,RTH
+     &                        ,f_phase
 !     &                  ,CU1,CU2,CU3,CP,CR1,CR2,CR3,CF1,CF2,CF3
-!     &                  ,CTH,CFTH,CRTH, f_phase
+!     &                  ,CTH,CFTH,CRTH
