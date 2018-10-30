@@ -8,15 +8,17 @@
 #**********   User Defined Variables Below *********
 # Fortran 90 complier to use:
 COMPILER = ifort
+#COMPILER = gfortran
 
 # Any desired options for the compiler (e.g. -O2, -g, etc.)
-# to run locally on maths PCs
-#USEROPTS =  -O3 -mcmodel=medium
-# to run on Cambridge HPC
+# ifort options
 USEROPTS = -O2 -mcmodel=large -u
+# gfortran options
+# USEROPTS = -O2 -mcmodel=large -fimplicit-none
 
 # Location where fftw libraries are installed
 LINKDIR = /mhome/damtp/atmos/jrt51/local/lib
+# LINKDIR = /usr/local/lib
 
 # Option to compile with the HDF5 library
 HDF5 = TRUE
@@ -31,7 +33,6 @@ MPI = mpi.o mpi_th.o
 ifeq ($(HDF5),TRUE)
 HDF5_o = write_h5.o
 COMPILER = h5pfc
-HDF5OPTS=-DHDF5
 endif
 
 MAIN = diablo.f
@@ -62,7 +63,7 @@ header : header_mpi grid_def grid_def_mpi
 write_h5.o : write_h5.f
 	$(COMPILER) $(COMPOPTS) -c write_h5.f
 
-user_rhs.o: user_rhs.f periodic.o fft.o fft_th.o $(MPI) header grid_def grid_def_mpi
+user_rhs.o: user_rhs.f header grid_def grid_def_mpi
 	$(COMPILER) $(COMPOPTS) -c user_rhs.f
 	
 fft.o:  fft.f header grid_def

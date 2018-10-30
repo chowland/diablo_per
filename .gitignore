@@ -2,3 +2,7 @@ matlab/start.h5
 matlab/*.avi
 source/*.o
 source/diablo
+example_run/*.h5
+example_run/restart_files
+example_run/output.dat
+example_run/diablo

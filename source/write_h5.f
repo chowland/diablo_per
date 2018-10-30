@@ -1607,7 +1607,7 @@ c     Dimensions in the memory and in the file
 
 ! Open the file collectively and the relevant group
       call h5fopen_f('stats.h5', H5F_ACC_RDWR_F,file_id, error)
-      call h5gopen_f(file_id,'/'//gname,gid,error)
+      call h5gopen_f(file_id,'/'//trim(gname),gid,error)
 
 ! Check and update the number of samples
       call h5aopen_f(gid,'Samples',aid,error)
@@ -1795,7 +1795,7 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
       call h5fopen_f('mean.h5', H5F_ACC_RDWR_F,
      &                 file_id, error, access_prp = plist_id_d)
       call h5pclose_f(plist_id_d, error)
-      call h5gopen_f(file_id,'/'//gname,gid,error)
+      call h5gopen_f(file_id,'/'//trim(gname),gid,error)
 
 ! Check number of samples
       adims=1
