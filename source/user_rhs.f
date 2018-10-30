@@ -203,7 +203,7 @@
               kappa2=KX2_S(I)+KZ2_S(K)
               K2=kappa2+KY2(J)
               if ((K2.le.100.) .and. (KY(j).ne.0)) then
-                if (kappa2.eq.0)
+                if (kappa2.eq.0) then
                   if (FORCE_SHEAR) then
                   end if
                 else
