@@ -10,6 +10,7 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
       INCLUDE 'header'
       
       REAL*8 alpha
+      integer i,j,k
 
 C Define variables for the Geophysical case
       PI=4.D0*ATAN(1.D0)
