@@ -8,6 +8,9 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
 C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
 
       INCLUDE 'header'
+      
+      REAL*8 alpha
+      integer i,j,k
 
 C Define variables for the Geophysical case
       PI=4.D0*ATAN(1.D0)
@@ -15,6 +18,17 @@ C Define variables for the Geophysical case
       GAMMA=2.D0*PI*GAMMA/360.D0
       C_SIN=COS(PHI)*SIN(GAMMA)/SIN(PHI)
       C_COS=COS(PHI)*COS(GAMMA)/SIN(PHI)
+
+      if (F_TYPE.eq.3) then
+        do j=0,TNKY
+          do k=0,TNKZ_S
+            do i=0,NKX_S
+              call RANDOM_NUMBER(alpha)
+              f_phase(i,k,j)=alpha*2.d0*pi
+            end do
+          end do
+        end do
+      end if
 
       RETURN
       END

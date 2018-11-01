@@ -1,5 +1,5 @@
 % Dimensionless parameters
-NU=6e-4;    Re=1/NU;    Ri_t=1;     Pr=1;
+NU=1e-3;    Re=1/NU;    Ri_t=1;     Pr=1;
 % Dimensional buoyancy frequency and viscosity
 N=1e-2;     nu=1e-6;
 % Dimensional length and velocity scales
@@ -11,7 +11,7 @@ KY_C=7;     K_C=7;
 % Calculate constant pre-factor (for wave components)
 E=6.3e-5;   Sigma=0.468;        A=Ri_t*b*E*f*sqrt(Ri_t-f^2)/(2*pi*Sigma);
 
-N=192;       N_CORES=36;      NK=floor(N/3);      K=[0:N/2 -(N/2-1):-1];  
+N=128;       N_CORES=16;      NK=floor(N/3);      K=[0:N/2 -(N/2-1):-1];  
 NX=N; NY=N; NZ=N; NKX=NK; NKY=NK; NKZ=NK;
 KX=K; KY=K; KZ=K; kappa=zeros(NX,NZ);
 for i=1:NX; for k=1:NZ
@@ -27,16 +27,16 @@ for i=2:NKX+1
         for j=[2:NKY+1 NY-NKY+2:NY] % NB general spectrum index would start at 1
             K2=kappa(i,k)^2+KY(j)^2;
             if K2<=K_C^2
-                CS1(i,j,k)=A*KY(j)^2/kappa(i,k)/ ...
-                    sqrt(K2)/(Ri_t*kappa(i,k)^2+f^2*KY(j)^2) ...
-                    /(KY(j)^2+pi^2*Ri_t*9/(b^2*N0^2));
                 alpha=2*pi*rand;
-                CU1(i,j,k)=sqrt(CS1(i,j,k))*KY(j)*KX(i)/sqrt(K2) ...
-                    /kappa(i,k)*exp(1i*alpha);
-                CU2(i,j,k)=sqrt(CS1(i,j,k))*kappa(i,k)/sqrt(K2)*exp(1i*alpha);
-                CU3(i,j,k)=sqrt(CS1(i,j,k))*KY(j)*KZ(k)/sqrt(K2) ...
-                    /kappa(i,k)*exp(1i*alpha);
-                CTH(i,j,k)=sqrt(CS1(i,j,k)/Ri_t)*1i*exp(1i*alpha);
+                CS1(i,j,k)=sqrt(A*KY(j)^2/kappa(i,k)/ ...
+                    sqrt(K2)/(Ri_t*kappa(i,k)^2+f^2*KY(j)^2) ...
+                    /(KY(j)^2+pi^2*Ri_t*9/(b^2*N0^2)))*exp(1i*alpha);
+                CU1(i,j,k)=CS1(i,j,k)*KY(j)*KX(i)/sqrt(K2) ...
+                    /kappa(i,k);
+                CU2(i,j,k)=CS1(i,j,k)*kappa(i,k)/sqrt(K2);
+                CU3(i,j,k)=CS1(i,j,k)*KY(j)*KZ(k)/sqrt(K2) ...
+                    /kappa(i,k);
+                CTH(i,j,k)=CS1(i,j,k)/sqrt(Ri_t)*1i;
             end
         end
     end
@@ -45,16 +45,16 @@ for k=2:NKZ+1
     for j=[2:NKY+1 NY-NKY+2:NY] % NB general spectrum index would start at 1
         K2=kappa(1,k)^2+KY(j)^2;
         if K2<=K_C^2
-            CS1(1,j,k)=A*KY(j)^2/kappa(1,k)/ ...
-                sqrt(K2)/(Ri_t*kappa(1,k)^2+f^2*KY(j)^2) ...
-                /(KY(j)^2+pi^2*Ri_t*9/(b^2*N0^2));
             alpha=2*pi*rand;
-            CU1(1,j,k)=sqrt(CS1(1,j,k))*KY(j)*KX(1)/sqrt(K2) ...
-                /kappa(1,k)*exp(1i*alpha);
-            CU2(1,j,k)=sqrt(CS1(1,j,k))*kappa(1,k)/sqrt(K2)*exp(1i*alpha);
-            CU3(1,j,k)=sqrt(CS1(1,j,k))*KY(j)*KZ(k)/sqrt(K2) ...
-                /kappa(1,k)*exp(1i*alpha);
-            CTH(1,j,k)=sqrt(CS1(1,j,k)/Ri_t)*1i*exp(1i*alpha);
+            CS1(1,j,k)=sqrt(A*KY(j)^2/kappa(1,k)/ ...
+                sqrt(K2)/(Ri_t*kappa(1,k)^2+f^2*KY(j)^2) ...
+                /(KY(j)^2+pi^2*Ri_t*9/(b^2*N0^2)))*exp(1i*alpha);
+            CU1(1,j,k)=CS1(1,j,k)*KY(j)*KX(1)/sqrt(K2) ...
+                /kappa(1,k);
+            CU2(1,j,k)=CS1(1,j,k)*kappa(1,k)/sqrt(K2);
+            CU3(1,j,k)=CS1(1,j,k)*KY(j)*KZ(k)/sqrt(K2) ...
+                /kappa(1,k);
+            CTH(1,j,k)=CS1(1,j,k)/sqrt(Ri_t)*1i;
         end
     end
 end
@@ -102,10 +102,16 @@ for j=NY-NKY+2:NY
     CU3(1,j,1)=conj(CU3(1,NY-j+2,1));
 end
 
-U1=ifftn(CU1*NX*NY*NZ,'symmetric'); %clear CU1; disp('Transformed U1');
-U2=ifftn(CU2*NX*NY*NZ,'symmetric'); %clear CU2; disp('Transformed U2');
-U3=ifftn(CU3*NX*NY*NZ,'symmetric'); %clear CU3; disp('Transformed U3');
-TH=ifftn(CTH*NX*NY*NZ,'symmetric'); %clear CTH; disp('Transformed TH');
+% Normalise energy such that shear is 90% of initial condition
+ES=sum(abs(CS1(1,:,1)).^2);
+EK=sum(abs(CS1(:)).^2)-ES;
+A0=sqrt(ES/18/EK);
+CU1=A0*CU1; CU2=A0*CU2; CU3=A0*CU3; CTH=A0*CTH;
+
+U1=ifftn(CU1*NX*NY*NZ,'symmetric'); clear CU1; disp('Transformed U1');
+U2=ifftn(CU2*NX*NY*NZ,'symmetric'); clear CU2; disp('Transformed U2');
+U3=ifftn(CU3*NX*NY*NZ,'symmetric'); clear CU3; disp('Transformed U3');
+TH=ifftn(CTH*NX*NY*NZ,'symmetric'); clear CTH; disp('Transformed TH');
 
 %% Write to HDF5 start file for diablo
 h5create('start.h5','/U1',[NX NY NZ],'ChunkSize',[NX 1 NZ/sqrt(N_CORES)])
