@@ -73,7 +73,7 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
         WRITE(6,*) 'Initializing FFTW package for scalar.'
       END IF
 
-      PI = 4. * ATAN(1.0)
+      PI = 4.D0 * ATAN(1.D0)
       CI = CMPLX(0.0,1.0)
       EPS= 0.000000001
 
