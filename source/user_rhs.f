@@ -19,6 +19,7 @@
       PS=0.d0
       PF=0.d0
       if (FIRST_TIME) pff=0.d0
+      call RANDOM_SEED
 
       if (F_TYPE.eq.1) then
 ! **** LOW WAVENUMBER (FURUE, 2003) FORCING ****
