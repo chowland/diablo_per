@@ -84,11 +84,11 @@ end
 
 if write_out
     if strcmp(plane,'yz')
-        filename='omega_x.avi';
+        filename='omega_1.avi';
     elseif strcmp(plane,'xy')
-        filename='omega_y.avi';
+        filename='omega_3.avi';
     else
-        filename='omega_z.avi';
+        filename='omega_2.avi';
     end
     myVideo=VideoWriter(filename);
     myVideo.Quality=100;
