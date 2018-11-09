@@ -1,5 +1,5 @@
 % Dimensionless parameters
-NU=1e-3;    Re=1/NU;    Ri_t=1;     Pr=1;
+NU=1e-4;    Re=1/NU;    Ri_t=1;     Pr=1;
 % Dimensional buoyancy frequency and viscosity
 N=1e-2;     nu=1e-6;
 % Dimensional length and velocity scales
@@ -11,7 +11,7 @@ KY_C=7;     K_C=7;
 % Calculate constant pre-factor (for wave components)
 E=6.3e-5;   Sigma=0.468;        A=Ri_t*b*E*f*sqrt(Ri_t-f^2)/(2*pi*Sigma);
 
-N=128;       N_CORES=16;      NK=floor(N/3);      K=[0:N/2 -(N/2-1):-1];  
+N=512;       N_CORES=256;      NK=floor(N/3);      K=[0:N/2 -(N/2-1):-1];  
 NX=N; NY=N; NZ=N; NKX=NK; NKY=NK; NKZ=NK;
 KX=K; KY=K; KZ=K; kappa=zeros(NX,NZ);
 for i=1:NX; for k=1:NZ
@@ -107,6 +107,7 @@ ES=sum(abs(CS1(1,:,1)).^2);
 EK=sum(abs(CS1(:)).^2)-ES;
 A0=sqrt(ES/18/EK);
 CU1=A0*CU1; CU2=A0*CU2; CU3=A0*CU3; CTH=A0*CTH;
+CU1(1,:,1)=CU1(1,:,1)/A0;   CU3(1,:,1)=CU3(1,:,1)/A0;
 
 U1=ifftn(CU1*NX*NY*NZ,'symmetric'); clear CU1; disp('Transformed U1');
 U2=ifftn(CU2*NX*NY*NZ,'symmetric'); clear CU2; disp('Transformed U2');
