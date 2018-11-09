@@ -4,7 +4,7 @@ C Note that the grid size is defined in the file grid_def.
 C      FLAVOR           VERSION
     'Basic'         2.0
 C Parameters:  NU,           LX,         LY,       LZ
-               5e-4      6.28         6.28      6.28
+               1e-4      6.28         6.28      6.28
 C Method:     CREATE_NEW_FLOW
                   .FALSE.
 C Time March:  N_TIME_STEPS, TIME_LIMIT, DELTA_T, RESET_TIME,  VARIABLE_DT, CFL, UPDATE_DT
@@ -17,4 +17,4 @@ C Here include 6*N_TH lines, see below for format
 C         CREATE_FLOW_TH(1)  Create new field or Read from DIABLO_TH.START
                .FALSE.
 C         RI_TAU(1)               PR(1)       REACTION(1)
-             4.0                  1.0        0.0
+             1.0                  1.0        0.0
