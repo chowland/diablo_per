@@ -920,6 +920,9 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
 
       real*8 U1me(0:NY_S), U3me(0:NY_S), TH1me(0:NY_S)
       real*8 U1U2(0:NY_S), U3U2(0:NY_S), THU2(0:NY_S_TH,1:N_TH)
+      real*8 U1U1(0:NY_S), U2U2(0:NY_S), U3U3(0:NY_S)
+      real*8 U1rms_h(0:NY_S), U2rms_h(0:NY_S), U3rms_h(0:NY_S)
+      real*8 THTH(0:NY_S_TH,1:N_TH), THTH_h(0:NY_S_TH,1:N_TH)
       real*8 U1U2_sum(0:NY_S), U3U2_sum(0:NY_S)
       real*8 THU2_sum(0:NY_S_TH,1:N_TH)
       character(10) :: gname
@@ -1018,12 +1021,16 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
       U3rms=0.d0
       U1U2=0.d0
       U3U2=0.d0
+      U1U1=0.d0
+      U2U2=0.d0
+      U3U3=0.d0
 
       do i=0,NXM
         do j=0,NY_S
           do k=0,NZ_S
             S1(i,k,j)=U1(i,k,j)-U1me(j)
             U1rms=U1rms+S1(i,k,j)**2.d0
+            U1U1(j)=U1U1(j)+S1(i,k,j)**2.d0
             U1U2(j)=U1U2(j)+S1(i,k,j)*U2(i,k,j)
           end do
         end do
@@ -1032,9 +1039,12 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
       do i=0,NXM
         do j=0,NY_S
           do k=0,NZ_S
-            U2rms=U2rms+(U2(i,k,j)-dble(CR2(0,0,0)))**2.d0
+            S1(i,k,j)=U2(i,k,j)-dble(CR2(0,0,0))
+            U2rms=U2rms+S1(i,k,j)**2.d0
+            U2U2(j)=U2U2(j)+S1(i,k,j)**2.d0
             S1(i,k,j)=U3(i,k,j)-U3me(j)
             U3rms=U3rms+S1(i,k,j)**2.d0
+            U3U3(j)=U3U3(j)+S1(i,k,j)**2.d0
             U3U2(j)=U3U2(j)+S1(i,k,j)*U2(i,k,j)
           end do
         end do
@@ -1046,6 +1056,9 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
       U3rms=U3rms/dble(NX*NY*NZ)
       U1U2=U1U2/dble(NX*NZ)
       U3U2=U3U2/dble(NX*NZ)
+      U1U1=U1U1/dble(NX*NZ)
+      U2U2=U2U2/dble(NX*NZ)
+      U3U3=U3U3/dble(NX*NZ)
 
       CALL MPI_ALLREDUCE(U1rms,U1rms_sum,1
      &              ,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,IERROR)
@@ -1057,6 +1070,12 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
       CALL MPI_ALLREDUCE(U1U2,U1U2_sum,NY_S+1
      &              ,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_Z,IERROR)
       CALL MPI_ALLREDUCE(U3U2,U3U2_sum,NY_S+1
+     &              ,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_Z,IERROR)
+      CALL MPI_ALLREDUCE(U1U1,U1rms_h,NY_S+1
+     &              ,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_Z,IERROR)
+      CALL MPI_ALLREDUCE(U2U2,U2rms_h,NY_S+1
+     &              ,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_Z,IERROR)
+      CALL MPI_ALLREDUCE(U3U3,U3rms_h,NY_S+1
      &              ,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_Z,IERROR)
 
       IF (RANK.eq.0) THEN
@@ -1077,10 +1096,19 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
       END IF
 
       if (RANKZ.eq.0) then
-      gname='U1U2'
-      call WriteMeanH5(gname,U1U2_sum)
-      gname='U3U2'
-      call WriteMeanH5(gname,U3U2_sum)
+        gname='U1U2'
+        call WriteMeanH5(gname,U1U2_sum)
+        gname='U3U2'
+        call WriteMeanH5(gname,U3U2_sum)
+        U1rms_h=sqrt(U1rms_h)
+        U2rms_h=sqrt(U2rms_h)
+        U3rms_h=sqrt(U3rms_h)
+        gname='U1rms'
+        call WriteMeanH5(gname,U1rms_h)
+        gname='U2rms'
+        call WriteMeanH5(gname,U2rms_h)
+        gname='U3rms'
+        call WriteMeanH5(gname,U3rms_h)
       end if
       CALL MPI_BARRIER(MPI_COMM_WORLD,IERROR)
 
@@ -1097,18 +1125,22 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
         THrms(n)=THrms(n)+TH(i,k,j,n)*TH(i,k,j,n)
         thflux(n)=thflux(n)+TH(i,k,j,n)*U2(i,k,j)
         THU2(j,n)=THU2(j,n)+TH(i,k,j,n)*U2(i,k,j)
+        THTH(j,n)=THTH(j,n)+(TH(i,k,j,n)-TH1me(j))**2
       end do
       end do
       end do
       THrms(n)=THrms(n)/dble(NX_TH*NY_TH*NZ_TH)
       thflux(n)=thflux(n)/dble(NX_TH*NY_TH*NZ_TH)
       THU2(:,n)=THU2(:,n)/dble(NX_TH*NZ_TH)
+      THTH(:,n)=THTH(:,n)/dble(NX_TH*NZ_TH)
 
       CALL MPI_ALLREDUCE(THrms(n),THrms_sum(n),1,MPI_DOUBLE_PRECISION
      &                    ,MPI_SUM,MPI_COMM_WORLD,IERROR)
       CALL MPI_ALLREDUCE(THFLUX(n),THFLUX_sum(n),1
      &        ,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,IERROR)
       CALL MPI_ALLREDUCE(THU2,THU2_sum,NY_S+1
+     &              ,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_Z,IERROR)
+      CALL MPI_ALLREDUCE(THTH,THTH_h,NY_S+1
      &              ,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_Z,IERROR)
 
       IF (RANK.eq.0) THEN
@@ -1126,6 +1158,9 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
       if (RANKZ.eq.0) then
       gname='THflux'
       call WriteMeanH5(gname,THU2_sum(:,n))
+      THTH_h=sqrt(THTH_h)
+      gname='THrms'
+      call WriteMeanH5(gname,THTH_h(:,n))
       end if
       CALL MPI_BARRIER(MPI_COMM_WORLD,IERROR)
 
