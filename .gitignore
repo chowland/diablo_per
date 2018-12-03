@@ -2,6 +2,11 @@ matlab/start.h5
 matlab/*.avi
 matlab/*.png
 matlab/*.fig
+matlab/*.mat
+matlab/comparisons
+matlab/spectrum_data
+matlab/time_series
+matlab/videos
 source/*.o
 source/diablo
 example_run/*.h5
