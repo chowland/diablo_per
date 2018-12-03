@@ -52,7 +52,7 @@
               CS1(I,K,J)=cexp(cmplx(0,alpha))*
      &                      K2**(1./4.)*(K2+K0**2)**(-3)
               CF1(I,K,J)=CS1(i,k,j)*KY(j)*KX_S(i)/sqrt(K2*kappa2)
-              CF2(I,K,J)=CS1(i,k,j)*sqrt(kappa2)/sqrt(K2)
+              CF2(I,K,J)=-CS1(i,k,j)*sqrt(kappa2)/sqrt(K2)
               CF3(I,K,J)=CS1(i,k,j)*KY(j)*KZ_S(k)/sqrt(K2*kappa2)
               CSTH1(I,K,J)=CS1(i,k,j)*CI/sqrt(RI_TAU(1))
               puf=puf+conjg(CU1(I,K,J))*CF1(I,K,J)+conjg(CU2(I,K,J))
@@ -212,7 +212,7 @@
      &              sqrt(RI_TAU(1)*kappa2/K2)*TIME))*
      &               (kappa2**3*K2)**(-0.5)
                   CF1(I,K,J)=CS1(i,k,j)*KY(j)*KX_S(i)/sqrt(K2*kappa2)
-                  CF2(I,K,J)=CS1(i,k,j)*sqrt(kappa2)/sqrt(K2)
+                  CF2(I,K,J)=-CS1(i,k,j)*sqrt(kappa2)/sqrt(K2)
                   CF3(I,K,J)=CS1(i,k,j)*KY(j)*KZ_S(k)/sqrt(K2*kappa2)
                   CSTH1(I,K,J)=CS1(i,k,j)*CI/sqrt(RI_TAU(1))
                   puf=puf+conjg(CU1(i,k,j))*CF1(i,k,j)
