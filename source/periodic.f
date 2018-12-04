@@ -1511,6 +1511,8 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-----|
       subroutine spectra_per(U2rms_sum,CU,E_L,E_S)
 C----*|--.---------.---------.---------.---------.---------.---------.-|-----|
 ! WORK IN PROGRESS SPECTRUM CALCULATOR
+      INCLUDE 'header'
+      
       real*8 U2rms_sum, Kh2
       complex*16 CU(0:NX_S/2,0:NZ_S,0:NY+1)
       real*8 E_L(0:TNKY), E_S(0:TNKY)
