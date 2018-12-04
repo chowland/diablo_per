@@ -1516,9 +1516,10 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-----|
       real*8 U2rms_sum, Kh2
       complex*16 CU(0:NX_S/2,0:NZ_S,0:NY+1)
       real*8 E_L(0:TNKY), E_S(0:TNKY)
+      integer i,j,k
 
       CS1=0.5*CU*conjg(CU)
-      Kh2=RI_TAU/U2rms_sum**2
+      Kh2=RI_TAU(1)/U2rms_sum**2
       do j=0,TNKY
         do k=0,TNKZ_S
           do i=0,NKX_S
