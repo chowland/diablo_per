@@ -1896,7 +1896,7 @@ c     Identifiers
       integer(hid_t) :: file_id, gid
 
       integer :: arank, error
-      integer(hsize_t)  :: adims
+      integer(hsize_t), dimension(1)  :: adims
       integer(size_t)   :: tdim
       integer(hid_t)    :: aid,tspace,ttype
       character*20      :: sttimec
@@ -1906,29 +1906,8 @@ c     Identifiers
       call h5open_f(error)
 
 ! Create the file collectively
-      call h5fcreate_f('stats.h5', H5F_ACC_TRUNC_F,
+      call h5fcreate_f('spectra.h5', H5F_ACC_TRUNC_F,
      &                 file_id, error)
-
-! Write file attributes:
-
-      ! -----------------------------
-      ! Date
-      adims=20
-      arank=1
-      tdim=20
-      call h5tcopy_f(H5T_FORTRAN_S1, ttype, error)
-      call h5tset_size_f(ttype,tdim,error)
-      call h5screate_simple_f(arank,adims,tspace, error)
-
-      call h5acreate_f(file_id,'Date',ttype,tspace,aid,
-     &                 error)
-      call time_string(sttimec)
-      call h5awrite_f(aid,ttype,trim(sttimec),adims,
-     &                  error)
-      call h5aclose_f(aid, error)
-      call h5sclose_f(tspace,error)
-      call h5tclose_f(ttype,error)
-      ! -----------------------------
 
 ! Create the groups for each quantity (with attribute)
       call h5gcreate_f(file_id,'U1L',gid,error)
