@@ -925,6 +925,7 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
       real*8 THTH(0:NY_S_TH,1:N_TH), THTH_h(0:NY_S_TH,1:N_TH)
       real*8 U1U2_sum(0:NY_S), U3U2_sum(0:NY_S)
       real*8 THU2_sum(0:NY_S_TH,1:N_TH)
+      real*8 E_L(0:TNKY), E_S(0:TNKY), spectrum(0:TNKY)
       character(10) :: gname
 
       CALL MPI_BARRIER(MPI_COMM_WORLD,IERROR)
@@ -1182,6 +1183,46 @@ C Convert velocity back to Fourier space
         call fft_xzy_mpi_to_fourier(U3,CU3)
 
       end if
+
+      call spectra_per(U2rms_sum,CU1,E_L,E_S)
+      call MPI_ALLREDUCE(E_L,spectrum,TNKY+1,MPI_DOUBLE_PRECISION
+     &                    ,MPI_SUM,MPI_COMM_WORLD,IERROR)
+      gname='U1L'
+      if (RANK.EQ.0) call WriteSpectrumH5(gname,spectrum)
+      call MPI_ALLREDUCE(E_S,spectrum,TNKY+1,MPI_DOUBLE_PRECISION
+     &                    ,MPI_SUM,MPI_COMM_WORLD,IERROR)
+      gname='U1S'
+      if (RANK.EQ.0) call WriteSpectrumH5(gname,spectrum)
+      
+      call spectra_per(U2rms_sum,CU2,E_L,E_S)
+      call MPI_ALLREDUCE(E_L,spectrum,TNKY+1,MPI_DOUBLE_PRECISION
+     &                    ,MPI_SUM,MPI_COMM_WORLD,IERROR)
+      gname='U2L'
+      if (RANK.EQ.0) call WriteSpectrumH5(gname,spectrum)
+      call MPI_ALLREDUCE(E_S,spectrum,TNKY+1,MPI_DOUBLE_PRECISION
+     &                    ,MPI_SUM,MPI_COMM_WORLD,IERROR)
+      gname='U2S'
+      if (RANK.EQ.0) call WriteSpectrumH5(gname,spectrum)
+
+      call spectra_per(U2rms_sum,CU3,E_L,E_S)
+      call MPI_ALLREDUCE(E_L,spectrum,TNKY+1,MPI_DOUBLE_PRECISION
+     &                    ,MPI_SUM,MPI_COMM_WORLD,IERROR)
+      gname='U3L'
+      if (RANK.EQ.0) call WriteSpectrumH5(gname,spectrum)
+      call MPI_ALLREDUCE(E_S,spectrum,TNKY+1,MPI_DOUBLE_PRECISION
+     &                    ,MPI_SUM,MPI_COMM_WORLD,IERROR)
+      gname='U3S'
+      if (RANK.EQ.0) call WriteSpectrumH5(gname,spectrum)
+
+      call spectra_per(U2rms_sum,CTH(:,:,:,1),E_L,E_S)
+      call MPI_ALLREDUCE(E_L,spectrum,TNKY+1,MPI_DOUBLE_PRECISION
+     &                    ,MPI_SUM,MPI_COMM_WORLD,IERROR)
+      gname='TH1L'
+      if (RANK.EQ.0) call WriteSpectrumH5(gname,spectrum)
+      call MPI_ALLREDUCE(E_S,spectrum,TNKY+1,MPI_DOUBLE_PRECISION
+     &                    ,MPI_SUM,MPI_COMM_WORLD,IERROR)
+      gname='TH1S'
+      if (RANK.EQ.0) call WriteSpectrumH5(gname,spectrum)
 
       call tkebudget_per
 
@@ -1465,3 +1506,27 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-----|
 
       return
       end
+
+C----*|--.---------.---------.---------.---------.---------.---------.-|-----|
+      subroutine spectra_per(U2rms_sum,CU,E_L,E_S)
+C----*|--.---------.---------.---------.---------.---------.---------.-|-----|
+! WORK IN PROGRESS SPECTRUM CALCULATOR
+      real*8 U2rms_sum, Kh2
+      complex*16 CU(0:NX_S/2,0:NZ_S,0:NY+1)
+      real*8 E_L(0:TNKY), E_S(0:TNKY)
+
+      CS1=0.5*CU*conjg(CU)
+      Kh2=RI_TAU/U2rms_sum**2
+      do j=0,TNKY
+        do k=0,TNKZ_S
+          do i=0,NKX_S
+            if (KX2_S(i)**2+KZ2_S(k)**2<Kh2) then
+              E_L(j)=E_L(j)+real(CS1(i,k,j))
+            else
+              E_S(j)=E_S(j)+real(CS1(i,k,j))
+            end if
+          end do
+        end do
+      end do
+
+      end subroutine spectra_per

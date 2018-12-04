@@ -59,6 +59,7 @@ C If we are using MPI, then Initialize the MPI Variables
       if (rank.eq.0) write(*,*) 'Stats file created & initialized.'
       call init_mean
       if (rank.eq.0) write(*,*) 'H-mean file created & initialized.'
+      call INIT_SPECTRA
       if (rank.eq.0) then
         call system('mkdir restart_files')
         write(*,*) 'Restart file directory created.'
