@@ -469,10 +469,10 @@ C Then, perform a complex -> real transform in the y-direction
             U(I,K,J)=CYZ_PLANE(J,K)
           END DO
         END DO
-       END DO
+      END DO
 
-       RETURN
-       END
+      RETURN
+      END
 
 
 C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
