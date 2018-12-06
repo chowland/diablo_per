@@ -1897,8 +1897,7 @@ c     Identifiers
 
       integer :: arank, error
       integer(hsize_t), dimension(1)  :: adims
-      integer(size_t)   :: tdim
-      integer(hid_t)    :: aid,tspace,ttype
+      integer(hid_t)    :: aid,tspace
       character*20      :: sttimec
 
 
@@ -2006,7 +2005,7 @@ c     Dimensions in the memory and in the file
 
       integer(hsize_t),dimension(1) :: adims = 1
       integer(hid_t)                :: aid,tspace
-
+      integer :: rHDF5 = 1
       integer error
 
 ! #### DEFINE WRITING PARAMETERS ####
@@ -2030,7 +2029,7 @@ c     Dimensions in the memory and in the file
       call h5awrite_f(aid,H5T_NATIVE_INTEGER,NSAMP,adims,error)
       call h5aclose_f(aid,error)
 
-      call h5screate_f(H5S_SCALAR_F,tspace,error)
+      call h5screate_simple_f(rHDF5,dims,tspace,error)
 
 ! Write spectrum to file
       call h5dcreate_f(gid,dname,H5T_IEEE_F64LE,tspace,dset_id,error)
