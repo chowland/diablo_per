@@ -14,3 +14,8 @@ example_run/restart_files
 example_run/output.dat
 example_run/diablo
 vapor
+python/tmp/*
+python/.ipynb_checkpoints
+python/*.mp4
+python/*.pyc
+python/workbook.ipynb
