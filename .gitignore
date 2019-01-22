@@ -19,3 +19,6 @@ python/.ipynb_checkpoints
 python/*.mp4
 python/*.pyc
 python/workbook.ipynb
+python/*.png
+python/*.svg
+python/movies
