@@ -751,9 +751,10 @@ C Any background stratification must be added to the governing equations
 ! for plane wave
         DO N=1,N_TH
           IF (CREATE_NEW_TH(N)) THEN
-          CTH=0.d0
+          CTH(:,:,:,N)=0.d0
             if ((RANK.eq.0) .and. (N.eq.1)) then
               CTH(1,0,1,N)=CI*0.1/2.0
+            end if
           END IF
         END DO
       ELSE
