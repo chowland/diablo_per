@@ -621,18 +621,14 @@ C Start with an ideal vortex centered in the domain
           END DO
         ELSE IF (IC_TYPE.eq.2) THEN
 ! Initilize with a plane wave
-          theta0=45.d0*2.d0*PI/360.d0
-          a0=0.85d0
-          DO J=0,NY_S
-            DO K=0,NZ_S
-              DO I=0,NX+1
-                phi0=GX(I)+GY_S(J)*tan(theta0)
-                U1(I,K,J)=-a0*sin(theta0)*cos(phi0)
-                U2(I,K,J)=a0*cos(theta0)*cos(phi0)
-                U3(I,K,J)=0.d0
-              END DO
-            END DO
-          END DO
+          CU1=0.d0
+          CU2=0.d0
+          CU3=0.d0
+          if (RANK.eq.0) then
+            CU1(1,0,1)=0.1/sqrt(2.0)/2.0
+            CU1(0,0,1)=0.5
+            CU2(1,0,1)=-0.1/sqrt(2.0)/2.0
+          end if
         ELSE IF (IC_TYPE.eq.3) THEN
         ! Initialize with a GM spectrum of internal waves
           b3=1300./1e-2/sqrt(RI_TAU(1)/NU)
@@ -683,7 +679,7 @@ C Start with an ideal vortex centered in the domain
           WRITE(*,*) 'Warning, Undefined ICs in periodic.f'
         END IF
 
-        if (IC_TYPE.ne.3) then
+        if (IC_TYPE.lt.2) then
           CALL FFT_XZY_MPI_TO_FOURIER(U1,CU1)
           CALL FFT_XZY_MPI_TO_FOURIER(U3,CU3)
           CALL FFT_XZY_MPI_TO_FOURIER(U2,CU2)
@@ -755,19 +751,9 @@ C Any background stratification must be added to the governing equations
 ! for plane wave
         DO N=1,N_TH
           IF (CREATE_NEW_TH(N)) THEN
-            theta0=45.d0*2.d0*PI/360.d0
-            a0=0.85d0
-            DO J=0,NY_S
-              DO K=0,NZ_S
-                DO I=0,NX+1
-                  phi0=GX(I)+GY_S(J)*tan(theta0)
-                  U1(I,K,J)=-a0*sin(theta0)*cos(phi0)
-                  U2(I,K,J)=a0*cos(theta0)*cos(phi0)
-                  U3(I,K,J)=0.d0
-                  TH(I,K,J,1)=-a0*sin(phi0)
-                END DO
-              END DO
-            END DO
+          CTH=0.d0
+            if ((RANK.eq.0) .and. (N.eq.1)) then
+              CTH(1,0,1,N)=CI*0.1/2.0
           END IF
         END DO
       ELSE
@@ -775,9 +761,11 @@ C Any background stratification must be added to the governing equations
       END IF
 
 ! Transfer to Fourier space
-      DO N=1,N_TH
-        CALL FFT_XZY_MPI_TO_FOURIER_TH(TH(0,0,0,N),CTH(0,0,0,N))
-      END DO
+      if (IC_TYPE.ne.2) then
+        DO N=1,N_TH
+          CALL FFT_XZY_MPI_TO_FOURIER_TH(TH(0,0,0,N),CTH(0,0,0,N))
+        END DO
+      end if
 
       RETURN
       END
