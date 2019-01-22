@@ -43,9 +43,9 @@ C    CURRENT_VERSION number to make obsolete previous input files!)
         READ(11,*) RI_TAU(N), PR(N), REACTION(N)
       END DO
 
-      LX=4.D0*ATAN(1.D0)*LX
-      LY=4.D0*ATAN(1.D0)*LY
-      LZ=4.D0*ATAN(1.D0)*LZ
+      LX=8.D0*ATAN(1.D0)*LX
+      LY=8.D0*ATAN(1.D0)*LY
+      LZ=8.D0*ATAN(1.D0)*LZ
 
 C If we are using MPI, then Initialize the MPI Variables
       MPI_IO_NUM=''
