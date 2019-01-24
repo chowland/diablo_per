@@ -22,7 +22,7 @@
       call RANDOM_SEED
 
       if (F_TYPE.eq.1) then
-! **** LOW WAVENUMBER (FURUE, 2003) FORCING ****
+! **** LOW WAVENUMBER (FURUE, 2003)-like FORCING ****
 
       K0=7.
 
@@ -36,21 +36,22 @@
      &            (k+RANKY*(TNKZ_S+1).LE.TNKZ)) then
                 kappa2=KX2_S(I)+KZ2_S(K)
                 K2=kappa2+KY2(J)
-                IF ((K2.LE.100.) .AND. (KY(J).NE.0)
+!                IF ((K2.LE.100.) .AND. (KY(J).NE.0)
+                if ((K2.gt.6.25) .and. (K2.lt. 12.25)
      &            .AND. (kappa2.NE.0)) THEN
                   call RANDOM_NUMBER(alpha)
                   alpha=2.d0*pi*alpha ! Random phase of forcing
-                  CS1(I,K,J)=cexp(cmplx(0,alpha))*
-     &                        K2**(1./4.)*(K2+K0**2)**(-3)
-                  CF1(I,K,J)=CS1(i,k,j)*KY(j)*KX_S(i)/sqrt(K2*kappa2)
-                  CF2(I,K,J)=-CS1(i,k,j)*sqrt(kappa2)/sqrt(K2)
-                  CF3(I,K,J)=CS1(i,k,j)*KY(j)*KZ_S(k)/sqrt(K2*kappa2)
-                  CSTH1(I,K,J)=CS1(i,k,j)*CI/sqrt(RI_TAU(1))
+!                  CS1(I,K,J)=cexp(cmplx(0,alpha))*
+!     &                        K2**(1./4.)*(K2+K0**2)**(-3)
+                  CF1(I,K,J)=KY(j)*KX_S(i)/sqrt(K2*kappa2)
+                  CF2(I,K,J)=-sqrt(kappa2)/sqrt(K2)
+                  CF3(I,K,J)=KY(j)*KZ_S(k)/sqrt(K2*kappa2)
+                  CSTH1(I,K,J)=CI/sqrt(RI_TAU(1))
               puf=puf+conjg(CU1(I,K,J))*CF1(I,K,J)+conjg(CU2(I,K,J))
      &              *CF2(I,K,J)+conjg(CU3(I,K,J))*CF3(I,K,J)
      &              +RI_TAU(1)*conjg(CTH(I,K,J,1))*CSTH1(I,K,J)
                   if (FIRST_TIME) then
-                  pff=pff+abs(CS1(I,K,J))**2
+                  pff=pff+1.d0 !abs(CS1(I,K,J))**2
                   end if
                 END IF
               end if
@@ -173,21 +174,22 @@
      &            (k+RANKY*(TNKZ_S+1).LE.TNKZ)) then
                 kappa2=KX2_S(I)+KZ2_S(K)
                 K2=kappa2+KY2(J)
-                if ((K2.le.100.) .and. (KY(j).ne.0)
+!                if ((K2.le.100.) .and. (KY(j).ne.0)
+                if ((K2.gt.6.25) .and. (K2.lt. 12.25)
      &                .and. (kappa2.ne.0)) then
-                  CS1(i,k,j)=cexp(cmplx(0,f_phase(i,k,j)-
-     &                    sqrt(RI_TAU(1)*kappa2/K2)*TIME))*
-     &                    (kappa2**3*K2)**(-0.5)
-                  CF1(I,K,J)=CS1(i,k,j)*KY(j)*KX_S(i)/sqrt(K2*kappa2)
-                  CF2(I,K,J)=-CS1(i,k,j)*sqrt(kappa2)/sqrt(K2)
-                  CF3(I,K,J)=CS1(i,k,j)*KY(j)*KZ_S(k)/sqrt(K2*kappa2)
-                  CSTH1(I,K,J)=CS1(i,k,j)*CI/sqrt(RI_TAU(1))
+!                  CS1(i,k,j)=cexp(cmplx(0,f_phase(i,k,j)-
+!     &                    sqrt(RI_TAU(1)*kappa2/K2)*TIME))*
+!     &                    (kappa2**3*K2)**(-0.5)
+                  CF1(I,K,J)=KY(j)*KX_S(i)/sqrt(K2*kappa2)
+                  CF2(I,K,J)=-sqrt(kappa2)/sqrt(K2)
+                  CF3(I,K,J)=KY(j)*KZ_S(k)/sqrt(K2*kappa2)
+                  CSTH1(I,K,J)=CI/sqrt(RI_TAU(1))
                   puf=puf+conjg(CU1(i,k,j))*CF1(i,k,j)
      &                +conjg(CU2(i,k,j))*CF2(i,k,j)
      &                +conjg(CU3(i,k,j))*CF3(i,k,j)
      &                +RI_TAU(1)*conjg(CTH(i,k,j,1))*CSTH1(i,k,j)
                   if (FIRST_TIME) then
-                    pff=pff+abs(CS1(i,k,j))**2
+                    pff=pff+1.d0 !abs(CS1(i,k,j))**2
                   end if
                 end if
               end if
