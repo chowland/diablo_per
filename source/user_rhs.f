@@ -41,12 +41,12 @@
      &            .AND. (kappa2.NE.0)) THEN
                   call RANDOM_NUMBER(alpha)
                   alpha=2.d0*pi*alpha ! Random phase of forcing
-!                  CS1(I,K,J)=cexp(cmplx(0,alpha))*
-!     &                        K2**(1./4.)*(K2+K0**2)**(-3)
-                  CF1(I,K,J)=KY(j)*KX_S(i)/sqrt(K2*kappa2)
-                  CF2(I,K,J)=-sqrt(kappa2)/sqrt(K2)
-                  CF3(I,K,J)=KY(j)*KZ_S(k)/sqrt(K2*kappa2)
-                  CSTH1(I,K,J)=CI/sqrt(RI_TAU(1))
+                  CS1(I,K,J)=cexp(cmplx(0,alpha))
+!     &                        *K2**(1./4.)*(K2+K0**2)**(-3)
+                  CF1(I,K,J)=CS1(I,K,J)*KY(j)*KX_S(i)/sqrt(K2*kappa2)
+                  CF2(I,K,J)=-CS1(I,K,J)*sqrt(kappa2)/sqrt(K2)
+                  CF3(I,K,J)=CS1(I,K,J)*KY(j)*KZ_S(k)/sqrt(K2*kappa2)
+                  CSTH1(I,K,J)=CS1(I,K,J)*CI/sqrt(RI_TAU(1))
               puf=puf+conjg(CU1(I,K,J))*CF1(I,K,J)+conjg(CU2(I,K,J))
      &              *CF2(I,K,J)+conjg(CU3(I,K,J))*CF3(I,K,J)
      &              +RI_TAU(1)*conjg(CTH(I,K,J,1))*CSTH1(I,K,J)
@@ -177,13 +177,13 @@
 !                if ((K2.le.100.) .and. (KY(j).ne.0)
                 if ((K2.gt.6.25) .and. (K2.lt. 12.25)
      &                .and. (kappa2.ne.0)) then
-!                  CS1(i,k,j)=cexp(cmplx(0,f_phase(i,k,j)-
-!     &                    sqrt(RI_TAU(1)*kappa2/K2)*TIME))*
-!     &                    (kappa2**3*K2)**(-0.5)
-                  CF1(I,K,J)=KY(j)*KX_S(i)/sqrt(K2*kappa2)
-                  CF2(I,K,J)=-sqrt(kappa2)/sqrt(K2)
-                  CF3(I,K,J)=KY(j)*KZ_S(k)/sqrt(K2*kappa2)
-                  CSTH1(I,K,J)=CI/sqrt(RI_TAU(1))
+                  CS1(i,k,j)=cexp(cmplx(0,f_phase(i,k,j)-
+     &                    sqrt(RI_TAU(1)*kappa2/K2)*TIME))
+!     &                    *(kappa2**3*K2)**(-0.5)
+                  CF1(I,K,J)=CS1(i,k,j)*KY(j)*KX_S(i)/sqrt(K2*kappa2)
+                  CF2(I,K,J)=-CS1(i,k,j)*sqrt(kappa2)/sqrt(K2)
+                  CF3(I,K,J)=CS1(i,k,j)*KY(j)*KZ_S(k)/sqrt(K2*kappa2)
+                  CSTH1(I,K,J)=CS1(i,k,j)*CI/sqrt(RI_TAU(1))
                   puf=puf+conjg(CU1(i,k,j))*CF1(i,k,j)
      &                +conjg(CU2(i,k,j))*CF2(i,k,j)
      &                +conjg(CU3(i,k,j))*CF3(i,k,j)
