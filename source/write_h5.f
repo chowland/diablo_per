@@ -1741,6 +1741,38 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
       call h5sclose_f(tspace,error)
       call h5gclose_f(gid,error)
 
+      call h5gcreate_f(file_id,'U1rms',gid,error)
+      call h5screate_f(H5S_SCALAR_F,tspace,error)
+      call h5acreate_f(gid,'Samples',H5T_STD_I32LE,tspace,aid,error)
+      call h5awrite_f(aid,H5T_NATIVE_INTEGER,0,adims,error)
+      call h5aclose_f(aid,error)
+      call h5sclose_f(tspace,error)
+      call h5gclose_f(gid,error)
+
+      call h5gcreate_f(file_id,'U2rms',gid,error)
+      call h5screate_f(H5S_SCALAR_F,tspace,error)
+      call h5acreate_f(gid,'Samples',H5T_STD_I32LE,tspace,aid,error)
+      call h5awrite_f(aid,H5T_NATIVE_INTEGER,0,adims,error)
+      call h5aclose_f(aid,error)
+      call h5sclose_f(tspace,error)
+      call h5gclose_f(gid,error)
+
+      call h5gcreate_f(file_id,'U3rms',gid,error)
+      call h5screate_f(H5S_SCALAR_F,tspace,error)
+      call h5acreate_f(gid,'Samples',H5T_STD_I32LE,tspace,aid,error)
+      call h5awrite_f(aid,H5T_NATIVE_INTEGER,0,adims,error)
+      call h5aclose_f(aid,error)
+      call h5sclose_f(tspace,error)
+      call h5gclose_f(gid,error)
+
+      call h5gcreate_f(file_id,'THrms',gid,error)
+      call h5screate_f(H5S_SCALAR_F,tspace,error)
+      call h5acreate_f(gid,'Samples',H5T_STD_I32LE,tspace,aid,error)
+      call h5awrite_f(aid,H5T_NATIVE_INTEGER,0,adims,error)
+      call h5aclose_f(aid,error)
+      call h5sclose_f(tspace,error)
+      call h5gclose_f(gid,error)
+
       ! Close file and interface
       call h5fclose_f(file_id,error)
       call h5close_f(error)
@@ -1849,3 +1881,136 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
       call h5close_f(error)
 
       end subroutine
+
+
+C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
+      SUBROUTINE INIT_SPECTRA
+C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
+      use hdf5
+
+      INCLUDE 'header'
+
+c     HDF5 ------------------------------------------------------
+
+c     Identifiers
+      integer(hid_t) :: file_id, gid
+
+      integer :: arank, error
+      integer(hsize_t), dimension(1)  :: adims
+      integer(hid_t)    :: aid,tspace
+      character*20      :: sttimec
+
+
+! Initialize interface
+      call h5open_f(error)
+
+! Create the file collectively
+      call h5fcreate_f('spectra.h5', H5F_ACC_TRUNC_F,
+     &                 file_id, error)
+
+! Create the groups for each quantity (with attribute)
+      call h5gcreate_f(file_id,'U1',gid,error)
+      call h5screate_f(H5S_SCALAR_F,tspace,error)
+      call h5acreate_f(gid,'Samples',H5T_STD_I32LE,tspace,aid,error)
+      call h5awrite_f(aid,H5T_NATIVE_INTEGER,0,adims,error)
+      call h5aclose_f(aid,error)
+      call h5sclose_f(tspace,error)
+      call h5gclose_f(gid,error)
+
+      call h5gcreate_f(file_id,'U2',gid,error)
+      call h5screate_f(H5S_SCALAR_F,tspace,error)
+      call h5acreate_f(gid,'Samples',H5T_STD_I32LE,tspace,aid,error)
+      call h5awrite_f(aid,H5T_NATIVE_INTEGER,0,adims,error)
+      call h5aclose_f(aid,error)
+      call h5sclose_f(tspace,error)
+      call h5gclose_f(gid,error)
+
+      call h5gcreate_f(file_id,'U3',gid,error)
+      call h5screate_f(H5S_SCALAR_F,tspace,error)
+      call h5acreate_f(gid,'Samples',H5T_STD_I32LE,tspace,aid,error)
+      call h5awrite_f(aid,H5T_NATIVE_INTEGER,0,adims,error)
+      call h5aclose_f(aid,error)
+      call h5sclose_f(tspace,error)
+      call h5gclose_f(gid,error)
+
+      call h5gcreate_f(file_id,'TH1',gid,error)
+      call h5screate_f(H5S_SCALAR_F,tspace,error)
+      call h5acreate_f(gid,'Samples',H5T_STD_I32LE,tspace,aid,error)
+      call h5awrite_f(aid,H5T_NATIVE_INTEGER,0,adims,error)
+      call h5aclose_f(aid,error)
+      call h5sclose_f(tspace,error)
+      call h5gclose_f(gid,error)
+
+! Close file and interface
+      call h5fclose_f(file_id,error)
+      call h5close_f(error)
+
+      end subroutine INIT_SPECTRA
+
+
+C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
+      SUBROUTINE WriteSpectrumH5(gname,spectrum)
+C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
+      use hdf5
+
+      INCLUDE 'header'
+
+      REAL*8 spectrum(0:TNKY)
+c
+c     HDF5 ------------------------------------------------------
+c
+c     Dataset names
+      character(len=10) :: gname, dname
+
+c     Identifiers
+      integer(hid_t) :: file_id, dset_id
+      integer(hid_t) :: gid
+
+c     Dimensions in the memory and in the file
+      integer(hsize_t), dimension(1) :: dims
+
+      integer :: NSAMP
+
+      integer(hsize_t),dimension(1) :: adims = 1
+      integer(hid_t)                :: aid,tspace
+      integer :: rHDF5 = 1
+      integer error
+
+! #### DEFINE WRITING PARAMETERS ####
+      dims = TNKY+1
+
+! #### SET UP GROUP STRUCTURE ####
+
+! Initialize interface
+      call h5open_f(error)
+
+! Open the file collectively and the relevant group
+      call h5fopen_f('spectra.h5', H5F_ACC_RDWR_F,file_id, error)
+      call h5gopen_f(file_id,'/'//trim(gname),gid,error)
+
+! Check and update the number of samples
+      call h5aopen_f(gid,'Samples',aid,error)
+      call h5aread_f(aid,H5T_NATIVE_INTEGER,NSAMP,adims,error)
+! Create dataset name for this timestep
+      write(dname,'(1i0.4)') NSAMP
+      NSAMP=NSAMP+1
+      call h5awrite_f(aid,H5T_NATIVE_INTEGER,NSAMP,adims,error)
+      call h5aclose_f(aid,error)
+
+      call h5screate_simple_f(rHDF5,dims,tspace,error)
+
+! Write spectrum to file
+      call h5dcreate_f(gid,dname,H5T_IEEE_F64LE,tspace,dset_id,error)
+      call h5dwrite_f(dset_id,H5T_NATIVE_DOUBLE,spectrum,dims,error)
+
+      call h5dclose_f(dset_id,error)
+
+      call h5sclose_f(tspace,error)
+      ! ----------------------------
+
+      ! Close groups
+      call h5gclose_f(gid,error)
+      call h5fclose_f(file_id, error)
+      call h5close_f(error)
+
+      end subroutine WriteSpectrumH5

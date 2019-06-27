@@ -43,6 +43,10 @@ C    CURRENT_VERSION number to make obsolete previous input files!)
         READ(11,*) RI_TAU(N), PR(N), REACTION(N)
       END DO
 
+      LX=8.D0*ATAN(1.D0)*LX
+      LY=8.D0*ATAN(1.D0)*LY
+      LZ=8.D0*ATAN(1.D0)*LZ
+
 C If we are using MPI, then Initialize the MPI Variables
       MPI_IO_NUM=''
       MPI_NUM=0
@@ -60,6 +64,7 @@ C If we are using MPI, then Initialize the MPI Variables
       call init_mean
       if (rank.eq.0) write(*,*) 'H-mean file created & initialized.'
       if (rank.eq.0) then
+        call INIT_SPECTRA
         call system('mkdir restart_files')
         write(*,*) 'Restart file directory created.'
       end if

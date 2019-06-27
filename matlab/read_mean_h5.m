@@ -43,6 +43,14 @@ for i=1:nk
     U3U2(i,:)=h5read(fname,dname);
     dname=['/THflux/' num];
     THflux(i,:)=h5read(fname,dname);
+    dname=['/U1rms/' num];
+    U1U1(i,:)=h5read(fname,dname);
+    dname=['/U2rms/' num];
+    U2U2(i,:)=h5read(fname,dname);
+    dname=['/U3rms/' num];
+    U3U3(i,:)=h5read(fname,dname);
+    dname=['/THrms/' num];
+    THTH(i,:)=h5read(fname,dname);
 end
 
 % Compute kinetic energy in shear modes & associated viscous dissipation
@@ -61,6 +69,7 @@ Ri_g=N2./S2;
 % Compute buoyancy Reynolds number and shear production
 Re_b=Re*epsilon./N2;
 S_p=U1U2.*DU1DY+U3U2.*DU3DY;
+Fr_t=epsilon./sqrt(N2)*2./(U1me.^2+U3me.^2);
 
 % Compute turbulent length scales
 l_O=sqrt(epsilon./N2.^(3/2));

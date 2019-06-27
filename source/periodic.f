@@ -621,18 +621,14 @@ C Start with an ideal vortex centered in the domain
           END DO
         ELSE IF (IC_TYPE.eq.2) THEN
 ! Initilize with a plane wave
-          theta0=45.d0*2.d0*PI/360.d0
-          a0=0.85d0
-          DO J=0,NY_S
-            DO K=0,NZ_S
-              DO I=0,NX+1
-                phi0=GX(I)+GY_S(J)*tan(theta0)
-                U1(I,K,J)=-a0*sin(theta0)*cos(phi0)
-                U2(I,K,J)=a0*cos(theta0)*cos(phi0)
-                U3(I,K,J)=0.d0
-              END DO
-            END DO
-          END DO
+          CU1=0.d0
+          CU2=0.d0
+          CU3=0.d0
+          if (RANK.eq.0) then
+            CU1(1,0,1)=0.1/sqrt(2.0)/2.0
+            CU1(0,0,1)=0.5
+            CU2(1,0,1)=-0.1/sqrt(2.0)/2.0
+          end if
         ELSE IF (IC_TYPE.eq.3) THEN
         ! Initialize with a GM spectrum of internal waves
           b3=1300./1e-2/sqrt(RI_TAU(1)/NU)
@@ -683,7 +679,7 @@ C Start with an ideal vortex centered in the domain
           WRITE(*,*) 'Warning, Undefined ICs in periodic.f'
         END IF
 
-        if (IC_TYPE.ne.3) then
+        if (IC_TYPE.lt.2) then
           CALL FFT_XZY_MPI_TO_FOURIER(U1,CU1)
           CALL FFT_XZY_MPI_TO_FOURIER(U3,CU3)
           CALL FFT_XZY_MPI_TO_FOURIER(U2,CU2)
@@ -755,19 +751,10 @@ C Any background stratification must be added to the governing equations
 ! for plane wave
         DO N=1,N_TH
           IF (CREATE_NEW_TH(N)) THEN
-            theta0=45.d0*2.d0*PI/360.d0
-            a0=0.85d0
-            DO J=0,NY_S
-              DO K=0,NZ_S
-                DO I=0,NX+1
-                  phi0=GX(I)+GY_S(J)*tan(theta0)
-                  U1(I,K,J)=-a0*sin(theta0)*cos(phi0)
-                  U2(I,K,J)=a0*cos(theta0)*cos(phi0)
-                  U3(I,K,J)=0.d0
-                  TH(I,K,J,1)=-a0*sin(phi0)
-                END DO
-              END DO
-            END DO
+          CTH(:,:,:,N)=0.d0
+            if ((RANK.eq.0) .and. (N.eq.1)) then
+              CTH(1,0,1,N)=CI*0.1/2.0
+            end if
           END IF
         END DO
       ELSE
@@ -775,9 +762,11 @@ C Any background stratification must be added to the governing equations
       END IF
 
 ! Transfer to Fourier space
-      DO N=1,N_TH
-        CALL FFT_XZY_MPI_TO_FOURIER_TH(TH(0,0,0,N),CTH(0,0,0,N))
-      END DO
+      if (IC_TYPE.ne.2) then
+        DO N=1,N_TH
+          CALL FFT_XZY_MPI_TO_FOURIER_TH(TH(0,0,0,N),CTH(0,0,0,N))
+        END DO
+      end if
 
       RETURN
       END
@@ -920,8 +909,12 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
 
       real*8 U1me(0:NY_S), U3me(0:NY_S), TH1me(0:NY_S)
       real*8 U1U2(0:NY_S), U3U2(0:NY_S), THU2(0:NY_S_TH,1:N_TH)
+      real*8 U1U1(0:NY_S), U2U2(0:NY_S), U3U3(0:NY_S)
+      real*8 U1rms_h(0:NY_S), U2rms_h(0:NY_S), U3rms_h(0:NY_S)
+      real*8 THTH(0:NY_S_TH,1:N_TH), THTH_h(0:NY_S_TH,1:N_TH)
       real*8 U1U2_sum(0:NY_S), U3U2_sum(0:NY_S)
       real*8 THU2_sum(0:NY_S_TH,1:N_TH)
+      real*8 E_L(0:TNKY), E_S(0:TNKY), spectrum(0:TNKY), E(0:TNKY)
       character(10) :: gname
 
       CALL MPI_BARRIER(MPI_COMM_WORLD,IERROR)
@@ -1018,12 +1011,16 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
       U3rms=0.d0
       U1U2=0.d0
       U3U2=0.d0
+      U1U1=0.d0
+      U2U2=0.d0
+      U3U3=0.d0
 
       do i=0,NXM
         do j=0,NY_S
           do k=0,NZ_S
             S1(i,k,j)=U1(i,k,j)-U1me(j)
             U1rms=U1rms+S1(i,k,j)**2.d0
+            U1U1(j)=U1U1(j)+S1(i,k,j)**2.d0
             U1U2(j)=U1U2(j)+S1(i,k,j)*U2(i,k,j)
           end do
         end do
@@ -1032,9 +1029,12 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
       do i=0,NXM
         do j=0,NY_S
           do k=0,NZ_S
-            U2rms=U2rms+(U2(i,k,j)-dble(CR2(0,0,0)))**2.d0
+            S1(i,k,j)=U2(i,k,j)-dble(CR2(0,0,0))
+            U2rms=U2rms+S1(i,k,j)**2.d0
+            U2U2(j)=U2U2(j)+S1(i,k,j)**2.d0
             S1(i,k,j)=U3(i,k,j)-U3me(j)
             U3rms=U3rms+S1(i,k,j)**2.d0
+            U3U3(j)=U3U3(j)+S1(i,k,j)**2.d0
             U3U2(j)=U3U2(j)+S1(i,k,j)*U2(i,k,j)
           end do
         end do
@@ -1046,6 +1046,9 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
       U3rms=U3rms/dble(NX*NY*NZ)
       U1U2=U1U2/dble(NX*NZ)
       U3U2=U3U2/dble(NX*NZ)
+      U1U1=U1U1/dble(NX*NZ)
+      U2U2=U2U2/dble(NX*NZ)
+      U3U3=U3U3/dble(NX*NZ)
 
       CALL MPI_ALLREDUCE(U1rms,U1rms_sum,1
      &              ,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,IERROR)
@@ -1057,6 +1060,12 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
       CALL MPI_ALLREDUCE(U1U2,U1U2_sum,NY_S+1
      &              ,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_Z,IERROR)
       CALL MPI_ALLREDUCE(U3U2,U3U2_sum,NY_S+1
+     &              ,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_Z,IERROR)
+      CALL MPI_ALLREDUCE(U1U1,U1rms_h,NY_S+1
+     &              ,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_Z,IERROR)
+      CALL MPI_ALLREDUCE(U2U2,U2rms_h,NY_S+1
+     &              ,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_Z,IERROR)
+      CALL MPI_ALLREDUCE(U3U3,U3rms_h,NY_S+1
      &              ,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_Z,IERROR)
 
       IF (RANK.eq.0) THEN
@@ -1077,10 +1086,19 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
       END IF
 
       if (RANKZ.eq.0) then
-      gname='U1U2'
-      call WriteMeanH5(gname,U1U2_sum)
-      gname='U3U2'
-      call WriteMeanH5(gname,U3U2_sum)
+        gname='U1U2'
+        call WriteMeanH5(gname,U1U2_sum)
+        gname='U3U2'
+        call WriteMeanH5(gname,U3U2_sum)
+        U1rms_h=sqrt(U1rms_h)
+        U2rms_h=sqrt(U2rms_h)
+        U3rms_h=sqrt(U3rms_h)
+        gname='U1rms'
+        call WriteMeanH5(gname,U1rms_h)
+        gname='U2rms'
+        call WriteMeanH5(gname,U2rms_h)
+        gname='U3rms'
+        call WriteMeanH5(gname,U3rms_h)
       end if
       CALL MPI_BARRIER(MPI_COMM_WORLD,IERROR)
 
@@ -1097,18 +1115,22 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
         THrms(n)=THrms(n)+TH(i,k,j,n)*TH(i,k,j,n)
         thflux(n)=thflux(n)+TH(i,k,j,n)*U2(i,k,j)
         THU2(j,n)=THU2(j,n)+TH(i,k,j,n)*U2(i,k,j)
+        THTH(j,n)=THTH(j,n)+(TH(i,k,j,n)-TH1me(j))**2
       end do
       end do
       end do
       THrms(n)=THrms(n)/dble(NX_TH*NY_TH*NZ_TH)
       thflux(n)=thflux(n)/dble(NX_TH*NY_TH*NZ_TH)
       THU2(:,n)=THU2(:,n)/dble(NX_TH*NZ_TH)
+      THTH(:,n)=THTH(:,n)/dble(NX_TH*NZ_TH)
 
       CALL MPI_ALLREDUCE(THrms(n),THrms_sum(n),1,MPI_DOUBLE_PRECISION
      &                    ,MPI_SUM,MPI_COMM_WORLD,IERROR)
       CALL MPI_ALLREDUCE(THFLUX(n),THFLUX_sum(n),1
      &        ,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,IERROR)
       CALL MPI_ALLREDUCE(THU2,THU2_sum,NY_S+1
+     &              ,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_Z,IERROR)
+      CALL MPI_ALLREDUCE(THTH,THTH_h,NY_S+1
      &              ,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_Z,IERROR)
 
       IF (RANK.eq.0) THEN
@@ -1126,6 +1148,9 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
       if (RANKZ.eq.0) then
       gname='THflux'
       call WriteMeanH5(gname,THU2_sum(:,n))
+      THTH_h=sqrt(THTH_h)
+      gname='THrms'
+      call WriteMeanH5(gname,THTH_h(:,n))
       end if
       CALL MPI_BARRIER(MPI_COMM_WORLD,IERROR)
 
@@ -1148,6 +1173,35 @@ C Convert velocity back to Fourier space
 
       end if
 
+
+      call spectra_per(CU1,E)
+      spectrum=0.d0
+      call MPI_ALLREDUCE(E,spectrum,TNKY+1,MPI_DOUBLE_PRECISION
+     &                    ,MPI_SUM,MPI_COMM_WORLD,IERROR)
+      gname='U1'
+      if (RANK.EQ.0) call WriteSpectrumH5(gname,spectrum)
+
+      call spectra_per(CU2,E)
+      spectrum=0.d0
+      call MPI_ALLREDUCE(E,spectrum,TNKY+1,MPI_DOUBLE_PRECISION
+     &                    ,MPI_SUM,MPI_COMM_WORLD,IERROR)
+      gname='U2'
+      if (RANK.EQ.0) call WriteSpectrumH5(gname,spectrum)
+      
+      call spectra_per(CU3,E)
+      spectrum=0.d0
+      call MPI_ALLREDUCE(E,spectrum,TNKY+1,MPI_DOUBLE_PRECISION
+     &                    ,MPI_SUM,MPI_COMM_WORLD,IERROR)
+      gname='U3'
+      if (RANK.EQ.0) call WriteSpectrumH5(gname,spectrum)
+      
+      call spectra_per(CTH(:,:,:,1),E)
+      spectrum=0.d0
+      call MPI_ALLREDUCE(E,spectrum,TNKY+1,MPI_DOUBLE_PRECISION
+     &                    ,MPI_SUM,MPI_COMM_WORLD,IERROR)
+      gname='TH1'
+      if (RANK.EQ.0) call WriteSpectrumH5(gname,spectrum)
+      
       call tkebudget_per
 
 
@@ -1430,3 +1484,38 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-----|
 
       return
       end
+
+C----*|--.---------.---------.---------.---------.---------.---------.-|-----|
+      subroutine spectra_per(CU,E)
+C----*|--.---------.---------.---------.---------.---------.---------.-|-----|
+! WORK IN PROGRESS SPECTRUM CALCULATOR
+      INCLUDE 'header'
+      
+      complex*16 CU(0:NX_S/2,0:NZ_S,0:NY+1)
+      real*8 E(0:TNKY)
+      integer i,j,k
+
+      E=0.d0
+      CS1=0.5*CU*conjg(CU)
+      do j=0,TNKY
+        do k=0,TNKZ_S
+          do i=0,NKX_S
+            if ((KX_S(I).EQ.0) .AND. ((KZ_S(K).LT.0) .OR. 
+     &            ((KZ_S(K).EQ.0) .AND. (KY(J).LT.0)))) then
+            else
+              if ((i+RANKZ*(NKX_S+1).LE.NKX) .AND.
+     &            (k+RANKY*(TNKZ_S+1).LE.TNKZ)) then
+                if ((RANK.EQ.0).AND.
+     &            (i.eq.0) .AND. (j.eq.0) .AND. (k.eq.0)) then
+                  E(j)=E(j)+real(CS1(i,k,j))
+                else
+                  E(j)=E(j)+2.d0*real(CS1(i,k,j))
+                end if
+              end if
+            end if
+            
+          end do
+        end do
+      end do
+
+      end subroutine spectra_per
