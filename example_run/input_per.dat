@@ -8,7 +8,7 @@ C ICs:    IC_TYPE,    KICK,
 C GEOPHYSICAL FORCING: (ROSSBY NUMBER)^-1, PHI,  GAMMA,  G_TAU, BETA
                         0.0                 90.0    90.0    0.0     1.0
 C SPECTRAL FORCING: F_TYPE, FORCE_SHEAR, target_Reb
-                    2       .FALSE.         10
+                    1       .FALSE.         10
 C BACKGROUND_GRAD(N)
            .TRUE.    
 
