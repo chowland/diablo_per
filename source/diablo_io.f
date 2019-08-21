@@ -257,13 +257,20 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
       else
 !        if (N_TIME_STEPS/SAVE_FLOW_INT < 10) then
 !          FNAME='out'//char(int(TIME_STEP/SAVE_FLOW_INT)+48)//'.h5'
+        if (SAVE_FLOW_INT.gt.0) then
         if (N_TIME_STEPS/SAVE_FLOW_INT < 100) then
-          FNAME='out'//char(floor(TIME_STEP/SAVE_FLOW_INT/10.)+48)
-     &           //char(mod(TIME_STEP/SAVE_FLOW_INT,10)+48)//'.h5'
+          FNAME='out'//
+     &        char(floor(TIME_STEP/SAVE_FLOW_INT/10.)+48)//
+     &        char(mod(TIME_STEP/int(SAVE_FLOW_INT),10)+48)//'.h5'
         else if (N_TIME_STEPS/SAVE_FLOW_INT < 1000) then
           FNAME='out'//char(floor(TIME_STEP/SAVE_FLOW_INT/100.)+48)
-     &           //char(floor(mod(TIME_STEP/SAVE_FLOW_INT,100)/10.)+48)
-     &           //char(mod(TIME_STEP/SAVE_FLOW_INT,10)+48)//'.h5'
+     &       //char(floor(mod(TIME_STEP/int(SAVE_FLOW_INT),100)/10.)+48)
+     &       //char(mod(TIME_STEP/int(SAVE_FLOW_INT),10)+48)//'.h5'
+        end if
+        else
+        FNAME='out'//
+     &    char(floor(-(TIME+DELTA_T)/SAVE_FLOW_INT/10.)+48)//
+     &  char(mod(floor(-(TIME+DELTA_T)/SAVE_FLOW_INT),10)+48)//'.h5'
         end if
       end if
 
