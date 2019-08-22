@@ -8,7 +8,7 @@ C Parameters:  NU,     1/(2*PI)*(LX,         LY,       LZ)
 C Method:     CREATE_NEW_FLOW
                   .FALSE.
 C Time March:  N_TIME_STEPS, TIME_LIMIT, DELTA_T, RESET_TIME,  VARIABLE_DT, CFL, UPDATE_DT
-                 10000      100000      0.01     .FALSE.       .TRUE.      0.5      1
+                 80000      100000      0.01     .FALSE.       .TRUE.      0.5      1
 C I/O:         VERBOSITY, SAVE_FLOW_INT, SAVE_STATS_INT,   MOVIE
                    2            4000          100          .TRUE.
 C Movie planes:    NX_MOV, NX_MOV_TH, NY_MOV, NY_MOV_TH, NZ_MOV, NZ_MOV_TH

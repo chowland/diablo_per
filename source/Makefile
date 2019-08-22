@@ -14,11 +14,11 @@ COMPILER = ifort
 # ifort options
 USEROPTS = -O2 -mcmodel=large -u
 # gfortran options
-# USEROPTS = -O2 -mcmodel=large -fimplicit-none
+#USEROPTS = -O2 -mcmodel=large -fimplicit-none
 
 # Location where fftw libraries are installed
-LINKDIR = /mhome/damtp/atmos/jrt51/local/lib
-# LINKDIR = /usr/local/lib
+#LINKDIR = /nfs/st01/hpc-atmos-jrt51/lib
+LINKDIR = /usr/local/lib
 
 # Option to compile with the HDF5 library
 HDF5 = TRUE
@@ -26,8 +26,8 @@ HDF5 = TRUE
 
 # Use the parameters to set flags
 COMPOPTS = $(USEROPTS)
-LINKOPTS = -L$(LINKDIR) -lrfftw -lfftw			# to run locally on maths PCs
-# LINKOPTS = -L$(LINKDIR) -ldrfftw -ldfftw		# to run on Cambridge HPC
+#LINKOPTS = -L$(LINKDIR) -lrfftw -lfftw			# to run locally on maths PCs
+LINKOPTS = -L$(LINKDIR) -ldrfftw -ldfftw		# to run on Cambridge HPC
 
 MPI = mpi.o mpi_th.o
 ifeq ($(HDF5),TRUE)

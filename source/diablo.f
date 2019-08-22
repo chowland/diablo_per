@@ -88,13 +88,27 @@ C A flag to determine if we are considering the first time-step
         FIRST_TIME=.FALSE.
 
 ! Save statistics to an output file
-        IF (MOD(TIME_STEP,SAVE_STATS_INT).EQ.0) THEN
+        if (SAVE_STATS_INT.lt.0) then
+          if ((mod(time,abs(SAVE_STATS_INT))+DELTA_T)
+     &        .gt.abs(SAVE_STATS_INT)) then
+            call SAVE_STATS(.FALSE.)
+          end if
+        else
+          IF (MOD(TIME_STEP,int(SAVE_STATS_INT)).EQ.0) THEN
             CALL SAVE_STATS(.FALSE.)
-        END IF
+          END IF
+        end if
 ! Save the flow to a restart file
-        IF (MOD(TIME_STEP,SAVE_FLOW_INT).EQ.0) THEN
-          CALL SAVE_FLOW(.FALSE.)
-        END IF
+        if (SAVE_FLOW_INT.lt.0) then
+          if ((mod(time,abs(SAVE_FLOW_INT))+DELTA_T)
+     &          .gt.abs(SAVE_FLOW_INT)) then
+            call SAVE_FLOW(.FALSE.)
+          end if
+        else
+          IF (MOD(TIME_STEP,int(SAVE_FLOW_INT)).EQ.0) THEN
+            CALL SAVE_FLOW(.FALSE.)
+          END IF
+        end if
 
 ! Check for wall-time restriction
         CALL END_RUN_MPI(FLAG)
@@ -112,9 +126,16 @@ C A flag to determine if we are considering the first time-step
 
       TIME_STEP=TIME_STEP-1
       CALL SAVE_FLOW(.TRUE.)
-      IF (MOD(TIME_STEP,SAVE_STATS_INT).NE.0) THEN
-        CALL SAVE_STATS(.TRUE.)
-      END IF
+      if (SAVE_STATS_INT.lt.0) then
+        if ((mod(time,abs(SAVE_STATS_INT))+DELTA_T)
+     &        .le.abs(SAVE_STATS_INT)) then
+          call SAVE_STATS(.TRUE.)
+        end if
+      else
+        IF (MOD(TIME_STEP,int(SAVE_STATS_INT)).NE.0) THEN
+          CALL SAVE_STATS(.TRUE.)
+        END IF
+      end if
 
       if (RANK.eq.0) then
       WRITE(6,*)
