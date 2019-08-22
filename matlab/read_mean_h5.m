@@ -69,7 +69,7 @@ Ri_g=N2./S2;
 % Compute buoyancy Reynolds number and shear production
 Re_b=Re*epsilon./N2;
 S_p=U1U2.*DU1DY+U3U2.*DU3DY;
-Fr_t=epsilon./sqrt(N2)*2./(U1me.^2+U3me.^2);
+Fr_t = epsilon./sqrt(N2)*2./(U1U1.^2+U2U2.^2+U3U3.^2);
 
 % Compute turbulent length scales
 l_O=sqrt(epsilon./N2.^(3/2));
