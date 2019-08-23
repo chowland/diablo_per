@@ -686,9 +686,9 @@ C Start with an ideal vortex centered in the domain
           CU3=0.d0
           if (RANK.eq.0) then
             CU1(0,0,1)=-CI ! Vertical shear at wavenumber 1
-            CU1(i,0,j)=CI*a0*sqrt(RI_TAU(1))/
+            CU1(i,0,j)=CI*a0/2*sqrt(RI_TAU(1))/
      &                    sqrt(real(i**2+j**2))
-            CU2(i,0,j)=-CI*real(i)/real(j)*a0*sqrt(RI_TAU(1))/
+            CU2(i,0,j)=-CI*real(i)/real(j)*a0/2*sqrt(RI_TAU(1))/
      &                    sqrt(real(i**2+j**2))
           end if
         ELSE
@@ -778,7 +778,7 @@ C Any background stratification must be added to the governing equations
         i = 2     ! KX
         j = 4     ! KY
         if (CREATE_NEW_TH(1) .and. RANK.eq.0) then
-          CTH(i,0,j,1)=-a0/real(j)
+          CTH(i,0,j,1)=-a0/2/real(j)
         end if
       ELSE
         WRITE(*,*) 'UNKNOWN IC_TYPE IN CREATE_TH_PER'
