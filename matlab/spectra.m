@@ -37,7 +37,7 @@ for n=1:4
         CS2=Ri_t*CS2;
     end
     
-    KX=[0:NX/2 -(NX/2-1):-1];   KZ=[0:NZ/2 -(NZ/2-1):-1];
+    KX=[0:NX/2-1 -NX/2:-1];   KZ=[0:NZ/2-1 -NZ/2:-1];
     E_large{n}=zeros(1,NKY+1); E_small{n}=zeros(1,NKY+1);
     for i=1:NX
         for k=1:NZ

@@ -1,13 +1,13 @@
 clear
 dir1='../run1/';
 dir2='../run2/';
-fname1=[dir1 'mean.h5'];
-fname2=[dir2 'mean.h5'];
-F={'/U1me','/U3me','/THme','/THflux','/epsilon','/chi','/U1U2','/U3U2','/U1rms','/U2rms','/U3rms','/THrms'};
+fname1=[dir1 'spectra.h5'];
+fname2=[dir2 'spectra.h5'];
+F={'/U1','/U2','/U3','/TH1'};
 nk1=h5readatt(fname1,F{1},'Samples');
 nk2=h5readatt(fname2,F{1},'Samples');
 
-f = waitbar(0,'Initializing...','Name','Combining vertical profiles');
+f = waitbar(0,'Initializing...','Name','Combining vertical wavenumber spectra');
 
 for n=1:(nk2-1)
     for i=1:length(F)

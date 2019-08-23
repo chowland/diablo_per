@@ -2,7 +2,7 @@
 % memory at once
 
 % Dimensionless parameters
-NU=5e-5;    Re=1/NU;    Ri_t=1;     Pr=1;
+NU=1e-4;    Re=1/NU;    Ri_t=1;     Pr=1;
 % Dimensional buoyancy frequency and viscosity
 N=1e-2;     nu=1e-6;
 % Dimensional length and velocity scales
