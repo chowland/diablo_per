@@ -685,6 +685,7 @@ C Start with an ideal vortex centered in the domain
           CU2=0.d0
           CU3=0.d0
           if (RANK.eq.0) then
+            CU1(0,0,0) = 2 ! Constant mean flow
             CU1(0,0,1)=-CI ! Vertical shear at wavenumber 1
             CU1(i,0,j)=CI*a0/2*sqrt(RI_TAU(1))/
      &                    sqrt(KX2_S(i)**2+KY2(j))
