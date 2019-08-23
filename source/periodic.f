@@ -679,17 +679,17 @@ C Start with an ideal vortex centered in the domain
         else if (IC_TYPE.eq.4) then
           ! Initialise with large shear + monochromatic IGW
           a0 = 0.1  ! steepness
-          i = 2     ! KX
-          j = 4     ! KY
+          i = 2     ! KX index
+          j = 4     ! KY index
           CU1=0.d0
           CU2=0.d0
           CU3=0.d0
           if (RANK.eq.0) then
             CU1(0,0,1)=-CI ! Vertical shear at wavenumber 1
             CU1(i,0,j)=CI*a0/2*sqrt(RI_TAU(1))/
-     &                    sqrt(real(i**2+j**2))
-            CU2(i,0,j)=-CI*real(i)/real(j)*a0/2*sqrt(RI_TAU(1))/
-     &                    sqrt(real(i**2+j**2))
+     &                    sqrt(KX2_S(i)**2+KY2(j))
+            CU2(i,0,j)=-CI*KX_S(i)/KY(j)*a0/2*sqrt(RI_TAU(1))/
+     &                    sqrt(KX2_S(i)**2+KY2(j))
           end if
         ELSE
           WRITE(*,*) 'Warning, Undefined ICs in periodic.f'
@@ -775,10 +775,10 @@ C Any background stratification must be added to the governing equations
         END DO
       else if (IC_TYPE.eq.4) then
         a0 = 0.1  ! steepness
-        i = 2     ! KX
-        j = 4     ! KY
+        i = 2     ! KX index
+        j = 4     ! KY index
         if (CREATE_NEW_TH(1) .and. RANK.eq.0) then
-          CTH(i,0,j,1)=-a0/2/real(j)
+          CTH(i,0,j,1)=-a0/2/KY(j)
         end if
       ELSE
         WRITE(*,*) 'UNKNOWN IC_TYPE IN CREATE_TH_PER'
