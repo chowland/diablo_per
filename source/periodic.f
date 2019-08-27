@@ -910,7 +910,7 @@ C Read input file.
         if (RANK.eq.0) write(*,*) 'BACKGROUND_GRAD(N): '
      &                        ,BACKGROUND_GRAD(N)
       READ(11,*)
-      READ(11,*) U0, STEEP, KX4, KY4, KZ4
+      READ(11,*) U04, STEEP, KX4, KY4, KZ4
       END DO
 
       RETURN
