@@ -108,6 +108,12 @@
      &        EK0,EK,EK_local,EPSILON_TARGET,EK_sum,EPSILON_FORCING
      &        ,ETA_TARGET,RE_LAMBDA
 
+
+!----*|--.---------.---------.---------.---------.---------.---------.-|-------|! Parameters for IC_TYPE 4 (Shear + IGW)
+      REAL*8 U04, STEEP
+      INTEGER KX4, KY4, KZ4
+      COMMON /IGW_PARS/ U04, STEEP, KX4, KY4, KZ4
+
 !----*|--.---------.---------.---------.---------.---------.---------.-|-------|
 ! RKW3 parameters
 !----*|--.---------.---------.---------.---------.---------.---------.-|-------|

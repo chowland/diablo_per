@@ -678,19 +678,22 @@ C Start with an ideal vortex centered in the domain
           end do
         else if (IC_TYPE.eq.4) then
           ! Initialise with large shear + monochromatic IGW
-          a0 = 0.1  ! steepness
-          i = 2     ! KX index
-          j = 4     ! KY index
+          a0 = STEEP/2  ! steepness
+          i = KX4       ! KX index
+          j = KY4       ! KY index
+          k = KZ4       ! KZ index
           CU1=0.d0
           CU2=0.d0
           CU3=0.d0
           if (RANK.eq.0) then
-            CU1(0,0,0) = 2 ! Constant mean flow
-            CU1(0,0,1)=-CI ! Vertical shear at wavenumber 1
-            CU1(i,0,j)=CI*a0/2*sqrt(RI_TAU(1))/
-     &                    sqrt(KX2_S(i)**2+KY2(j))
-            CU2(i,0,j)=-CI*KX_S(i)/KY(j)*a0/2*sqrt(RI_TAU(1))/
-     &                    sqrt(KX2_S(i)**2+KY2(j))
+            CU1(0,0,0) = U04    ! Constant mean flow
+            CU1(0,0,1)=-CI      ! Vertical shear at wavenumber 1
+            CU1(i,k,j)=CI*a0*sqrt(RI_TAU(1))*KX_S(i)
+     &     /sqrt(KX2_S(i)+KZ2_S(k))/sqrt(KX2_S(i)+KY2(j)+KZ2_S(k))
+            CU2(i,k,j)=-CI*a0*sqrt(RI_TAU(1))/KY(j)
+     &     *sqrt(KX2_S(i)+KZ2_S(k))/sqrt(KX2_S(i)+KY2(j)+KZ2_S(k))
+            CU3(i,k,j)=CI*a0*sqrt(RI_TAU(1))*KZ_S(k)
+     &     /sqrt(KX2_S(i)+KZ2_S(k))/sqrt(KX2_S(i)+KY2(j)+KZ2_S(k))
           end if
         ELSE
           WRITE(*,*) 'Warning, Undefined ICs in periodic.f'
@@ -775,11 +778,12 @@ C Any background stratification must be added to the governing equations
           END IF
         END DO
       else if (IC_TYPE.eq.4) then
-        a0 = 0.1  ! steepness
-        i = 2     ! KX index
-        j = 4     ! KY index
+        a0 = STEEP/2  ! steepness
+        i = KX4       ! KX index
+        j = KY4       ! KY index
+        k = KZ4       ! KZ index
         if (CREATE_NEW_TH(1) .and. RANK.eq.0) then
-          CTH(i,0,j,1)=-a0/2/KY(j)
+          CTH(i,k,j,1)=-a0/KY(j)
         end if
       ELSE
         WRITE(*,*) 'UNKNOWN IC_TYPE IN CREATE_TH_PER'
@@ -905,6 +909,8 @@ C Read input file.
         READ(11,*) BACKGROUND_GRAD(N)
         if (RANK.eq.0) write(*,*) 'BACKGROUND_GRAD(N): '
      &                        ,BACKGROUND_GRAD(N)
+      READ(11,*)
+      READ(11,*) U0, STEEP, KX4, KY4, KZ4
       END DO
 
       RETURN
