@@ -1142,13 +1142,15 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
       do j=0,NY_S_TH
       do k=0,NZ_S_TH
       do i=0,NXM_TH
-        THrms(n)=THrms(n)+TH(i,k,j,n)*TH(i,k,j,n)
+        STH1(i,k,j)=TH(i,k,j,n)-TH1me(j)
+        THrms(n)=THrms(n)+STH1(i,k,j)**2
         thflux(n)=thflux(n)+TH(i,k,j,n)*U2(i,k,j)
         THU2(j,n)=THU2(j,n)+TH(i,k,j,n)*U2(i,k,j)
-        THTH(j,n)=THTH(j,n)+(TH(i,k,j,n)-TH1me(j))**2
+        THTH(j,n)=THTH(j,n)+STH1(i,k,j)**2
       end do
       end do
       end do
+      call FFT_XZY_MPI_TO_FOURIER_TH(STH1,CRTH(:,:,:,1))
       THrms(n)=THrms(n)/dble(NX_TH*NY_TH*NZ_TH)
       thflux(n)=thflux(n)/dble(NX_TH*NY_TH*NZ_TH)
       THU2(:,n)=THU2(:,n)/dble(NX_TH*NZ_TH)
@@ -1165,6 +1167,7 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
 
       IF (RANK.eq.0) THEN
         THrms_sum=sqrt(THrms_sum)
+        THflux_sum=RI_TAU(n)*THflux_sum
 
         write(*,*) 'n,THrms(n),THflux(n): '
      &         ,n,THrms_sum(n),THflux_sum(n)
@@ -1176,6 +1179,7 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
       END IF
 
       if (RANKZ.eq.0) then
+      THU2_sum=RI_TAU(n)*THU2_sum
       gname='THflux'
       call WriteMeanH5(gname,THU2_sum(:,n))
       THTH_h=sqrt(THTH_h)
@@ -1261,7 +1265,7 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-----|
       do j=0,TNKY_TH
         do k=0,TNKZ_S_TH
           do i=0,NKX_S_TH
-            CSTH1(i,k,j)=CIKX_S_TH(i)*CTH(i,k,j,1)
+            CSTH1(i,k,j)=CIKX_S_TH(i)*CRTH(i,k,j,1)
           end do
         end do
       end do
@@ -1279,7 +1283,7 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-----|
       do j=0,TNKY_TH
         do k=0,TNKZ_S_TH
           do i=0,NKX_S_TH
-            CSTH1(i,k,j)=CIKY_TH(j)*CTH(i,k,j,1)
+            CSTH1(i,k,j)=CIKY_TH(j)*CRTH(i,k,j,1)
           end do
         end do
       end do
@@ -1297,7 +1301,7 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-----|
       do j=0,TNKY_TH
         do k=0,TNKZ_S_TH
           do i=0,NKX_S_TH
-            CSTH1(i,k,j)=CIKZ_S_TH(k)*CTH(i,k,j,1)
+            CSTH1(i,k,j)=CIKZ_S_TH(k)*CRTH(i,k,j,1)
           end do
         end do
       end do
@@ -1480,7 +1484,7 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-----|
       if (RANK.eq.0) write(*,*) 'NX,NY,NZ: ',NX,NY,NZ
 
       epsilon_mean=NU*epsilon_mean/float(NX*NY*NZ)
-      chi_mean=NU/Pr(1)*chi_mean/float(NX*NY*NZ)
+      chi_mean=RI_TAU(1)*NU/Pr(1)*chi_mean/float(NX*NY*NZ)
 
       CALL MPI_ALLREDUCE(epsilon_mean,epsilon_sum,1
      &              ,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,IERROR)
@@ -1493,7 +1497,7 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-----|
      &              ,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_Z,IERROR)
 
       epsilon_h_sum=NU*epsilon_h_sum/float(NX*NZ)
-      chi_h_sum=NU/Pr(1)*chi_h_sum/float(NX*NZ)
+      chi_h_sum=RI_TAU(1)*NU/Pr(1)*chi_h_sum/float(NX*NZ)
 
       IF (RANK.eq.0) write(*,*) 'epsilon_mean: ',epsilon_sum
 
