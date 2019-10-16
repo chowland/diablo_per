@@ -687,7 +687,7 @@ C Start with an ideal vortex centered in the domain
           CU3=0.d0
           if (RANK.eq.0) then
             CU1(0,0,0) = U04    ! Constant mean flow
-            CU1(0,0,1)=-CI      ! Vertical shear at wavenumber 1
+            CU1(0,0,1) = CI      ! Vertical shear at wavenumber 1
             CU1(i,k,j)=CI*a0*sqrt(RI_TAU(1))*KX_S(i)
      &     /sqrt(KX2_S(i)+KZ2_S(k))/sqrt(KX2_S(i)+KY2(j)+KZ2_S(k))
             CU2(i,k,j)=-CI*a0*sqrt(RI_TAU(1))/KY(j)
@@ -696,22 +696,49 @@ C Start with an ideal vortex centered in the domain
      &     /sqrt(KX2_S(i)+KZ2_S(k))/sqrt(KX2_S(i)+KY2(j)+KZ2_S(k))
           end if
         else if (IC_TYPE.eq.5) then
+          a0 = STEEP/2  ! steepness
+          i = KX4       ! KX index
+          j = KY4       ! KY index
+          k = KZ4       ! KZ index
+          CU1=0.d0
+          CU2=0.d0
+          CU3=0.d0
+          if (RANK.eq.0) then
+            CU1(0,0,0) = U04    ! Constant mean flow
+            CU1(0,0,1)=-CI      ! Vertical shear at wavenumber 1
+            CU1(i,k,j)=CI*a0*sqrt(RI_TAU(1))*KX_S(i)
+     &     /sqrt(KX2_S(i)+KZ2_S(k))/sqrt(KX2_S(i)+KY2(j)+KZ2_S(k))
+            CU1(i,k,TNKY+1-j)=CI*a0*sqrt(RI_TAU(1))*KX_S(i)
+     &                  /sqrt(KX2_S(i)+KZ2_S(k))
+     &                  /sqrt(KX2_S(i)+KY2(TNKY+1-j)+KZ2_S(k))
+            CU2(i,k,j)=-CI*a0*sqrt(RI_TAU(1))/KY(j)
+     &     *sqrt(KX2_S(i)+KZ2_S(k))/sqrt(KX2_S(i)+KY2(j)+KZ2_S(k))
+            CU2(i,k,TNKY+1-j)=-CI*a0*sqrt(RI_TAU(1))/KY(TNKY+1-j)
+     &                  *sqrt(KX2_S(i)+KZ2_S(k))
+     &                  /sqrt(KX2_S(i)+KY2(TNKY+1-j)+KZ2_S(k))
+            CU3(i,k,j)=CI*a0*sqrt(RI_TAU(1))*KZ_S(k)
+     &     /sqrt(KX2_S(i)+KZ2_S(k))/sqrt(KX2_S(i)+KY2(j)+KZ2_S(k))
+            CU3(i,k,TNKY+1-j)=CI*a0*sqrt(RI_TAU(1))*KZ_S(k)
+     &                  /sqrt(KX2_S(i)+KZ2_S(k))
+     &                  /sqrt(KX2_S(i)+KY2(TNKY+1-j)+KZ2_S(k))
+          end if
           ! Initialise with large shear + standing IGW
-          do j=0,NY_S
-            do k=0,NZ_S
-              do i=0,NXM
-                U1(i,k,j) = sin(GY_S(j))+sqrt(RI_TAU(1))
-     &                  /2/sqrt(5.0)*cos(4*GX(i))*sin(8*GY_S(j))
-                U2(i,k,j) = -sqrt(RI_TAU(1))/4/sqrt(5.0)
-     &                          *sin(4*GX(i))*cos(8*GY_S(j))
-              end do
-            end do
-          end do
+    !       do j=0,NY_S
+    !         do k=0,NZ_S
+    !           do i=0,NXM
+    !             U1(i,k,j) = sin(GY_S(j))+sqrt(RI_TAU(1))
+    !  &                  /2/sqrt(5.0)*cos(4*GX(i))*sin(8*GY_S(j))
+    !             U2(i,k,j) = -sqrt(RI_TAU(1))/4/sqrt(5.0)
+    !  &                          *sin(4*GX(i))*cos(8*GY_S(j))
+    !           end do
+    !         end do
+    !       end do
         ELSE
           WRITE(*,*) 'Warning, Undefined ICs in periodic.f'
         END IF
 
-        if ((IC_TYPE.lt.2) .or. (IC_TYPE.eq.5)) then
+        ! if ((IC_TYPE.lt.2) .or. (IC_TYPE.eq.5)) then
+        if (IC_TYPE.lt.2) then
           CALL FFT_XZY_MPI_TO_FOURIER(U1,CU1)
           CALL FFT_XZY_MPI_TO_FOURIER(U3,CU3)
           CALL FFT_XZY_MPI_TO_FOURIER(U2,CU2)
@@ -798,21 +825,30 @@ C Any background stratification must be added to the governing equations
           CTH(i,k,j,1)=-a0/KY(j)
         end if
       else if (IC_TYPE.eq.5) then
-        if (CREATE_NEW_TH(1)) then
-          do j=0,NY_S_TH
-            do k=0,NZ_S_TH
-              do i=0,NXM_TH
-                TH(i,k,j,1) = 1/4.0*cos(4*GX(i))*cos(8*GY_S(j))
-              end do
-            end do
-          end do
+        a0 = STEEP/2  ! steepness
+        i = KX4       ! KX index
+        j = KY4       ! KY index
+        k = KZ4       ! KZ index
+        if (CREATE_NEW_TH(1) .and. RANK.eq.0) then
+          CTH(i,k,j,1)=-a0/KY(j)
+          CTH(i,k,TNKY+1-j,1)=-a0/KY(TNKY+1-j)
         end if
+        ! if (CREATE_NEW_TH(1)) then
+          ! do j=0,NY_S_TH
+          !   do k=0,NZ_S_TH
+          !     do i=0,NXM_TH
+          !       TH(i,k,j,1) = 1/4.0*cos(4*GX(i))*cos(8*GY_S(j))
+          !     end do
+          !   end do
+          ! end do
+        ! end if
       ELSE
         WRITE(*,*) 'UNKNOWN IC_TYPE IN CREATE_TH_PER'
       END IF
 
 ! Transfer to Fourier space
-      if (IC_TYPE.ne.2 .and. IC_TYPE.ne.4) then
+      ! if (IC_TYPE.ne.2 .and. IC_TYPE.ne.4) then
+      if ((IC_TYPE.ne.2) .and. (IC_TYPE.lt.4)) then
         DO N=1,N_TH
           CALL FFT_XZY_MPI_TO_FOURIER_TH(TH(0,0,0,N),CTH(0,0,0,N))
         END DO
@@ -1028,11 +1064,11 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-------|
         RANKZ_MOV = NZ_MOV/(NZ_S+1)
         call mpi_barrier(MPI_COMM_WORLD,ierror)
         if (RANKY==RANKY_MOV) then
-          call WriteHDF5_xzplane(NY_MOV)
+          call WriteHDF5_xzplane(mod(NY_MOV,NY_S+1))
         end if
         call mpi_barrier(MPI_COMM_WORLD,ierror)
         if (RANKZ==RANKZ_MOV) then
-          call WriteHDF5_xyplane(NZ_MOV)
+          call WriteHDF5_xyplane(mod(NZ_MOV,NZ_S+1))
         end if
         call mpi_barrier(MPI_COMM_WORLD,ierror)
         call WriteHDF5_yzplane(NX_MOV)
