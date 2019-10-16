@@ -15,8 +15,8 @@ C----*|--.---------.---------.---------.---------.---------.---------.-|-----|
       CALL MPI_COMM_RANK(MPI_COMM_WORLD,RANK,IERROR)
 
       NP_S=NPROCS**0.5
-      RANKZ=mod(RANK,NP_S)
-      RANKY=(RANK-RANKZ)/NP_S
+      ! RANKZ=mod(RANK,NP_S)
+      ! RANKY=(RANK-RANKZ)/NP_S
 
       DIMS=(/NP_S,NP_S/)
       PERDIM=(/1,1/)
