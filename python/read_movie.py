@@ -8,14 +8,7 @@ def make_movie(rundir,plane,var):
     f=h5py.File(fname,'r')
     nk=f.attrs.__getitem__('Samples')
     for i in range(nk):
-        if i<10:
-            dname='/000'+str(i)+'/'+var
-        elif i<100:
-            dname='/00'+str(i)+'/'+var
-        elif i<1000:
-            dname='/0'+str(i)+'/'+var
-        else:
-            dname='/'+str(i)+'/'+var
+        dname='/'+format(i,"04")+"/"+var
         G=f[dname][()]
         
         if plane=='yz':
@@ -96,14 +89,7 @@ def thorpe_2d(rundir):
     nk=f.attrs.__getitem__('Samples')
     L_T2=np.zeros(nk)
     for i in range(nk):
-        if i<10:
-            dname='/000'+str(i)+'/TH1/'
-        elif i<100:
-            dname='/00'+str(i)+'/TH1/'
-        elif i<1000:
-            dname='/0'+str(i)+'/TH1/'
-        else:
-            dname='/'+str(i)+'/TH1/'
+        dname='/'+format(i,"04")+'/TH1/'
         TH=f[dname][()]
         
         if i==0:
@@ -132,14 +118,7 @@ def thorpe_1d(rundir,idx):
     nk=f.attrs.__getitem__('Samples')
     L_T=np.zeros(nk)
     for i in range(nk):
-        if i<10:
-            dname='/000'+str(i)+'/TH1/'
-        elif i<100:
-            dname='/00'+str(i)+'/TH1/'
-        elif i<1000:
-            dname='/0'+str(i)+'/TH1/'
-        else:
-            dname='/'+str(i)+'/TH1/'
+        dname='/'+format(i,"04")+'/TH1/'
         TH=f[dname][()]
         
         if i==0:
@@ -161,14 +140,7 @@ def thorpe_profile(rundir,idx,n_time):
     f=h5py.File(fname,'r')
     nk=f.attrs.__getitem__('Samples')
     L_T=np.zeros(nk)
-    if n_time<10:
-        dname='/000'+str(n_time)+'/TH1/'
-    elif n_time<100:
-        dname='/00'+str(n_time)+'/TH1/'
-    elif n_time<1000:
-        dname='/0'+str(n_time)+'/TH1/'
-    else:
-        dname='/'+str(n_time)+'/TH1/'
+    dname='/'+format(i,"04")+'/TH1/'
     TH=f[dname][()]
 
     NX,NY=TH.shape
