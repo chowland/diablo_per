@@ -1,21 +1,21 @@
 !----*|--.---------.---------.---------.---------.---------.---------.-|-------|
 !     MPI variables
 !----*|--.---------.---------.---------.---------.---------.---------.-|-------|
-      INCLUDE 'mpif.h'
+include 'mpif.h'
 
-      INTEGER :: NPROCS, RANK
-      INTEGER :: RANKY,RANKZ,MPI_COMM_Y,MPI_COMM_Z
-      INTEGER :: status(MPI_STATUS_SIZE), IERROR
-      INTEGER :: PNY,JOFF
-      INTEGER :: NKX_S,TNKZ_S
-      INTEGER :: NXM_S,NYM_S,NZM_S
-      INTEGER :: NP_S
-      INTEGER :: NKX_S_TH,TNKZ_S_TH
-      INTEGER :: NXM_S_TH,NYM_S_TH,NZM_S_TH
-      INTEGER(KIND=MPI_OFFSET_KIND) :: OFFSET
+integer :: nprocs, rank
+integer :: ranky, rankz, mpi_comm_y, mpi_comm_z
+integer :: status(mpi_status_size), ierror
+integer :: pny, joff
+integer :: nkx_s, tnkz_s
+integer :: nxm_s, nym_s, nzm_s
+integer :: np_s
+integer :: nkx_s_th, tnkz_s_th
+integer :: nxm_s_th, nym_s_th, nzm_s_th
+integer(kind=mpi_offset_kind) :: offset
 
-      COMMON /MPI_VARS/ OFFSET,NPROCS,RANK,STATUS,IERROR,PNY,JOFF
-     &       ,NKX_S,TNKZ_S,NP_S,NXM_S,NYM_S,NZM_S
-     &       ,NKX_S_TH,TNKZ_S_TH
-     &       ,NXM_S_TH,NYM_S_TH,NZM_S_TH
-     &       ,RANKY,RANKZ,MPI_COMM_Y,MPI_COMM_Z
+common /mpi_vars/ offset, nprocs, rank, status, ierror, pny, joff, &
+      nkx_s, tnkz_s, np_s, nxm_s, nym_s, nzm_s, &
+      nkx_s_th, tnkz_s_th, &
+      nxm_s_th, nym_s_th, nzm_s_th, &
+      ranky, rankz, mpi_comm_y, mpi_comm_z
